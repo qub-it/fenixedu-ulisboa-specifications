@@ -2,11 +2,13 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
+import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -108,11 +110,25 @@ public class ValidateRequirementsInCreationProcessor extends ValidateRequirement
 
             //Check if all types has a request associated, that is in a valid situation
             if (!notValidCodes.isEmpty()) {
-                String args = notValidCodes.stream().collect(Collectors.joining(","));
+                String args = transformCodeToName(notValidCodes);
                 throw new RuntimeException(BundleUtil.getString(ULisboaConstants.BUNDLE,
                         "error.ValidateRequirementsInCreationProcessor.not.valid", args));
             }
         }
+    }
+
+    private String transformCodeToName(Set<String> notValidCodes) {
+        StringBuilder sb = new StringBuilder();
+        for (String code : notValidCodes) {
+            Optional<ServiceRequestType> srt = ServiceRequestType.findUniqueByCode(code);
+            if (srt.isPresent()) {
+                sb.append(srt.get().getName().getContent());
+            } else {
+                sb.append(code);
+            }
+            sb.append(", ");
+        }
+        return sb.toString();
     }
 
 }
