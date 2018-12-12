@@ -45,6 +45,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import pt.ist.fenixframework.FenixFramework;
+
 @BennuSpringController(value = RegistrationController.class)
 @RequestMapping(MobilityRegistrationInformationController.CONTROLLER_URL)
 public class MobilityRegistrationInformationController extends FenixeduUlisboaSpecificationsBaseController {
@@ -112,7 +114,26 @@ public class MobilityRegistrationInformationController extends FenixeduUlisboaSp
             @RequestParam("bean") final MobilityRegistrationInformationBean bean, Model model,
             RedirectAttributes redirectAttributes) {
         try {
-            MobilityRegistrationInformation.create(bean);
+
+            if (bean.isIncoming()) {
+                FenixFramework.atomic(() -> {
+                    MobilityRegistrationInformation.createIncoming(bean.getRegistration(), bean.isNational(),
+                            bean.getProgramDuration(), bean.getBegin(), bean.getEnd(), bean.getBeginDate(), bean.getEndDate(),
+                            bean.getMobilityActivityType(), bean.getMobilityProgramType(), bean.getCountryUnit(),
+                            bean.getForeignInstitutionUnit(), bean.getRemarks(), bean.getOriginMobilityProgrammeLevel(),
+                            bean.getOtherOriginMobilityProgrammeLevel(), bean.isDegreeBased(), bean.getDegreeCurricularPlan(),
+                            bean.getBranchCourseGroup(), bean.getMobilityScientificArea(),
+                            bean.getIncomingMobilityProgrammeLevel(), bean.getOtherIncomingMobilityProgrammeLevel());
+                });
+            } else {
+                FenixFramework.atomic(() -> {
+                    MobilityRegistrationInformation.createOutgoing(bean.getRegistration(), bean.isNational(),
+                            bean.getProgramDuration(), bean.getBegin(), bean.getEnd(), bean.getBeginDate(), bean.getEndDate(),
+                            bean.getMobilityActivityType(), bean.getMobilityProgramType(), bean.getCountryUnit(),
+                            bean.getForeignInstitutionUnit(), bean.getRemarks());
+                });
+            }
+
             return redirect(String.format("%s/%s", SEARCH_URL, registration.getExternalId()), model, redirectAttributes);
         } catch (final DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
@@ -154,7 +175,20 @@ public class MobilityRegistrationInformationController extends FenixeduUlisboaSp
             RedirectAttributes redirectAttributes) {
         try {
 
-            bean.getMobilityRegistrationInformation().edit(bean);
+            if (bean.isIncoming()) {
+                FenixFramework.atomic(() -> bean.getMobilityRegistrationInformation().editIncoming(bean.isNational(),
+                        bean.getProgramDuration(), bean.getBegin(), bean.getEnd(), bean.getBeginDate(), bean.getEndDate(),
+                        bean.getMobilityActivityType(), bean.getMobilityProgramType(), bean.getCountryUnit(),
+                        bean.getForeignInstitutionUnit(), bean.getRemarks(), bean.getOriginMobilityProgrammeLevel(),
+                        bean.getOtherOriginMobilityProgrammeLevel(), bean.isDegreeBased(), bean.getDegreeCurricularPlan(),
+                        bean.getBranchCourseGroup(), bean.getMobilityScientificArea(), bean.getIncomingMobilityProgrammeLevel(),
+                        bean.getOtherIncomingMobilityProgrammeLevel()));
+            } else {
+                FenixFramework.atomic(() -> bean.getMobilityRegistrationInformation().editOutgoing(bean.isNational(),
+                        bean.getProgramDuration(), bean.getBegin(), bean.getEnd(), bean.getBeginDate(), bean.getEndDate(),
+                        bean.getMobilityActivityType(), bean.getMobilityProgramType(), bean.getCountryUnit(),
+                        bean.getForeignInstitutionUnit(), bean.getRemarks()));
+            }
 
             return redirect(String.format("%s/%s", SEARCH_URL, mobilityRegistrationInformation.getRegistration().getExternalId()),
                     model, redirectAttributes);

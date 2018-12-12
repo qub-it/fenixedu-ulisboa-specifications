@@ -6,17 +6,22 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DomainObjectUtil;
+import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.SchoolPeriodDuration;
+import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.CountryUnit;
 import org.fenixedu.academic.domain.organizationalStructure.Party;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityRegistrationInformationBean;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
+import org.joda.time.LocalDate;
 
 import com.google.common.base.Strings;
 
@@ -59,30 +64,86 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
         setBennu(Bennu.getInstance());
     }
 
-    @Atomic
-    public void edit(final MobilityRegistrationInformationBean bean) {
-        setIncoming(bean.isIncoming());
-        setRegistration(bean.getRegistration());
-        setBegin(bean.getBegin());
-        setBeginDate(bean.getBeginDate());
-        setEnd(bean.getEnd());
-        setEndDate(bean.getEndDate());
-        setMobilityProgramType(bean.getMobilityProgramType());
-        setMobilityActivityType(bean.getMobilityActivityType());
-        setCountryUnit(bean.getCountryUnit());
-        setForeignInstitutionUnit(bean.getForeignInstitutionUnit());
-        setRemarks(bean.getRemarks());
-        setOriginMobilityProgrammeLevel(bean.getOriginMobilityProgrammeLevel());
-        setOtherOriginMobilityProgrammeLevel(bean.getOtherOriginMobilityProgrammeLevel());
-        setProgramDuration(bean.getProgramDuration());
-        setDegreeBased(bean.isDegreeBased());
-        setNational(bean.isNational());
-        setRemarks(bean.getRemarks());
+    public static MobilityRegistrationInformation createOutgoing(final Registration registration, boolean national,
+            SchoolPeriodDuration programDuration, ExecutionSemester begin, ExecutionSemester end, LocalDate beginDate,
+            LocalDate endDate, MobilityActivityType mobilityActivityType, MobilityProgramType mobilityProgramType,
+            CountryUnit countryUnit, Unit foreignInstitutionUnit, String remarks) {
 
-        if (bean.isDegreeBased()) {
-            setDegree(bean.getDegree());
-            setDegreeCurricularPlan(bean.getDegreeCurricularPlan());
-            setBranchCourseGroup(bean.getBranchCourseGroup());
+        final MobilityRegistrationInformation result = new MobilityRegistrationInformation();
+        result.setRegistration(registration);
+        result.editOutgoing(national, programDuration, begin, end, beginDate, endDate, mobilityActivityType, mobilityProgramType,
+                countryUnit, foreignInstitutionUnit, remarks);
+        return result;
+    }
+
+    public static MobilityRegistrationInformation createIncoming(final Registration registration, boolean national,
+            SchoolPeriodDuration programDuration, ExecutionSemester begin, ExecutionSemester end, LocalDate beginDate,
+            LocalDate endDate, MobilityActivityType mobilityActivityType, MobilityProgramType mobilityProgramType,
+            CountryUnit countryUnit, Unit foreignInstitutionUnit, String remarks,
+            MobilityProgrammeLevel originMobilityProgrammeLevel, String otherOriginMobilityProgrammeLevel, boolean degreeBased,
+            DegreeCurricularPlan degreeCurricularPlan, CourseGroup branchCourseGroup,
+            MobilityScientificArea mobilityScientificArea, MobilityProgrammeLevel incomingMobilityProgrammeLevel,
+            String otherIncomingMobilityProgrammeLevel) {
+
+        final MobilityRegistrationInformation result = new MobilityRegistrationInformation();
+        result.setRegistration(registration);
+        result.editIncoming(national, programDuration, begin, end, beginDate, endDate, mobilityActivityType, mobilityProgramType,
+                countryUnit, foreignInstitutionUnit, remarks, originMobilityProgrammeLevel, otherOriginMobilityProgrammeLevel,
+                degreeBased, degreeCurricularPlan, branchCourseGroup, mobilityScientificArea, incomingMobilityProgrammeLevel,
+                otherIncomingMobilityProgrammeLevel);
+        return result;
+    }
+
+    public void editOutgoing(boolean national, SchoolPeriodDuration programDuration, ExecutionSemester begin,
+            ExecutionSemester end, LocalDate beginDate, LocalDate endDate, MobilityActivityType mobilityActivityType,
+            MobilityProgramType mobilityProgramType, CountryUnit countryUnit, Unit foreignInstitutionUnit, String remarks) {
+
+        setIncoming(false);
+        setNational(national);
+        setProgramDuration(programDuration);
+        setBegin(begin);
+        setEnd(end);
+        setBeginDate(beginDate);
+        setEndDate(endDate);
+        setMobilityActivityType(mobilityActivityType);
+        setMobilityProgramType(mobilityProgramType);
+        setCountryUnit(countryUnit);
+        setForeignInstitutionUnit(foreignInstitutionUnit);
+        setRemarks(remarks);
+
+        checkRules();
+        checkRulesForOutgoing();
+    }
+
+    public void editIncoming(boolean national, SchoolPeriodDuration programDuration, ExecutionSemester begin,
+            ExecutionSemester end, LocalDate beginDate, LocalDate endDate, MobilityActivityType mobilityActivityType,
+            MobilityProgramType mobilityProgramType, CountryUnit countryUnit, Unit foreignInstitutionUnit, String remarks,
+            MobilityProgrammeLevel originMobilityProgrammeLevel, String otherOriginMobilityProgrammeLevel, boolean degreeBased,
+            DegreeCurricularPlan degreeCurricularPlan, CourseGroup branchCourseGroup,
+            MobilityScientificArea mobilityScientificArea, MobilityProgrammeLevel incomingMobilityProgrammeLevel,
+            String otherIncomingMobilityProgrammeLevel) {
+
+        setIncoming(true);
+        setNational(national);
+        setProgramDuration(programDuration);
+        setBegin(begin);
+        setEnd(end);
+        setBeginDate(beginDate);
+        setEndDate(endDate);
+        setMobilityActivityType(mobilityActivityType);
+        setMobilityProgramType(mobilityProgramType);
+        setCountryUnit(countryUnit);
+        setForeignInstitutionUnit(foreignInstitutionUnit);
+        setRemarks(remarks);
+
+        setOriginMobilityProgrammeLevel(originMobilityProgrammeLevel);
+        setOtherOriginMobilityProgrammeLevel(otherOriginMobilityProgrammeLevel);
+        setDegreeBased(degreeBased);
+
+        if (degreeBased) {
+            setDegree(degreeCurricularPlan != null ? degreeCurricularPlan.getDegree() : null);
+            setDegreeCurricularPlan(degreeCurricularPlan);
+            setBranchCourseGroup(branchCourseGroup);
 
             setMobilityScientificArea(null);
             setIncomingMobilityProgrammeLevel(null);
@@ -93,18 +154,13 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
             setDegreeCurricularPlan(null);
             setBranchCourseGroup(null);
 
-            setMobilityScientificArea(bean.getMobilityScientificArea());
-            setIncomingMobilityProgrammeLevel(bean.getIncomingMobilityProgrammeLevel());
-            setOtherIncomingMobilityProgrammeLevel(bean.getOtherIncomingMobilityProgrammeLevel());
+            setMobilityScientificArea(mobilityScientificArea);
+            setIncomingMobilityProgrammeLevel(incomingMobilityProgrammeLevel);
+            setOtherIncomingMobilityProgrammeLevel(otherIncomingMobilityProgrammeLevel);
         }
 
         checkRules();
-
-        if (isIncoming()) {
-            checkRulesForIncoming();
-        } else {
-            checkRulesForOutgoing();
-        }
+        checkRulesForIncoming();
     }
 
     private void checkRules() {
@@ -322,15 +378,6 @@ public class MobilityRegistrationInformation extends MobilityRegistrationInforma
                 .filter(m -> m.isIncoming() == isIncoming() && m.getNational() == getNational())
                 .forEach(m -> m.setMainInformation(false));
         setMainInformation(true);
-    }
-
-    // Creates a mobility registration for an internal student which is going to other institution
-    @Atomic
-    public static MobilityRegistrationInformation create(final MobilityRegistrationInformationBean bean) {
-        final MobilityRegistrationInformation result = new MobilityRegistrationInformation();
-        result.edit(bean);
-
-        return result;
     }
 
     public static Set<MobilityRegistrationInformation> findAll(final Registration registration) {
