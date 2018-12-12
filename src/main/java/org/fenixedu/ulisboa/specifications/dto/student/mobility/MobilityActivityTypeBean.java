@@ -1,7 +1,7 @@
 package org.fenixedu.ulisboa.specifications.dto.student.mobility;
 
 import org.fenixedu.bennu.IBean;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityActivityType;
+import org.fenixedu.academic.domain.student.mobility.MobilityActivityType;
 
 public class MobilityActivityTypeBean implements IBean {
 

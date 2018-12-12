@@ -3,7 +3,7 @@ package org.fenixedu.ulisboa.specifications.service.reports.providers;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
+import org.fenixedu.academic.domain.student.mobility.MobilityRegistrationInformation;
 import org.joda.time.LocalDate;
 
 import com.qubit.terra.docs.util.IDocumentFieldsData;

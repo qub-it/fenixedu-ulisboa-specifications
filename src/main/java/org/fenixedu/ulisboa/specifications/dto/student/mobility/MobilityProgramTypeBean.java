@@ -2,7 +2,7 @@ package org.fenixedu.ulisboa.specifications.dto.student.mobility;
 
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgramType;
+import org.fenixedu.academic.domain.student.mobility.MobilityProgramType;
 
 public class MobilityProgramTypeBean implements IBean {
 

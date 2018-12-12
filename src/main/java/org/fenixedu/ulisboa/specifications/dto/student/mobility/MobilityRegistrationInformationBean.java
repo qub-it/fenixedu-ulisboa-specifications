@@ -21,11 +21,11 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityActivityType;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgramType;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgrammeLevel;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityRegistrationInformation;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityScientificArea;
+import org.fenixedu.academic.domain.student.mobility.MobilityActivityType;
+import org.fenixedu.academic.domain.student.mobility.MobilityProgramType;
+import org.fenixedu.academic.domain.student.mobility.MobilityProgrammeLevel;
+import org.fenixedu.academic.domain.student.mobility.MobilityRegistrationInformation;
+import org.fenixedu.academic.domain.student.mobility.MobilityScientificArea;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 

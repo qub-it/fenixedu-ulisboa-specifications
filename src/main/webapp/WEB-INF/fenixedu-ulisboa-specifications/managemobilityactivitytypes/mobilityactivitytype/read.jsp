@@ -1,5 +1,5 @@
 <%@page import="org.fenixedu.ulisboa.specifications.ui.managemobilityactivitytypes.MobilityActivityTypeController"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityActivityType"%>
+<%@page import="org.fenixedu.academic.domain.student.mobility.MobilityActivityType"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>

@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.student.mobility;
+package org.fenixedu.academic.domain.student.mobility;
 
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;

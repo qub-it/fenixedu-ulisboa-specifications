@@ -29,7 +29,7 @@ package org.fenixedu.ulisboa.specifications.ui.managemobilityprogramtypes;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgramType;
+import org.fenixedu.academic.domain.student.mobility.MobilityProgramType;
 import org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityProgramTypeBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;

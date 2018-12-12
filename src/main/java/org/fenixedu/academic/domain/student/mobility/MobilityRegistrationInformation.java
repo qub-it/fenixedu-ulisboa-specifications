@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.student.mobility;
+package org.fenixedu.academic.domain.student.mobility;
 
 import java.util.Collection;
 import java.util.Comparator;

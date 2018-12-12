@@ -1,7 +1,7 @@
 <%@page
 	import="org.fenixedu.ulisboa.specifications.ui.managemobilityprogramtypes.MobilityProgramTypeController"%>
 <%@page
-	import="org.fenixedu.ulisboa.specifications.domain.student.mobility.MobilityProgramType"%>
+	import="org.fenixedu.academic.domain.student.mobility.MobilityProgramType"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
