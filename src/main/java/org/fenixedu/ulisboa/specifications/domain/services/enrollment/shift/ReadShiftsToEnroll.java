@@ -10,7 +10,6 @@ import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.ShiftToEnrol;
-import org.fenixedu.academic.service.filter.enrollment.ClassEnrollmentAuthorizationFilter;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
 import org.joda.time.LocalDate;
 
@@ -26,7 +25,7 @@ public class ReadShiftsToEnroll {
     public static List<ShiftToEnrol> read(Registration registration, ExecutionSemester executionSemester)
             throws FenixServiceException {
 
-        ClassEnrollmentAuthorizationFilter.instance.execute(registration, executionSemester);
+//        ClassEnrollmentAuthorizationFilter.instance.execute(registration, executionSemester);
 
         final List<ShiftToEnrol> result = new ArrayList<ShiftToEnrol>();
         for (final Attends attends : registration.readAttendsByExecutionPeriod(executionSemester)) {
