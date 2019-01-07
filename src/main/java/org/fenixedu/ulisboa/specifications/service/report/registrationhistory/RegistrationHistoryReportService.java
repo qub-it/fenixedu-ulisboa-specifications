@@ -340,8 +340,8 @@ public class RegistrationHistoryReportService {
     }
     
     private boolean checkRegistrationStateIsInExecutionYear(final RegistrationHistoryReport r, final RegistrationStateBean b) {
-        if(b.getStateType() == RegistrationStateType.CONCLUDED && RegistrationServices.getConclusionExecutionYear(b.getRegistration()) == r.getExecutionYear()) {
-            return true;
+        if(b.getStateType() == RegistrationStateType.CONCLUDED) {
+            return RegistrationServices.getConclusionExecutionYear(b.getRegistration()) == r.getExecutionYear();
         }
         
         return ExecutionYear.readByDateTime(b.getStateDate().toLocalDate().toDateTimeAtStartOfDay()) == r.getExecutionYear();
