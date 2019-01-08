@@ -29,6 +29,7 @@ import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.academic.dto.student.RegistrationStateBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.struts.annotations.Input;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -293,11 +294,11 @@ public class RegistrationHistoryReportService {
         if (!this.registrationStateTypes.isEmpty()) {
             Predicate<RegistrationHistoryReport> lastStateFilter = null;
             
-            if(this.registrationStateLastInExecutionYear != null && this.registrationStateLastInExecutionYear) {
+            if(Boolean.TRUE.equals(this.registrationStateLastInExecutionYear)) {
                 lastStateFilter = r -> r.getLastRegistrationState() != null
                         && this.registrationStateTypes.contains(r.getLastRegistrationState().getStateType());
             } else {
-                lastStateFilter = r -> !Sets.intersection(this.registrationStateTypes, r.getAllLastRegistrationStates().stream().map(b -> b.getStateType()).collect(Collectors.toSet())).isEmpty();
+                lastStateFilter = r -> checkRegistrationStatesIntersection(r);
             }
             
             result = result.and(lastStateFilter);
@@ -305,7 +306,7 @@ public class RegistrationHistoryReportService {
             if(this.registrationStateSetInExecutionYear != null && this.registrationStateSetInExecutionYear) {
                 
                 final Predicate<RegistrationHistoryReport> registrationStateFilter = r -> r.getAllLastRegistrationStates().stream()
-                        .filter(b -> ExecutionYear.readByDateTime(b.getStateDate().toLocalDate().toDateTimeAtStartOfDay()) == r.getExecutionYear())
+                        .filter(b -> checkRegistrationStateIsInExecutionYear(r, b))
                         .anyMatch(b ->  this.registrationStateTypes.contains(b.getStateType()));
 
                 result = result.and(registrationStateFilter);
@@ -333,7 +334,19 @@ public class RegistrationHistoryReportService {
         
         return result;
     }
+
+    private boolean checkRegistrationStatesIntersection(RegistrationHistoryReport r) {
+        return !Sets.intersection(this.registrationStateTypes, r.getAllLastRegistrationStates().stream().map(b -> b.getStateType()).collect(Collectors.toSet())).isEmpty();
+    }
     
+    private boolean checkRegistrationStateIsInExecutionYear(final RegistrationHistoryReport r, final RegistrationStateBean b) {
+        if(b.getStateType() == RegistrationStateType.CONCLUDED) {
+            return RegistrationServices.getConclusionExecutionYear(b.getRegistration()) == r.getExecutionYear();
+        }
+        
+        return ExecutionYear.readByDateTime(b.getStateDate().toLocalDate().toDateTimeAtStartOfDay()) == r.getExecutionYear();
+    }
+
     private boolean hasActiveEnrolments(final RegistrationHistoryReport report) {
         final ExecutionYear executionYear = report.getExecutionYear();
         final Registration registration = report.getRegistration();
@@ -455,13 +468,10 @@ public class RegistrationHistoryReportService {
         } 
         
         if (this.registrationStateTypes != null && !this.registrationStateTypes.isEmpty()) {
-
-            result.addAll(Bennu.getInstance().getRegistrationStatesSet().stream()
-                    .filter(s -> this.registrationStateTypes.contains(s.getStateType()))
-                    .map(s -> s.getRegistration())
+            
+            result.addAll(Bennu.getInstance().getRegistrationsSet().stream()
                     .filter(studentNumberFilter)
                     .collect(Collectors.toSet()));
-
         }
         
         if(result.isEmpty()) {

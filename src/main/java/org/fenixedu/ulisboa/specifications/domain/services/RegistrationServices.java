@@ -178,7 +178,7 @@ public class RegistrationServices {
         RegistrationStateBean result = null;
 
         final RegistrationDataByExecutionYear data = RegistrationDataServices.getRegistrationData(registration, year);
-        if (registration.isConcluded() && data == RegistrationDataServices.getLastRegistrationData(registration)) {
+        if (registration.isConcluded() /* && data == RegistrationDataServices.getLastRegistrationData(registration) */) {
 
             ExecutionYear conclusionYear = null;
             YearMonthDay conclusionDate = null;
@@ -197,6 +197,7 @@ public class RegistrationServices {
             // ATTENTION: conclusion state year != conclusion year
             if (conclusionYear != null && year.isAfterOrEquals(conclusionYear)) {
                 result = new RegistrationStateBean(RegistrationStateType.CONCLUDED);
+                result.setRegistration(registration);
                 result.setStateDate(conclusionDate);
             }
         }
@@ -206,6 +207,7 @@ public class RegistrationServices {
             final RegistrationState state = registration.getLastRegistrationState(year);
             if (state != null) {
                 result = new RegistrationStateBean(state.getStateType());
+                result.setRegistration(registration);
                 result.setStateDateTime(state.getStateDate());
             }
         }
@@ -220,7 +222,7 @@ public class RegistrationServices {
             RegistrationStateBean conclusionResult = null;
             
             final RegistrationDataByExecutionYear data = RegistrationDataServices.getRegistrationData(registration, year);
-            if (registration.isConcluded() && data == RegistrationDataServices.getLastRegistrationData(registration)) {
+            if (registration.isConcluded() /* && data == RegistrationDataServices.getLastRegistrationData(registration) */) {
     
                 ExecutionYear conclusionYear = null;
                 YearMonthDay conclusionDate = null;
@@ -239,7 +241,9 @@ public class RegistrationServices {
                 // ATTENTION: conclusion state year != conclusion year
                 if (conclusionYear != null && year.isAfterOrEquals(conclusionYear)) {
                     conclusionResult = new RegistrationStateBean(RegistrationStateType.CONCLUDED);
+                    conclusionResult.setRegistration(registration);
                     conclusionResult.setStateDate(conclusionDate);
+                    result.add(conclusionResult);
                 }
             }
         }
@@ -247,11 +251,26 @@ public class RegistrationServices {
         result.addAll(registration.getRegistrationStates(year).stream().map(s -> {
             final RegistrationStateBean bean = new RegistrationStateBean(s.getStateType());
             bean.setStateDateTime(s.getStateDate());
+            bean.setRegistration(registration);
             
             return bean;
         }).collect(Collectors.toSet()));
         
         return result;
+    }
+    
+    static public ExecutionYear getConclusionExecutionYear(final Registration registration) {
+        try {
+            final ProgramConclusion conclusion =
+                    ProgramConclusion.conclusionsFor(registration).filter(i -> i.isTerminal()).findFirst().get();
+
+            final RegistrationConclusionBean bean = new RegistrationConclusionBean(registration, conclusion);
+            return bean.getConclusionYear();
+        } catch (final Throwable t) {
+            logger.error("Error trying to determine ConclusionYear: {}", t.getMessage());
+        }
+        
+        return null;
     }
 
     static public boolean isFlunkedUsingCurricularYear(final Registration registration, final ExecutionYear executionYear) {
