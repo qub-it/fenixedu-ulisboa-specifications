@@ -2,8 +2,11 @@ package org.fenixedu.academic.domain.academicStructure;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -39,6 +42,10 @@ public class AcademicArea extends AcademicArea_Base implements Comparable<Academ
     public static AcademicArea findByCodeAndType(final String code, AcademicAreaType type) {
         return type != null && StringUtils.isNotBlank(code) ? type.getAreasSet().stream().filter(a -> code.equals(a.getCode()))
                 .findAny().orElse(null) : null;
+    }
+    
+    public static Set<AcademicArea> findAcademicAreasInUnit(final Unit unit, final AcademicAreaType type) {
+        return unit.getAcademicAreasSet().stream().filter(a -> a.getType() == type).collect(Collectors.toSet());
     }
 
     @Override
