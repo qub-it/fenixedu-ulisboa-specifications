@@ -23,6 +23,8 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Shift;
+import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
@@ -161,6 +163,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
     static private String bundle(final String key) {
         return ULisboaSpecificationsUtil.bundle(key);
+    }
+
+    static private String bundle(final String key, String... args) {
+        return ULisboaSpecificationsUtil.bundle(key, args);
     }
 
     @RequestMapping(value = "/exportregistrations", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
@@ -721,7 +727,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 EnrolmentEvaluationServices.getExamDatePresentation(finalEvaluation));
                         addData("Enrolment.improvementOnly",
                                 ULisboaSpecificationsUtil.bundle(improvementOnly ? "label.yes" : "label.no"));
-                        addData("Enrolment.shifts", EnrolmentServices.getShiftsDescription(enrolment, enrolmentPeriod));
+                        addShiftsData(enrolment, enrolmentPeriod);
                         addData("RegistrationHistoryReport.schoolClasses", schoolClass);
                         addData("Enrolment.curriculumGroup", enrolment.getCurriculumGroup().getFullPath());
                         addData("Enrolment.numberOfEnrolments", CompetenceCourseServices.countEnrolmentsUntil(
@@ -734,6 +740,24 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                         addPersonalData(bean, report);
                         addContactsData(bean, report);
+                    }
+                    
+                    private void addShiftsData(Enrolment enrolment, ExecutionSemester enrolmentPeriod) {
+                        Collection<Shift> shifts = EnrolmentServices.getShiftsFor(enrolment, enrolmentPeriod);
+                        for (ShiftType shiftType : ShiftType.values()) {
+                            if (!isShiftTypeToBeIgnored(shiftType)) {
+                                Collection<Shift> shiftsOfType = shifts.stream().filter(s -> s.containsType(shiftType))
+                                        .collect(Collectors.toList());
+                                String shiftsString = shiftsOfType.stream().map(s -> s.getNome())
+                                        .collect(Collectors.joining(", "));
+                                addCell(bundle("label.Enrolment.shift", shiftType.getSiglaTipoAula()), shiftsString);
+                            }
+                        }
+                    }
+
+                    private boolean isShiftTypeToBeIgnored(ShiftType shiftType) {
+                        return shiftType.equals(ShiftType.PRATICA) || shiftType.equals(ShiftType.TEORICO_PRATICA)
+                                || shiftType.equals(ShiftType.RESERVA);
                     }
 
                 });
