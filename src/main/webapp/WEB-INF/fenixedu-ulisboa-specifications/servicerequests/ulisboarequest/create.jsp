@@ -2,10 +2,10 @@
  /**
  * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
  * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
- * software development project between Quorum Born IT and Serviços Partilhados da
+ * software development project between Quorum Born IT and Serviï¿½os Partilhados da
  * Universidade de Lisboa:
- *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
- *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
+ *  - Copyright ï¿½ 2015 Quorum Born IT (until any Go-Live phase)
+ *  - Copyright ï¿½ 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  * Contributors: diogo.simoe@qub-it.com 
  *
@@ -349,7 +349,7 @@ ${portal.angularToolkit()}
     />
 
     <input name="bean" type="hidden" value="{{ object }}" />
-
+    
    <div class="panel panel-default">
         <div class="panel-body">
             <div class="form-group row">
@@ -395,7 +395,7 @@ ${portal.angularToolkit()}
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_ONE_VALUE'"
                         ng-disabled="!serviceRequestProperty.isEditable"
                         theme="bootstrap" ng-required="serviceRequestProperty.required"> 
-                        <ui-select-match allow-clear="serviceRequestProperty.isEditable">
+                        <ui-select-match allow-clear="{{serviceRequestProperty.isEditable}}">
                             {{$select.selected.text}}
                         </ui-select-match> 
                         <ui-select-choices repeat="element.id as element in serviceRequestProperty.dataSource | filter: $select.search">
@@ -407,7 +407,7 @@ ${portal.angularToolkit()}
                         ng-if="serviceRequestProperty.uiComponentType == 'DROP_DOWN_BOOLEAN'"
                         ng-disabled="!serviceRequestProperty.isEditable"
                         theme="bootstrap" ng-required="serviceRequestProperty.required"> 
-                        <ui-select-match allow-clear="serviceRequestProperty.isEditable">
+                        <ui-select-match allow-clear="{{serviceRequestProperty.isEditable}}">
                             {{$select.selected.name}}
                         </ui-select-match> 
                         <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
