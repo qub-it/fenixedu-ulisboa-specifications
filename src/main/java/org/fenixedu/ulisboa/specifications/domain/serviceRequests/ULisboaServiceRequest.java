@@ -44,7 +44,6 @@ import org.fenixedu.academic.domain.AcademicProgram;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.accounting.EventType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
@@ -143,7 +142,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
                         entry.getServiceRequestSlot().getLabel().getContent());
             }
         }
-        
+
         super.checkRules();
     }
 
@@ -1049,12 +1048,6 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     @Deprecated
     @Override
     public boolean isManagedWithRectorateSubmissionBatch() {
-        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
-    }
-
-    @Deprecated
-    @Override
-    public EventType getEventType() {
         throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 
