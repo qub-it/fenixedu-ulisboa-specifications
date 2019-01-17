@@ -109,9 +109,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         setParametersBean(bean, model);
 
         try {
-        	setResults(generateReport(bean), model);
-        } catch(final ULisboaSpecificationsDomainException e) {
-        	addErrorMessage(e.getLocalizedMessage(), model);
+            setResults(generateReport(bean), model);
+        } catch (final ULisboaSpecificationsDomainException e) {
+            addErrorMessage(e.getLocalizedMessage(), model);
         }
 
         return jspPage("registrationhistoryreport");
@@ -233,18 +233,17 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
         service.filterRegistrationStateSetInExecutionYear(bean.getRegistrationStateSetInExecutionYear());
         service.filterRegistrationStateLastInExecutionYear(bean.getRegistrationStateLastInExecutionYear());
-        
+
         return service.generateReport().stream().sorted().collect(Collectors.toList());
     }
-    
+
     private abstract class HistoryReportSheetData<T> extends SheetData<T> {
 
         public HistoryReportSheetData(Iterable<T> items) {
             super(items);
         }
 
-        void addPersonalData(final RegistrationHistoryReportParametersBean bean,
-                final RegistrationHistoryReport report) {
+        void addPersonalData(final RegistrationHistoryReportParametersBean bean, final RegistrationHistoryReport report) {
 
             if (bean.getExportPersonalInfo()) {
 
@@ -265,8 +264,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             }
         }
 
-        void addContactsData(final RegistrationHistoryReportParametersBean bean,
-                final RegistrationHistoryReport report) {
+        void addContactsData(final RegistrationHistoryReportParametersBean bean, final RegistrationHistoryReport report) {
 
             if (bean.getExportContacts()) {
 
@@ -278,16 +276,14 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
                 if (report.hasDefaultPhysicalAddress()) {
                     addData("PhysicalAddress.address", report.getDefaultPhysicalAddress());
-                    addData("PhysicalAddress.districtOfResidence",
-                            report.getDefaultPhysicalAddressDistrictOfResidence());
+                    addData("PhysicalAddress.districtOfResidence", report.getDefaultPhysicalAddressDistrictOfResidence());
                     addData("PhysicalAddress.districtSubdivisionOfResidence",
                             report.getDefaultPhysicalAddressDistrictSubdivisionOfResidence());
                     addData("PhysicalAddress.parishOfResidence", report.getDefaultPhysicalAddressParishOfResidence());
                     addData("PhysicalAddress.area", report.getDefaultPhysicalAddressArea());
                     addData("PhysicalAddress.areaCode", report.getDefaultPhysicalAddressAreaCode());
                     addData("PhysicalAddress.areaOfAreaCode", report.getDefaultPhysicalAddressAreaOfAreaCode());
-                    addData("PhysicalAddress.countryOfResidence",
-                            report.getDefaultPhysicalAddressCountryOfResidenceName());
+                    addData("PhysicalAddress.countryOfResidence", report.getDefaultPhysicalAddressCountryOfResidenceName());
                 }
             }
         }
@@ -307,7 +303,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         String booleanString(final boolean value) {
             return value ? bundle("label.yes") : bundle("label.no");
         }
-        
+
     }
 
     private byte[] exportRegistrationsToXLS(final RegistrationHistoryReportParametersBean bean) {
@@ -342,7 +338,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Registration.startDate", report.getStartDate());
                         addData("Registration.firstStateDate", report.getFirstRegistrationStateDate());
                         addData("Registration.registrationYear", report.getRegistrationYear());
-                        addData("Registration.researchArea", report.getResearchArea() != null ? report.getResearchArea().getName().getContent() : "");
+                        addData("Registration.researchArea",
+                                report.getResearchArea() != null ? report.getResearchArea().getName().getContent() : "");
                         addData("RegistrationHistoryReport.studentCurricularPlan", report.getStudentCurricularPlanName());
                         addData("RegistrationHistoryReport.studentCurricularPlan.count", report.getStudentCurricularPlanCount());
                         addData("RegistrationHistoryReport.schoolClasses", report.getSchoolClasses());
@@ -486,8 +483,6 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                             addData("PrecedentDegreeInformation.precedentDegreeDesignation", report.getOriginDegreeDesignation());
                         }
                     }
-
-
 
                 });
 
@@ -701,10 +696,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 .collect(Collectors.joining("; "));
 
                         String regimeTypeName = "";
-                        if(enrolment.getCurricularCourse().getRegime(enrolment.getExecutionPeriod()) != null) {
-                        	regimeTypeName = enrolment.getCurricularCourse().getRegime(enrolment.getExecutionPeriod()).getLocalizedName();
+                        if (enrolment.getCurricularCourse().getRegime(enrolment.getExecutionPeriod()) != null) {
+                            regimeTypeName =
+                                    enrolment.getCurricularCourse().getRegime(enrolment.getExecutionPeriod()).getLocalizedName();
                         }
-                        
+
                         addData("Student.number", report.getStudentNumber());
                         addData("Registration.number", report.getRegistrationNumber());
                         addData("Person.name", report.getPersonName());
@@ -734,7 +730,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Person.defaultEmailAddress", enrolment.getStudent().getPerson().getDefaultEmailAddressValue());
                         addData("Person.institutionalEmailAddress",
                                 enrolment.getStudent().getPerson().getInstitutionalEmailAddressValue());
-                        
+
                         addPersonalData(bean, report);
                         addContactsData(bean, report);
                     }
@@ -1059,8 +1055,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                                 stateBean.getMobilityInformationOtherOriginProgrammeLevel());
                         addData("MobilityRegistrationInformation.otherIncomingMobilityProgrammeLevel",
                                 stateBean.getMobilityInformationOtherIncomingProgrammeLevel());
-                        addData("MobilityRegistrationInformation.originCountry", stateBean.getMobilityInformationOriginCountry());
-                        addData("MobilityRegistrationInformation.incomingCountry",
+                        addData("firstTimeCandidacy.MobilityRegistrationInformation.originCountry",
+                                stateBean.getMobilityInformationOriginCountry());
+                        addData("firstTimeCandidacy.MobilityRegistrationInformation.incomingCountry",
                                 stateBean.getMobilityInformationIncomingCountry());
                     }
 
