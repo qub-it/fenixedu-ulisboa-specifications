@@ -5,7 +5,6 @@ import java.util.Objects;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeInfo;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
@@ -61,18 +60,6 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
         setProfessionalStatus(olderEdi.getProfessionalStatus());
         setSupplementExtraInformation(olderEdi.getSupplementExtraInformation());
         setSupplementOtherSources(olderEdi.getSupplementOtherSources());
-
-        for (CourseGroupDegreeInfo courseGroupDegreeInfo : olderEdi.getCourseGroupDegreeInfosSet()) {
-            String courseGroupName = courseGroupDegreeInfo.getCourseGroup().getName();
-            //TODO: This shouldn't be copied
-            CourseGroup courseGroup = this.getDegreeInfo().getDegree()
-                    .getDegreeCurricularPlansForYear(this.getDegreeInfo().getExecutionYear()).stream()
-                    .flatMap(p -> p.getAllCoursesGroups().stream()).filter(cg -> cg.getProgramConclusion() != null)
-                    .filter(cg -> cg.getName().equals(courseGroupName)).findAny().orElse(null);
-            if (courseGroup != null) {
-                CourseGroupDegreeInfo.create(courseGroupDegreeInfo.getDegreeName(), this, courseGroup);
-            }
-        }
     }
 
     public void delete() {

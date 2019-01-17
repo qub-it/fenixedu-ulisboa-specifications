@@ -26,17 +26,22 @@ public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
             executionYear = ExecutionYear.readByDateTime(conclusionDate.toLocalDate());
         }
 
-        final ExtendedDegreeInfo extendedDegreeInfo = ExtendedDegreeInfo.getMostRecent(executionYear, degree);
-        if (extendedDegreeInfo != null) {
+        //Try to get last custom name if there is one for combination degree+programConclusion
+        while (courseGroupDegreeInfo == null && executionYear.isAfterOrEquals(registration.getStartExecutionYear())) {
+            final ExtendedDegreeInfo extendedDegreeInfo = ExtendedDegreeInfo.getMostRecent(executionYear, degree);
+            if (extendedDegreeInfo != null) {
 
-            if (programConclusion == null) {
-                courseGroupDegreeInfo = extendedDegreeInfo.getCourseGroupDegreeInfosSet().stream()
-                        .filter(di -> di.getCourseGroup().getProgramConclusion().isTerminal()).findFirst().orElse(null);
-            } else {
-                courseGroupDegreeInfo = extendedDegreeInfo.getCourseGroupDegreeInfosSet().stream()
-                        .filter(di -> di.getCourseGroup().getProgramConclusion() == programConclusion).findFirst().orElse(null);
+                if (programConclusion == null) {
+                    courseGroupDegreeInfo = extendedDegreeInfo.getCourseGroupDegreeInfosSet().stream()
+                            .filter(di -> di.getCourseGroup().getProgramConclusion().isTerminal()).findFirst().orElse(null);
+                } else {
+                    courseGroupDegreeInfo = extendedDegreeInfo.getCourseGroupDegreeInfosSet().stream()
+                            .filter(di -> di.getCourseGroup().getProgramConclusion() == programConclusion).findFirst()
+                            .orElse(null);
+                }
+
             }
-
+            executionYear = executionYear.getPreviousExecutionYear();
         }
 
     }
