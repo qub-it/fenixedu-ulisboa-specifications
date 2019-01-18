@@ -29,7 +29,6 @@ import java.util.function.Supplier;
 
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.phd.enrolments.PhdStudentCurricularPlanEnrolmentManager;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolment;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolment.EnrolmentManagerFactory;
 import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanExtraEnrolmentManager;
@@ -54,12 +53,7 @@ abstract public class EnrolmentManagerFactoryInitializer {
         public StudentCurricularPlanEnrolment createManager(final EnrolmentContext enrolmentContext) {
 
             if (enrolmentContext.isNormal()) {
-
-                if (enrolmentContext.isPhdDegree()) {
-                    return new PhdStudentCurricularPlanEnrolmentManager(enrolmentContext);
-                } else {
-                    return new StudentCurricularPlanEnrolmentManager(enrolmentContext);
-                }
+                return new StudentCurricularPlanEnrolmentManager(enrolmentContext);
 
             } else if (enrolmentContext.isImprovement()) {
                 // qubExtension
