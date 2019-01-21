@@ -18,7 +18,7 @@
 	<name>FenixEdu ULisboa Specifications</name>
 
 	<properties>
-		<version.org.fenixedu.academic>10.0.0</version.org.fenixedu.academic>
+		<version.org.fenixedu.academic>11.0.0</version.org.fenixedu.academic>
 	</properties>
 
 	<build>
@@ -57,7 +57,7 @@
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-learning</artifactId>
-			<version>3.2.0-FORK</version>
+			<version>3.3.0-FORK</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
