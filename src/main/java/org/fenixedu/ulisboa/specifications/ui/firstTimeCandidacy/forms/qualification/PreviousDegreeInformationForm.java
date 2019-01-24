@@ -57,8 +57,10 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
             Collection<DegreeDesignation> possibleDesignations = new HashSet<>();
             if (precedentInstitutionOid != null) {
                 Unit unit = FenixFramework.getDomainObject(precedentInstitutionOid);
-                units.add(unit);
-                possibleDesignations.addAll(unit.getDegreeDesignationSet());
+                if (unit != null) {
+                    units.add(unit);
+                    possibleDesignations.addAll(unit.getDegreeDesignationSet());
+                }
             } else {
                 possibleDesignations.addAll(Bennu.getInstance().getDegreeDesignationsSet());
             }
