@@ -144,7 +144,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         final List<EnrolmentEvaluation> evaluations =
                 studentCurricularPlan.getEnrolmentsSet().stream().flatMap(enr -> enr.getEvaluationsSet().stream())
                         .filter(ev -> ev.getExecutionPeriod() == semester || ev.getEnrolment().getExecutionPeriod() == semester)
-                        .filter(ev -> ev.getCompetenceCourseMarkSheet() == null && ev.getMarkSheet() == null)
+                        .filter(ev -> ev.getCompetenceCourseMarkSheet() == null)
                         .filter(ev -> EvaluationServices
                                 .findEnrolmentCourseEvaluations(ev.getEnrolment(), ev.getEvaluationSeason(), semester).isEmpty()
                                 || AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
