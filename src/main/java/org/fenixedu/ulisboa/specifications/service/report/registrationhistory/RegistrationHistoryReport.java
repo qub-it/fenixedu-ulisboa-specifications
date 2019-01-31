@@ -120,12 +120,12 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         this.executionYear = executionYear;
         this.registration = registration;
 
-        if(getRegistration().getRegistrationYear().isAfter(executionYear)) {
-        	throw new ULisboaSpecificationsDomainException(
-        			"error.RegistrationHistoryReport.registration.starts.after.executionYear", 
-        			getStudent().getNumber().toString(), getDegree().getCode(), executionYear.getQualifiedName());
+        if (getRegistration().getRegistrationYear().isAfter(executionYear)) {
+            throw new ULisboaSpecificationsDomainException(
+                    "error.RegistrationHistoryReport.registration.starts.after.executionYear",
+                    getStudent().getNumber().toString(), getDegree().getCode(), executionYear.getQualifiedName());
         }
-        
+
     }
 
     @Override
@@ -305,7 +305,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
 
         return lastRegistrationState;
     }
-    
+
     public List<RegistrationStateBean> getAllLastRegistrationStates() {
         return RegistrationServices.getAllLastRegistrationStates(registration, executionYear);
     }
@@ -636,6 +636,12 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     public String getRegistrationNumber() {
         final Registration registration = getRegistration();
         return registration == null ? null : registration.getNumber().toString();
+    }
+
+    public String getOtherRegistrationNumbers() {
+        return getRegistration().getStudent().getRegistrationsSet().stream().map(r -> r.getNumber())
+                .filter(n -> n.intValue() != getRegistration().getNumber().intValue()).distinct().sorted()
+                .map(n -> String.valueOf(n)).collect(Collectors.joining(","));
     }
 
     public String getDegreeCode() {
@@ -1050,7 +1056,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
         return studentCurricularPlan.getExternalCurriculumGroups().isEmpty() ? null : studentCurricularPlan
                 .getExternalCurriculumGroups().iterator().next();
     }
-    
+
     public String getIban() {
         return getPerson().getIban();
     }

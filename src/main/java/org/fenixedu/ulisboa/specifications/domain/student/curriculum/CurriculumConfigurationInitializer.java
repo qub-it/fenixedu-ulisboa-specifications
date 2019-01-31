@@ -158,6 +158,7 @@ abstract public class CurriculumConfigurationInitializer {
             return remainingCredits;
         }
 
+        //TODO: remove this call!
         private void accountForDirectIngressions(final Curriculum curriculum) {
             if (calculateCycleType(curriculum) != null) {
                 return;
@@ -185,6 +186,15 @@ abstract public class CurriculumConfigurationInitializer {
     static public CurricularYearResult calculateCurricularYear(final Curriculum curriculum) {
         final ExecutionYear executionYear = curriculum.getExecutionYear();
         final CurricularYearResult calculated = new CurricularYearResult(executionYear);
+
+        if (curriculum.getCurriculumModule() == null) {
+            calculated.setResult(1);
+            calculated.setJustificationText(ULisboaSpecificationsUtil.bundle(
+                    "error.curricularYear.unable.to.determine.student.curricular.plan.for.execution.year",
+                    executionYear.getQualifiedName()));
+            return calculated;
+        }
+
         final Registration registration = curriculum.getCurriculumModule().getRegistration();
 
         // should always try to check the SCP at the given execution year...
@@ -257,7 +267,10 @@ abstract public class CurriculumConfigurationInitializer {
 
         private int curricularYear = 1;
 
+        //TODO: replace with justificationText
         private RuleResult justification = null;
+
+        private String justificationText = null;
 
         private ExecutionYear executionYear;
 
@@ -281,8 +294,12 @@ abstract public class CurriculumConfigurationInitializer {
             this.justification = justification;
         }
 
+        private void setJustificationText(final String justificationText) {
+            this.justificationText = justificationText;
+        }
+
         public String getJustificationPresentation() {
-            return CurricularPeriodRule.getMessages(this.justification)
+            return this.justificationText != null ? this.justificationText : CurricularPeriodRule.getMessages(this.justification)
                     .replace("-", ULisboaSpecificationsUtil.bundle("label.CurricularYearResult.empty"))
                     .replace(ULisboaSpecificationsUtil.bundle("label.CurricularYearResult.prefix.remove"),
                             ULisboaSpecificationsUtil.bundle("label.CurricularYearResult.prefix.add"));
