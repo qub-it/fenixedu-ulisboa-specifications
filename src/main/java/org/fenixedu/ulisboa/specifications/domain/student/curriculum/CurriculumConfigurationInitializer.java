@@ -158,8 +158,11 @@ abstract public class CurriculumConfigurationInitializer {
             return remainingCredits;
         }
 
-        //TODO: remove this call!
         private void accountForDirectIngressions(final Curriculum curriculum) {
+            if (curriculum.getStudentCurricularPlan() == null) {
+                //empty curriculum
+                return;
+            }
             if (calculateCycleType(curriculum) != null) {
                 return;
             }

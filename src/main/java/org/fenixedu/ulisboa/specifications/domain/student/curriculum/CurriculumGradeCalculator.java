@@ -75,8 +75,9 @@ public class CurriculumGradeCalculator
         final BigDecimal avg = calculateAverage();
 
         // qubExtension, bug fix on finalGrade calculation, must use rawAvg
-        final BigDecimal rawAvg =
-                avg.setScale(RAW_SCALE, getRawGradeRoundingMode(curriculum.getStudentCurricularPlan().getDegree()));
+        final BigDecimal rawAvg = avg.setScale(RAW_SCALE,
+                curriculum.getStudentCurricularPlan() == null ? ROUNDING_DEFAULT : getRawGradeRoundingMode(
+                        curriculum.getStudentCurricularPlan().getDegree()));
         this.rawGrade = Grade.createGrade(rawAvg.toString(), GradeScale.TYPE20);
         this.finalGrade = Grade.createGrade(rawAvg.setScale(0, ROUNDING_DEFAULT).toString(), GradeScale.TYPE20);
     }
