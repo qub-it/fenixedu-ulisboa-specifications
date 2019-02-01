@@ -133,7 +133,7 @@ abstract public class CurriculumConfigurationInitializer {
                 for (final ICurriculumEntry entry : curriculum.getCurricularYearEntries()) {
                     approvedCredits = approvedCredits.add(entry.getEctsCreditsForCurriculum());
                 }
-
+                accountForDirectIngressions(curriculum);
             }
 
             return approvedCredits;
@@ -156,6 +156,29 @@ abstract public class CurriculumConfigurationInitializer {
             }
 
             return remainingCredits;
+        }
+
+        //TODO: remove this call!
+        private void accountForDirectIngressions(final Curriculum curriculum) {
+            if (calculateCycleType(curriculum) != null) {
+                return;
+            }
+            if (!curriculum.getStudentCurricularPlan().getDegreeCurricularPlan().isBolonhaDegree()) {
+                return;
+            }
+            //this is to prevent some oddly behavior spotted (e.g. student 57276)
+            if (curriculum.getStudentCurricularPlan().getCycleCurriculumGroups().isEmpty()) {
+                return;
+            }
+            CycleCurriculumGroup sgroup = Collections.min(curriculum.getStudentCurricularPlan().getCycleCurriculumGroups(),
+                    CycleCurriculumGroup.COMPARATOR_BY_CYCLE_TYPE_AND_ID);
+            CycleType cycleIter = sgroup.getCycleType().getPrevious();
+            while (cycleIter != null) {
+                if (curriculum.getStudentCurricularPlan().getDegreeCurricularPlan().getCycleCourseGroup(cycleIter) != null) {
+                    approvedCredits = approvedCredits.add(new BigDecimal(cycleIter.getEctsCredits()));
+                }
+                cycleIter = cycleIter.getPrevious();
+            }
         }
 
     };
