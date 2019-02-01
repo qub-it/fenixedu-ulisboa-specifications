@@ -390,7 +390,7 @@ class student.access.importation.DgesStudentImportationProcess extends .org.feni
 	EntryPhase entryPhase;
 }
 
-class student.access.importation.DgesStudentImportationFile extends .org.fenixedu.academic.domain.File {
+class student.access.importation.DgesStudentImportationFile extends .org.fenixedu.bennu.io.domain.GenericFile {
 }
 
 relation ImportCandidaciesFromDgesProcessDgesImportationStudentFile {
