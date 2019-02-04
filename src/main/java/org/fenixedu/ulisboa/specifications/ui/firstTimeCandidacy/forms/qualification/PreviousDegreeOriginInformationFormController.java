@@ -122,7 +122,7 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
                         && precedentDegreeInformation.getPrecedentSchoolLevel().getEquivalentDegreeClassifications()
                                 .contains(dd.getDegreeClassification().getCode())
                         && StringNormalizer.normalize(dd.getDescription())
-                                .contains(StringNormalizer.normalize(precedentDegreeDesignationName));
+                                .equals(StringNormalizer.normalize(precedentDegreeDesignationName));
                 precedentDegreeDesignation =
                         institution.getDegreeDesignationSet().stream().filter(matchesName).findFirst().orElse(null);
                 form.setRaidesPrecedentDegreeDesignation(precedentDegreeDesignation);
