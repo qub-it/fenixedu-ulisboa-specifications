@@ -81,6 +81,11 @@ public class ValidateRequirementsInCreationProcessor extends ValidateRequirement
     public void process(ULisboaServiceRequest newRequest, boolean forceUpdate) {
         //Only run when the request is being created
         if (newRequest.isNewRequest()) {
+            //Check if there is a program conclusion and it is terminal
+            if (!newRequest.hasProgramConclusion() || !newRequest.getProgramConclusion().isTerminal()) {
+                return;
+            }
+
             Registration registration = newRequest.getRegistration();
             Set<String> allSRTCodesNeeded = getServiceRequestTypesNeededSet().stream()
                     .flatMap(s -> Sets.newHashSet(s.split(";")).stream()).collect(Collectors.toSet());
