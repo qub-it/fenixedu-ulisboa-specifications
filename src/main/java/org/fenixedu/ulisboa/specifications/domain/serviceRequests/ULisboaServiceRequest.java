@@ -46,12 +46,8 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
-import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
-import org.fenixedu.academic.domain.documents.GeneratedDocument;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
-import org.fenixedu.academic.domain.serviceRequests.ReceivedFromExternalEntityAcademicServiceRequestSituation;
-import org.fenixedu.academic.domain.serviceRequests.SentToExternalEntityAcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
@@ -1179,12 +1175,6 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
     @Deprecated
     @Override
-    public boolean hasRegistryCode() {
-        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
-    }
-
-    @Deprecated
-    @Override
     protected List<AcademicServiceRequestSituationType> getNewSituationAcceptedSituationsTypes() {
         throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
@@ -1210,18 +1200,6 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     @Deprecated
     @Override
     protected List<AcademicServiceRequestSituationType> getConcludedSituationAcceptedSituationsTypes() {
-        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
-    }
-
-    @Deprecated
-    @Override
-    public GeneratedDocument getLastGeneratedDocument() {
-        throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
-    }
-
-    @Deprecated
-    @Override
-    public Set<DocumentRequestGeneratedDocument> getDocumentSet() {
         throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
 

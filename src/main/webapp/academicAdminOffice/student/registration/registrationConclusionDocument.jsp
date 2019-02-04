@@ -27,7 +27,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@page import="org.fenixedu.academic.domain.Person"%>
 <%@page import="org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice" %>
-<%@page import="org.fenixedu.academic.report.academicAdministrativeOffice.DegreeFinalizationCertificate"%>
 <%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="org.joda.time.LocalDate"%>
 <%@page import="org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil"%>

@@ -5,7 +5,6 @@ import java.util.Comparator;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
-import org.fenixedu.academic.domain.documents.DocumentRequestGeneratedDocument;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 
@@ -55,22 +54,4 @@ public class ULisboaServiceRequestGeneratedDocument extends ULisboaServiceReques
                 contentType, filename, content);
     }
 
-    @Atomic
-    public static ULisboaServiceRequestGeneratedDocument cloneAcademicServiceRequestDocument(
-            DocumentRequestGeneratedDocument doc, ULisboaServiceRequest ulsr) {
-        /* Ignore the contents */
-//        byte[] emptiness = new byte[Math.toIntExact(doc.getSize())];
-//        ULisboaServiceRequestGeneratedDocument uldoc =
-//                ULisboaServiceRequestGeneratedDocument.store(ulsr, doc.getContentType(), doc.getFilename(), emptiness);
-
-        /* The real deal */
-        ULisboaServiceRequestGeneratedDocument uldoc =
-                ULisboaServiceRequestGeneratedDocument.store(ulsr, doc.getContentType(), doc.getFilename(), doc.getContent());
-        uldoc.setOperator(doc.getOperator());
-        uldoc.setCreationDate(doc.getCreationDate());
-        /* No point in setting the versioning data because they will be rewritten when this tx finishes --> Do this on a separate Thread/Tx */
-        //uldoc.setVersioningCreationDate(doc.getVersioningCreationDate());
-        //uldoc.setVersioningCreator(doc.getVersioningCreator());
-        return uldoc;
-    }
 }
