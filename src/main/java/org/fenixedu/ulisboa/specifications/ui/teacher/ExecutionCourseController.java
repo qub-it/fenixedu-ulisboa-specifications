@@ -10,7 +10,6 @@ import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.ui.spring.StrutsFunctionalityController;
-import org.fenixedu.academic.ui.spring.controller.teacher.ProjectGroupBean;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -25,9 +24,8 @@ public abstract class ExecutionCourseController extends StrutsFunctionalityContr
     private Professorship findProfessorship(final ExecutionCourse executionCourse) {
         final Person person = AccessControl.getPerson();
         if (person != null) {
-            Optional<Professorship> professorshipOpt =
-                    person.getProfessorshipsSet().stream()
-                            .filter(professorship -> professorship.getExecutionCourse().equals(executionCourse)).findFirst();
+            Optional<Professorship> professorshipOpt = person.getProfessorshipsSet().stream()
+                    .filter(professorship -> professorship.getExecutionCourse().equals(executionCourse)).findFirst();
             if (professorshipOpt.isPresent()) {
                 Professorship prof = professorshipOpt.get();
                 if (!this.getPermission(prof)) {
@@ -38,11 +36,6 @@ public abstract class ExecutionCourseController extends StrutsFunctionalityContr
             }
         }
         throw new DomainException(Status.FORBIDDEN, "message.error.notAuthorized");
-    }
-
-    @ModelAttribute("projectGroup")
-    public ProjectGroupBean setProjectGroup() {
-        return new ProjectGroupBean();
     }
 
     @ModelAttribute("professorship")
