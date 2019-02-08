@@ -1,6 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.renderers.validators;
 
-import static org.fenixedu.treasury.util.Constants.treasuryBundle;
+import static org.fenixedu.treasury.util.TreasuryConstants.treasuryBundle;
 
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 

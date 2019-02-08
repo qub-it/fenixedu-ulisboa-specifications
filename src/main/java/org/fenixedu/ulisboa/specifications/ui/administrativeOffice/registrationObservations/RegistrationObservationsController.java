@@ -12,6 +12,7 @@ import org.fenixedu.academic.ui.spring.StrutsFunctionalityController;
 import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.SearchForStudentsDA;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.treasury.domain.accesscontrol.TreasuryAccessControl;
+import org.fenixedu.treasury.services.accesscontrol.TreasuryAccessControlAPI;
 import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -55,7 +56,7 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
         User user = AccessControl.getPerson().getUser();
         boolean academicAuthorization =
                 AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS, registration.getDegree()).isMember(user);
-        boolean treasuryAuthorization = TreasuryAccessControl.getInstance().getBackOfficeMembers().contains(user);
+        boolean treasuryAuthorization = TreasuryAccessControlAPI.isBackOfficeMember(user.getUsername());
 
         boolean writeAccessControll = academicAuthorization || treasuryAuthorization;
         return writeAccessControll;
