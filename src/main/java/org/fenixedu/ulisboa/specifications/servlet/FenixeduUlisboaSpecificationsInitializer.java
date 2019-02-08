@@ -60,6 +60,7 @@ import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.servlet.ExceptionHandlerFilter;
@@ -85,6 +86,22 @@ import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20AbsoluteGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20GradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.fa.FATypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.fba.FBATypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.fc.FCTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.fd.FDTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.ff.FFTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.fl.FLTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.fm.FMTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.fmd.FMDTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.fmh.FMHTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.fmv.FMVTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.fp.FPTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.ics.ICSTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.ie.IETypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.igot.IGOTTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.isa.ISATypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.rul.RULTypeQualitativeGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
@@ -400,8 +417,72 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private void configureTypeQualitativeGradeScaleLogic() {
-        final GradeScaleLogic logic = loadClass("gradescale.typequalitative.logic.class",
-                ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
+
+        GradeScaleLogic logic = null;
+
+        final Unit institutionUnit = Bennu.getInstance().getInstitutionUnit();
+        if (institutionUnit != null) {
+            switch (institutionUnit.getAcronym()) {
+
+            case "RUL":
+                logic = new RULTypeQualitativeGradeScaleLogic();
+                break;
+            case "FL":
+                logic = new FLTypeQualitativeGradeScaleLogic();
+                break;
+            case "FF":
+                logic = new FFTypeQualitativeGradeScaleLogic();
+                break;
+            case "FMD":
+                logic = new FMDTypeQualitativeGradeScaleLogic();
+                break;
+            case "FMV":
+                logic = new FMVTypeQualitativeGradeScaleLogic();
+                break;
+            case "IGOT":
+                logic = new IGOTTypeQualitativeGradeScaleLogic();
+                break;
+            case "FP":
+                logic = new FPTypeQualitativeGradeScaleLogic();
+                break;
+            case "FDUL":
+                logic = new FDTypeQualitativeGradeScaleLogic();
+                break;
+            case "IE":
+                logic = new IETypeQualitativeGradeScaleLogic();
+                break;
+            case "FBA":
+                logic = new FBATypeQualitativeGradeScaleLogic();
+                break;
+            case "FM":
+                logic = new FMTypeQualitativeGradeScaleLogic();
+                break;
+            case "ICS":
+                logic = new ICSTypeQualitativeGradeScaleLogic();
+                break;
+            case "FMH":
+                logic = new FMHTypeQualitativeGradeScaleLogic();
+                break;
+            case "FC":
+                logic = new FCTypeQualitativeGradeScaleLogic();
+                break;
+            case "FA":
+                logic = new FATypeQualitativeGradeScaleLogic();
+                break;
+            case "ISA":
+                logic = new ISATypeQualitativeGradeScaleLogic();
+                break;
+            default:
+                break;
+            }
+        }
+
+        if (logic == null) {
+            logger.warn("Grade Logic for institution '" + institutionUnit.getAcronym()
+                    + "' not found. Attempting to load from configuration property.");
+            logic = loadClass("gradescale.typequalitative.logic.class",
+                    ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
+        }
 
         if (logic != null) {
             GradeScale.TYPEQUALITATIVE.setLogic(logic);
