@@ -1,11 +1,14 @@
 package org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest;
 
+import static org.fenixedu.treasury.util.TreasuryConstants.treasuryBundle;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.fenixedu.academic.domain.student.Registration;
@@ -13,6 +16,7 @@ import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academictreasury.util.Constants;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.treasury.domain.document.DebitEntry;
 import org.fenixedu.treasury.domain.paymentcodes.PaymentReferenceCode;
@@ -24,6 +28,7 @@ import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseC
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.LocalDate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,6 +46,12 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
 
     public static final String CONTROLLER_URL = "/ulisboaspecifications/student/ulisboaservicerequest";
 
+    @Autowired
+    private HttpServletRequest request;
+    
+    @Autowired
+    private HttpServletResponse response;
+    
     private ULisboaServiceRequestBean getULisboaServiceRequestBean(final Model model) {
         return (ULisboaServiceRequestBean) model.asMap().get("ulisboaServiceRequestBean");
     }
@@ -74,7 +85,12 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     public static final String READ_REGISTRATION_URL = CONTROLLER_URL + _READ_REGISTRATION_URI;
 
     @RequestMapping(value = _READ_REGISTRATION_URI + "{oid}", method = RequestMethod.GET)
-    public String read(@PathVariable("oid") final Registration registration, final Model model) {
+    public String read(@PathVariable("oid") final Registration registration, final Model model, final RedirectAttributes redirectAttributes) {
+        if(registration.getPerson() != AccessControl.getPerson()) {
+            Authenticate.logout(request, response);
+            return redirect("/", model, redirectAttributes);
+        }
+        
         model.addAttribute("registration", registration);
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/student/read";
     }
@@ -85,6 +101,11 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     @RequestMapping(value = _CREATE_SERVICE_REQUEST_URI + "{oid}", method = RequestMethod.GET)
     public String create(@PathVariable("oid") final Registration registration, final Model model,
             final RedirectAttributes redirectAttributes) {
+        if(registration.getPerson() != AccessControl.getPerson()) {
+            Authenticate.logout(request, response);
+            return redirect("/", model, redirectAttributes);
+        }
+        
         if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
             addErrorMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequest.create.actsBlocked"), model);
             return redirect(READ_REGISTRATION_URL + registration.getExternalId(), model, redirectAttributes);
@@ -99,6 +120,11 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     public String createAcademicRequest(@PathVariable(value = "oid") final Registration registration,
             @RequestParam(value = "bean", required = true) final ULisboaServiceRequestBean bean, final Model model,
             final RedirectAttributes redirectAttributes) {
+        if(registration.getPerson() != AccessControl.getPerson()) {
+            Authenticate.logout(request, response);
+            return redirect("/", model, redirectAttributes);
+        }
+        
         setULisboaServiceRequestBean(bean, model);
         try {
             if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
@@ -128,7 +154,12 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     public static final String READ_SERVICE_REQUEST_URL = CONTROLLER_URL + _READ_SERVICE_REQUEST_URI;
 
     @RequestMapping(value = _READ_SERVICE_REQUEST_URI + "{oid}", method = RequestMethod.GET)
-    public String readServiceRequest(@PathVariable("oid") final ULisboaServiceRequest serviceRequest, final Model model) {
+    public String readServiceRequest(@PathVariable("oid") final ULisboaServiceRequest serviceRequest, final Model model, final RedirectAttributes redirectAttributes) {
+        if(serviceRequest.getRegistration().getPerson() != AccessControl.getPerson()) {
+            Authenticate.logout(request, response);
+            return redirect("/", model, redirectAttributes);
+        }
+        
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
 
@@ -164,7 +195,12 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     public static final String HISTORY_SERVICE_REQUEST_URL = CONTROLLER_URL + _HISTORY_SERVICE_REQUEST_URI;
 
     @RequestMapping(value = _HISTORY_SERVICE_REQUEST_URI + "{oid}", method = RequestMethod.GET)
-    public String viewRequestHistory(@PathVariable(value = "oid") final Registration registration, final Model model) {
+    public String viewRequestHistory(@PathVariable(value = "oid") final Registration registration, final Model model, final RedirectAttributes redirectAttributes) {
+        if(registration.getPerson() != AccessControl.getPerson()) {
+            Authenticate.logout(request, response);
+            return redirect("/", model, redirectAttributes);
+        }
+        
         model.addAttribute("registration", registration);
         model.addAttribute("uLisboaServiceRequestList",
                 ULisboaServiceRequest.findByRegistration(registration).collect(Collectors.toList()));
@@ -176,8 +212,12 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
 
     @RequestMapping(value = _DOWNLOAD_PRINTED_ACADEMIC_REQUEST_URI + "{oid}", method = RequestMethod.GET)
     @ResponseStatus(value = HttpStatus.OK)
-    public void download(@PathVariable(value = "oid") final ULisboaServiceRequest serviceRequest, final Model model,
-            final HttpServletResponse response) {
+    public void download(@PathVariable(value = "oid") final ULisboaServiceRequest serviceRequest, final Model model, final HttpServletResponse response, final RedirectAttributes redirectAttributes) {
+        if(serviceRequest.getRegistration().getPerson() != AccessControl.getPerson()) {
+            Authenticate.logout(request, response);
+            return;
+        }
+        
         model.addAttribute("registration", serviceRequest.getRegistration());
         model.addAttribute("serviceRequest", serviceRequest);
         try {
