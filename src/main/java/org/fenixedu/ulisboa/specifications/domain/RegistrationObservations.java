@@ -6,10 +6,10 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.treasury.services.integration.FenixEDUTreasuryPlatformDependentServices;
+import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.FenixFramework;
-
-import com.qubit.solution.fenixedu.bennu.versioning.service.VersionableObject;
 
 public class RegistrationObservations extends RegistrationObservations_Base {
 
@@ -59,11 +59,14 @@ public class RegistrationObservations extends RegistrationObservations_Base {
         return value.replaceAll("\r\n", "<br>");
     }
 
-    static Comparator<VersionableObject> compareByModifiedDate = (x, y) -> {
-        if (x.getVersioningUpdateDate() == null || y.getVersioningUpdateDate() == null) {
+    static Comparator<Object> compareByModifiedDate = (x, y) -> {
+        DateTime xUpdateDate = FenixEDUTreasuryPlatformDependentServices.readVersioningUpdateDate(x);
+        DateTime yUpdateDate = FenixEDUTreasuryPlatformDependentServices.readVersioningUpdateDate(y);
+        
+        if (xUpdateDate == null || yUpdateDate == null) {
             return 0;
         }
-        return x.getVersioningUpdateDate().getDate().compareTo(y.getVersioningUpdateDate().getDate());
+        return xUpdateDate.compareTo(yUpdateDate);
     };
 
     public static List<RegistrationObservations> getLastThreeSortedObservations(Registration registration) {

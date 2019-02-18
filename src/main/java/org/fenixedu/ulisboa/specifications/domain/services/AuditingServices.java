@@ -1,47 +1,58 @@
 package org.fenixedu.ulisboa.specifications.domain.services;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.treasury.services.integration.FenixEDUTreasuryPlatformDependentServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
-import com.qubit.solution.fenixedu.bennu.versioning.domain.UpdateEntity;
-import com.qubit.solution.fenixedu.bennu.versioning.domain.UpdateTimestamp;
-import com.qubit.solution.fenixedu.bennu.versioning.service.VersionableObject;
-
 public class AuditingServices {
 
-    public static String getCreatorUsername(final VersionableObject input) {
-        return input == null ? null : input.getVersioningCreator();
+    public static String getCreatorUsername(final Object input) {
+        if(input == null) {
+            return null;
+        }
+        
+        return FenixEDUTreasuryPlatformDependentServices.readVersioningCreatorUsername(input);
     }
 
-    public static DateTime getCreationDate(final VersionableObject input) {
-        return input == null ? null : input.getVersioningCreationDate();
+    public static DateTime getCreationDate(final Object input) {
+        if(input == null) {
+            return null;
+        }
+        
+        return FenixEDUTreasuryPlatformDependentServices.readVersioningCreationDate(input);
     }
 
-    public static String getUpdaterUsername(final VersionableObject input) {
-        final UpdateEntity update = input == null ? null : input.getVersioningUpdatedBy();
-        return update == null ? null : update.getUsername();
+    public static String getUpdaterUsername(final Object input) {
+        if(input == null) {
+            return null;
+        }
+        
+        return FenixEDUTreasuryPlatformDependentServices.readVersioningUpdatorUsername(input);
     }
 
-    public static DateTime getUpdateDate(final VersionableObject input) {
-        final UpdateTimestamp update = input == null ? null : input.getVersioningUpdateDate();
-        return update == null ? null : update.getDate();
+    public static DateTime getUpdateDate(final Object input) {
+        if(input == null) {
+            return null;
+        }
+        
+        return FenixEDUTreasuryPlatformDependentServices.readVersioningUpdateDate(input);
     }
 
     static final private String SINGLE_SPACE = " ";
 
-    static public String getAuditInfo(final VersionableObject input) {
+    static public String getAuditInfo(final Object input) {
         return getAuditInfoCreation(input) + SINGLE_SPACE + getAuditInfoUpdate(input);
     }
 
-    static private String getAuditInfoCreation(final VersionableObject input) {
+    static private String getAuditInfoCreation(final Object input) {
         final String username = getAuditInfoUsername(getCreatorUsername(input));
         final DateTime date = getCreationDate(input);
         return getAuditInfo("auditInfo.creation.msg.empty", "auditInfo.creation.msg.prefix", username, date);
     }
 
-    static private String getAuditInfoUpdate(final VersionableObject input) {
+    static private String getAuditInfoUpdate(final Object input) {
         final String username = getAuditInfoUsername(getUpdaterUsername(input));
         final DateTime date = getUpdateDate(input) == null ? null : getUpdateDate(input);
         return getAuditInfo("auditInfo.update.msg.empty", "auditInfo.update.msg.prefix", username, date);

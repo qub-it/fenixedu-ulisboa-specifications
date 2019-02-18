@@ -36,7 +36,7 @@
 						
 							<tr>
 								<td class="acenter">
-									${observation.versioningUpdatedBy}
+									${observation.versioningUpdatedBy.username}
 								</td>
 								<td class="acenter">
 									<%=((RegistrationObservations) pageContext.getAttribute("observation")).getVersioningUpdateDate().getDate().toString("dd/MM/yyyy hh:mm:ss")%>
