@@ -29,7 +29,7 @@
                         %>
                             <tr>
                                 <td class="acenter">
-                                    <bean:write name="registrationObservations" property="versioningUpdatedBy"/>
+                                    <bean:write name="registrationObservations" property="versioningUpdatedBy.username"/>
                                 </td>
                                 <td class="acenter">
                                     <%= registrationObservations.getVersioningUpdateDate().getDate().toString("dd/MM/yyyy HH:mm:ss") %>
