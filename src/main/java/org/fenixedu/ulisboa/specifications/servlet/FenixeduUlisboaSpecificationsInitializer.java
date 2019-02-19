@@ -101,6 +101,8 @@ import org.fenixedu.ulisboa.specifications.domain.grade.ics.ICSTypeQualitativeGr
 import org.fenixedu.ulisboa.specifications.domain.grade.ie.IETypeQualitativeGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.igot.IGOTTypeQualitativeGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.isa.ISATypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.iscsp.ISCSPTypeQualitativeGradeScaleLogic;
+import org.fenixedu.ulisboa.specifications.domain.grade.iseg.ISEGTypeQualitativeGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.rul.RULTypeQualitativeGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
@@ -471,6 +473,12 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                 break;
             case "ISA":
                 logic = new ISATypeQualitativeGradeScaleLogic();
+                break;
+            case "ISEG":
+                logic = new ISEGTypeQualitativeGradeScaleLogic();
+                break;
+            case "ISCSP":
+                logic = new ISCSPTypeQualitativeGradeScaleLogic();
                 break;
             default:
                 break;
