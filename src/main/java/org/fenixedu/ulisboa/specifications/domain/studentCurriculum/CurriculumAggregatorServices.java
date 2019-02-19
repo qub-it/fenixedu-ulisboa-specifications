@@ -55,6 +55,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
+import org.fenixedu.treasury.services.integration.FenixEDUTreasuryPlatformDependentServices;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
@@ -382,8 +383,17 @@ abstract public class CurriculumAggregatorServices {
 
                         } else if (candidates.size() > 1) {
                             // gave up at filter, just choose the most recent one
-                            result = candidates.stream().max(Comparator.comparing(Context::getBeginExecutionPeriod)
-                                    .thenComparing(Context::getVersioningCreationDate)).orElse(null);
+                            // TODO: Extract logic from treasury service to some other place
+                            result = candidates
+                                    .stream().max(
+                                            Comparator
+                                                    .comparing(
+                                                            Context::getBeginExecutionPeriod)
+                                                    .thenComparing((c1, c2) -> FenixEDUTreasuryPlatformDependentServices
+                                                            .readVersioningCreationDate(c1)
+                                                            .compareTo(FenixEDUTreasuryPlatformDependentServices
+                                                                    .readVersioningCreationDate(c2))))
+                                    .orElse(null);
 
                             if (result != null) {
                                 logger.debug("Not only one parent context for [{}], returning [{}-{}-{}]", input.getName(),
