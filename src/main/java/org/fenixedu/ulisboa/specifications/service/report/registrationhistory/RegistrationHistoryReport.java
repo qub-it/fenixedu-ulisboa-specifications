@@ -49,6 +49,8 @@ import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.dto.student.RegistrationStateBean;
 import org.fenixedu.academictreasury.domain.customer.PersonCustomer;
+import org.fenixedu.treasury.services.integration.FenixEDUTreasuryPlatformDependentServices;
+import org.fenixedu.treasury.services.integration.TreasuryPlataformDependentServicesFactory;
 import org.fenixedu.ulisboa.specifications.domain.degree.prescription.PrescriptionConfig;
 import org.fenixedu.ulisboa.specifications.domain.degree.prescription.PrescriptionEntry;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -727,7 +729,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     public String getRegistrationObservations() {
         final Registration registration = getRegistration();
         return registration == null ? null : registration.getRegistrationObservationsSet().stream()
-                .map(o -> o.getVersioningUpdatedBy().getUsername() + ":" + o.getValue())
+                .map(o -> FenixEDUTreasuryPlatformDependentServices.readVersioningUpdatorUsername(o) + ":" + o.getValue())
                 .collect(Collectors.joining(" \n --------------\n "));
     }
 
