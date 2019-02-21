@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.importation;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
@@ -132,6 +133,9 @@ public class DgesImportProcessConfigurationBean implements IBean {
 
     public void updateLists() {
 
+        final Predicate<Degree> isDegreeActive =
+                d -> d.getExecutionDegrees().stream().anyMatch(ed -> ed.getExecutionYear().isCurrent());
+
         setDefaultRegistrationProtocol(ULisboaSpecificationsRoot.getInstance().getDefaultRegistrationProtocol());
         setIntroductionText(FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText());
         setContingentMappings(ULisboaSpecificationsRoot.getInstance().getContingentToIngressionsSet());
@@ -139,7 +143,7 @@ public class DgesImportProcessConfigurationBean implements IBean {
                 .stream().collect(Collectors.toList()));
         final List<Degree> degreesWithConfig = getActiveDegrees().stream().map(b -> b.getDegree()).collect(Collectors.toList());
         setActiveDegreeDataSource(Bennu.getInstance().getDegreesSet().stream()
-                .filter(d -> d.isActive() && !degreesWithConfig.contains(d)).collect(Collectors.toList()));
+                .filter(d -> isDegreeActive.test(d) && !degreesWithConfig.contains(d)).collect(Collectors.toList()));
     }
 
 }

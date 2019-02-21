@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.importation;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -337,10 +338,13 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
     public String readConfiguration(final Model model) {
         ULisboaSpecificationsRoot specificationsRoot = ULisboaSpecificationsRoot.getInstance();
 
+        final Predicate<Degree> isDegreeActive =
+                d -> d.getExecutionDegrees().stream().anyMatch(ed -> ed.getExecutionYear().isCurrent());
+
         FirstYearRegistrationGlobalConfiguration globalConfiguration = FirstYearRegistrationGlobalConfiguration.getInstance();
         List<FirstYearRegistrationConfiguration> activeDegreesMappings =
-                globalConfiguration.getFirstYearRegistrationConfigurationsSet().stream().filter(c -> c.getDegree().isActive())
-                        .collect(Collectors.toList());
+                globalConfiguration.getFirstYearRegistrationConfigurationsSet().stream()
+                        .filter(c -> isDegreeActive.test(c.getDegree())).collect(Collectors.toList());
 
         model.addAttribute("defaultRegistrationProtocol", specificationsRoot.getDefaultRegistrationProtocol());
         model.addAttribute("contingentMappings", specificationsRoot.getContingentToIngressionsSet());
