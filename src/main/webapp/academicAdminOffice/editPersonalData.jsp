@@ -63,6 +63,7 @@
                 <fr:property name="size" value="50" />
             </fr:slot>
             <fr:slot name="gender" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" />
+<%--
             <fr:slot name="fiscalCountry" key="label.fiscalCountry" layout="menu-select-postback">
                     <fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.CountryProvider" />
                     <fr:property name="format" value="${name} (${code})"/>
@@ -74,6 +75,7 @@
                     <fr:property name="countryCode" value="<%= (String) pageContext.getAttribute("countryCode") %>" />
                 </fr:validator>
             </fr:slot>
+--%>            
             <fr:slot name="profession" />
             <fr:slot name="maritalStatus">
                 <fr:property name="excludedValues" value="UNKNOWN" />
@@ -86,7 +88,9 @@
         </fr:layout>
 
         <fr:destination name="invalid" path='<%= "/student.do?method=editPersonalDataInvalid&studentID=" + studentID %>'/>
+<%-- 
         <fr:destination name="fiscalCountryPostback" path='<%= "/student.do?method=editPersonalDataPostback&studentID=" + studentID %>' />
+--%>        
     </fr:edit>
     
     <bean:define id="personBean" name="personBean" type="org.fenixedu.academic.dto.person.PersonBean" />
@@ -144,6 +148,29 @@
         <html:submit><bean:message key="button.submit" bundle="ACADEMIC_OFFICE_RESOURCES" /></html:submit>
         <html:cancel onclick="this.form.method.value='visualizeStudent';" ><bean:message key="button.back" bundle="ACADEMIC_OFFICE_RESOURCES" /></html:cancel>
     </p>    
+    
+    <h3 class="mtop2 mbottom025"><bean:message key="label.person.title.fiscalInformation" /></h3>
+    <fr:view name="personBean">
+        <fr:schema type="org.fenixedu.academic.domain.Person" bundle="ACADEMIC_OFFICE_RESOURCES" >
+			<fr:slot name="this" layout="format" key="label.socialSecurityNumber" bundle="ACADEMIC_OFFICE_RESOURCES">
+				<fr:property name="format" value="${fiscalAddress.countryOfResidence.code} ${socialSecurityNumber}" />
+			</fr:slot>
+        	<fr:slot name="fiscalAddress">
+				<fr:property name="format" value="${address} ${areaCode} ${countryOfResidence.name}" />
+        	</fr:slot>
+        </fr:schema>
+	    <fr:layout name="tabular" >
+	        <fr:property name="classes" value="tstyle1 thright thlight mtop0"/>
+	        <fr:property name="columnClasses" value="width14em,"/>
+	    </fr:layout>
+    </fr:view>
+
+    <div class="mbottom2">
+		<img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
+		<html:link page="/student.do?method=prepareEditFiscalData" paramId="studentID" paramName="student" paramProperty="externalId">
+			<bean:message key="link.student.editFiscalData" bundle="ACADEMIC_OFFICE_RESOURCES" />
+		</html:link>
+    </div>
     
     <h3 class="mtop2 mbottom025"><bean:message key="label.person.title.addressesInfo" bundle="ACADEMIC_OFFICE_RESOURCES" /></h3>
     <fr:view name="personBean" property="sortedPhysicalAdresses" schema="contacts.PhysicalAddress.view">

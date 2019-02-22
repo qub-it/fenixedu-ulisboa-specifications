@@ -327,7 +327,8 @@ public class PersonalInformationFormController extends FormAbstractController {
                 socialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
             }
 
-            person.editSocialSecurityNumber(fiscalCountry, socialSecurityNumber);
+            // TODO
+            person.editSocialSecurityNumber(socialSecurityNumber, null);
         }
 
         FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();

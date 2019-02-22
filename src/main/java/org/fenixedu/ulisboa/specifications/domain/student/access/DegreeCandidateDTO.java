@@ -252,7 +252,7 @@ public class DegreeCandidateDTO {
         person.setDateOfBirthYearMonthDay(YearMonthDay.fromDateFields(getDateOfBirth().toDate()));
 
         final PhysicalAddress createPhysicalAddress = PhysicalAddress.createPhysicalAddress(person,
-                new PhysicalAddressData(getAddress(), getAreaCode(), getAreaOfAreaCode(), null), PartyContactType.PERSONAL, true);
+                new PhysicalAddressData(getAddress(), getAreaCode(), getAreaOfAreaCode(), null, null, null, null, Country.readDefault()), PartyContactType.PERSONAL, true);
         createPhysicalAddress.setValid();
 
         if (PhoneUtil.isMobileNumber(getPhoneNumber())) {
@@ -264,8 +264,7 @@ public class DegreeCandidateDTO {
             createPhone.setValid();
         }
 
-        person.editSocialSecurityNumber(Country.readDefault(),
-                FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber());
+        person.editSocialSecurityNumber(FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber(), createPhysicalAddress);
 
         return person;
     }
