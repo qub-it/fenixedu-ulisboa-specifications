@@ -123,7 +123,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                         .map(l -> new TupleDataSourceBean(((GradeScale) l).name(), ((GradeScale) l).getDescription()))
                         .collect(Collectors.<TupleDataSourceBean> toList()));
 
-        model.addAttribute("improvementSemesterValues", ExecutionSemester.readNotClosedPublicExecutionPeriods().stream()
+        model.addAttribute("improvementSemesterValues", ExecutionSemester.readNotClosedExecutionPeriods().stream()
                 .sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList()));
 
         model.addAttribute("executionSemester", semester);

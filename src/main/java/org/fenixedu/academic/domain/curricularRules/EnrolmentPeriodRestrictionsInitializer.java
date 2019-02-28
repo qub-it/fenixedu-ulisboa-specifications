@@ -95,12 +95,11 @@ public class EnrolmentPeriodRestrictionsInitializer {
     }
 
     static private ExecutionSemester getBeginExecutionSemester(final DegreeCurricularPlan dcp, final RootCourseGroup root) {
-        final Optional<Context> first =
-                root.getChildContextsSet().stream()
-                        .sorted((o1, o2) -> o1.getBeginExecutionPeriod().compareTo(o2.getBeginExecutionPeriod())).findFirst();
+        final Optional<Context> first = root.getChildContextsSet().stream()
+                .sorted((o1, o2) -> o1.getBeginExecutionPeriod().compareTo(o2.getBeginExecutionPeriod())).findFirst();
 
         final ExecutionSemester result =
-                first.isPresent() ? first.get().getBeginExecutionPeriod() : dcp.getFirstExecutionPeriodEnrolments();
+                first.isPresent() ? first.get().getBeginExecutionPeriod() : ExecutionSemester.readFirstExecutionSemester();
         return result;
     }
 

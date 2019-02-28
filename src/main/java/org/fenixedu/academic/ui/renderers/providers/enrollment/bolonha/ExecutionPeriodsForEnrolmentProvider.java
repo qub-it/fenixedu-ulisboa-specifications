@@ -38,9 +38,6 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.dto.student.IStudentCurricularPlanBean;
 import org.fenixedu.academic.ui.renderers.providers.ExecutionPeriodsForDismissalsStudentCurricularPlanProvider;
-import org.fenixedu.academic.ui.renderers.providers.ExecutionPeriodsForStudentCurricularPlanProvider;
-import org.joda.time.LocalDate;
-import org.joda.time.ReadableInstant;
 
 import com.google.common.collect.Sets;
 
@@ -49,7 +46,7 @@ import pt.ist.fenixWebFramework.renderers.DataProvider;
 import pt.ist.fenixWebFramework.renderers.components.converters.Converter;
 
 /**
- * @see {@link ExecutionPeriodsForStudentCurricularPlanProvider} and
+ * @see
  *      {@link ExecutionPeriodsForDismissalsStudentCurricularPlanProvider}
  * 
  */
@@ -64,11 +61,17 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
     public Object provide(Object source, Object currentValue) {
 
         final StudentCurricularPlan studentCurricularPlan = ((IStudentCurricularPlanBean) source).getStudentCurricularPlan();
-        final LocalDate beginDate = new LocalDate(getFirstExecutionYear(studentCurricularPlan).getBeginDateYearMonthDay());
-        final LocalDate endDate = new LocalDate(getLastExecutionYear(studentCurricularPlan).getEndDateYearMonthDay());
+
+        final ExecutionSemester beginInterval = getFirstExecutionYear(studentCurricularPlan).getFirstExecutionPeriod();
+        final ExecutionSemester endInterval = getLastExecutionYear(studentCurricularPlan).getLastExecutionPeriod();
 
         final SortedSet<ExecutionSemester> result = new TreeSet<ExecutionSemester>(Collections.reverseOrder());
-        result.addAll(ExecutionSemester.readExecutionPeriodsInTimePeriod(beginDate, endDate));
+
+        ExecutionSemester interval = beginInterval;
+        while (interval != null && interval.isBeforeOrEquals(endInterval)) {
+            result.add(interval);
+            interval = interval.getNextExecutionPeriod();
+        } 
 
         return result;
     }
