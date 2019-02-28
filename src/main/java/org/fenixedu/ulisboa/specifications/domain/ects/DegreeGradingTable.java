@@ -123,7 +123,9 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
     public static Set<DegreeGradingTable> generate(final ExecutionYear executionYear) {
         Set<DegreeGradingTable> allTables = new HashSet<>();
         Set<DataTuple> allTablesMetaData = new HashSet<>();
-        for (DegreeCurricularPlan dcp : executionYear.getDegreeCurricularPlans()) {
+        final Set<DegreeCurricularPlan> dcps = executionYear.getExecutionDegreesSet().stream()
+                .map(ed -> ed.getDegreeCurricularPlan()).collect(Collectors.toSet());
+        for (DegreeCurricularPlan dcp : dcps) {
             Degree degree = dcp.getDegree();
             if (!GradingTableSettings.getApplicableDegreeTypes().contains(degree.getDegreeType())) {
                 continue;

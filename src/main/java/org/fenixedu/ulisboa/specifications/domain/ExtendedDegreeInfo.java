@@ -91,7 +91,7 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
      */
     @Atomic
     public static ExtendedDegreeInfo getOrCreate(final ExecutionYear executionYear, final Degree degree) {
-        DegreeInfo di = executionYear.getDegreeInfo(degree);
+        DegreeInfo di = degree.getDegreeInfoFor(executionYear);
         if (di == null) {
             DegreeInfo mrdi = degree.getMostRecentDegreeInfo(executionYear);
             di = mrdi != null ? new DegreeInfo(mrdi, executionYear) : new DegreeInfo(degree, executionYear);

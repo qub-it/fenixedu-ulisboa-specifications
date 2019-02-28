@@ -112,7 +112,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                 studentCurricularPlan.getEnrolmentsSet().stream().filter(e -> e.getExecutionPeriod() == semester)
                         .sorted(CurriculumLineServices.COMPARATOR).collect(Collectors.toList()));
 
-        final boolean possibleOldData = semester.getExecutionYear().getEndCivilYear() < 2016;
+        final boolean possibleOldData = semester.getExecutionYear().getEndLocalDate().getYear() < 2016;
         final Stream<EvaluationSeason> evaluationSeasons =
                 possibleOldData ? EvaluationSeasonServices.findAll() : EvaluationSeasonServices.findByActive(true);
         model.addAttribute("typeValues",
