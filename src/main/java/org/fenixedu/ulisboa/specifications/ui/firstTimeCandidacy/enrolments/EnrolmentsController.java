@@ -63,7 +63,7 @@ public class EnrolmentsController extends EnrolmentAbstractController {
         StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(candidacy.getDegreeCurricularPlan());
 
         //In order to enrol, registration must be active
-        activateRegistration(registration);
+        activateRegistration(registration, executionYear.getFirstExecutionPeriod());
 
         //Enrol automatically if needed
         List<AcademicEnrolmentPeriodBean> periods = getAllAcademicEnrolmentPeriods(model, candidacy);
@@ -139,11 +139,11 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     }
 
     @Atomic
-    private void activateRegistration(final Registration registration) {
+    private void activateRegistration(final Registration registration, final ExecutionSemester executionSemester) {
         RegistrationState state = registration.getActiveState();
         if (state.getStateType().equals(RegistrationStateType.INACTIVE)) {
             RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                    RegistrationStateType.REGISTERED);
+                    RegistrationStateType.REGISTERED, executionSemester);
         }
     }
 

@@ -413,7 +413,7 @@ public class DgesStudentImportService {
     protected void markRegistrationAsInactive(final Registration registration) {
         registration.getActiveState().setStateDate(registration.getActiveState().getStateDate().minusMinutes(1));
         RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                RegistrationStateType.INACTIVE);
+                RegistrationStateType.INACTIVE, executionYear.getFirstExecutionPeriod());
     }
 
     private PersonalIngressionData findOrCreatePersonalIngressionData(final Registration registration) {

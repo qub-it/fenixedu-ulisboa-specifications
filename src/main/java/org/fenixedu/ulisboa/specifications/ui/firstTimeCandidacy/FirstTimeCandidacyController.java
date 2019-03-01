@@ -156,7 +156,7 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         RegistrationState registeredState = registration.getActiveState();
         registeredState.setStateDate(registeredState.getStateDate().minusMinutes(1));
         RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                RegistrationStateType.INACTIVE);
+                RegistrationStateType.INACTIVE, semester);
 
         return registration;
     }

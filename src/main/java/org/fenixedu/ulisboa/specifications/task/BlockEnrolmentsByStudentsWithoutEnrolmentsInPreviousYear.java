@@ -109,7 +109,7 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
 
                 try {
 
-                    blockRegistration(registration, reasons);
+                    blockRegistration(registration, reasons, currentExecutionYear.getFirstExecutionPeriod());
 
                     blocked.add(registrationInfo);
                     getLogger().info("Blocking enrolments for Registration [{}]", registrationInfo);
@@ -129,9 +129,9 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
     }
 
     @Atomic(mode = TxMode.WRITE)
-    protected void blockRegistration(final Registration registration, String reasons) {
+    protected void blockRegistration(final Registration registration, String reasons, final ExecutionSemester executionSemester) {
         final RegistrationState createdState = RegistrationState.createRegistrationState(registration, (Person) null,
-                new DateTime(), RegistrationStateType.INTERRUPTED);
+                new DateTime(), RegistrationStateType.INTERRUPTED, executionSemester);
         createdState.setRemarks(String.format("Estado criado automaticamente. %s", reasons));
     }
 

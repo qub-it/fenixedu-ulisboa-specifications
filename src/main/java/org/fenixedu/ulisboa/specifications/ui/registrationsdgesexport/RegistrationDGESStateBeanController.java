@@ -289,8 +289,9 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                 Registration registration = candidacy.getRegistration();
                 if (registration != null) {
                     if (!registration.getActiveState().getStateType().equals(RegistrationStateType.INACTIVE)) {
-                        RegistrationState registeredState = RegistrationState.createRegistrationState(registration,
-                                AccessControl.getPerson(), new DateTime(), RegistrationStateType.INACTIVE);
+                        RegistrationState registeredState =
+                                RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
+                                        RegistrationStateType.INACTIVE, candidacy.getExecutionYear().getFirstExecutionPeriod());
                         registeredState.setRemarks(
                                 BundleUtil.getString(BUNDLE, "label.RegistrationDGESState.registrationState.remarks"));
                     }
