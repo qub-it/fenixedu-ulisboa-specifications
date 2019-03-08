@@ -216,6 +216,14 @@ public class ResidenceInformationForm implements CandidancyForm {
     public void setDistrictSubdivisionOfResidence(DistrictSubdivision districtSubdivisionOfResidence) {
         this.districtSubdivisionOfResidence = districtSubdivisionOfResidence;
     }
+    
+    public String getDistrictSubdivisionOfResidenceName() {
+        return districtSubdivisionOfResidenceName;
+    }
+    
+    public void setDistrictSubdivisionOfResidenceName(String districtSubdivisionOfResidenceName) {
+        this.districtSubdivisionOfResidenceName = districtSubdivisionOfResidenceName;
+    }
 
     public Boolean getDislocatedFromPermanentResidence() {
         return dislocatedFromPermanentResidence != null && dislocatedFromPermanentResidence;
