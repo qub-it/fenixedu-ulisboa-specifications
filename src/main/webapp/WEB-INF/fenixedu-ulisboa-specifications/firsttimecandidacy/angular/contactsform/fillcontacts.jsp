@@ -134,7 +134,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				<div class="col-sm-10">
 					<input id="contactsForm_emergencyContact" class="form-control"
 						type="text" ng-model="object.emergencyContact" name="emergencyContact" required pattern="(\d{4,15})" title="<spring:message code="label.ContactsForm.emergencyContact.required"/>"
-						value='<c:out value='${contactsForm.emergencyContact}'/>' />
+						value='<c:out value='${not empty param.emergencyContact ? param.emergencyContact : contactsForm.emergencyContact}'/>' />
 				</div>
 			</div>
 			<div class="form-group row">

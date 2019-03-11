@@ -352,6 +352,7 @@ public class DgesStudentImportService {
                     .filter(pa -> Boolean.TRUE.equals(pa.getActive()))
                     .filter(pa -> pa.getCountryOfResidence() == Country.readDefault())
                     .findFirst();
+            
             if(fiscalAddress.isPresent()) {
                 person.editSocialSecurityNumber(FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber(), fiscalAddress.get());
                 addToReport(formatMessageWithLineNumber(entry, "[INFO]O contribuinte não está preenchido."));

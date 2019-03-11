@@ -110,6 +110,10 @@ public class ResidenceInformationFormController extends FormAbstractController {
             form.setParishOfResidence(
                     Parish.findByName(districtSubdivisionOfResidence, person.getDefaultPhysicalAddress().getParishOfResidence())
                             .orElse(null));
+            
+            if(!form.getCountryOfResidence().isDefaultCountry()) {
+                form.setDistrictSubdivisionOfResidenceName(defaultPhysicalAddress.getDistrictSubdivisionOfResidence());
+            }
         }
 
         form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
@@ -191,6 +195,10 @@ public class ResidenceInformationFormController extends FormAbstractController {
         if (form.getCountryOfResidence().isDefaultCountry() && StringUtils.isEmpty(form.getAreaCode())) {
             result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"));
         }
+        
+        if(!form.getCountryOfResidence().isDefaultCountry() && StringUtils.isEmpty(form.getDistrictSubdivisionOfResidenceName())) {
+            result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.candidacy.workflow.ResidenceInformationForm.districtSubdivisionOfResidence.city.required"));
+        }
 
         if (form.getDislocatedFromPermanentResidence()) {
             if (!form.isSchoolTimeRequiredInformationAddressFilled()) {
@@ -240,6 +248,11 @@ public class ResidenceInformationFormController extends FormAbstractController {
                 .getDistrict().getName() : null;
         String subdivision =
                 form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence().getName() : null;
+        
+        if(!form.getCountryOfResidence().isDefaultCountry()) {
+            subdivision = form.getDistrictSubdivisionOfResidenceName();
+        }
+        
         PhysicalAddressData physicalAddressData;
         if (person.getDefaultPhysicalAddress() == null
                 || !StringUtils.equals(form.getAddress(), person.getDefaultPhysicalAddress().getAddress())
@@ -262,6 +275,13 @@ public class ResidenceInformationFormController extends FormAbstractController {
                     parishOfResidence != null ? parishOfResidence.getName() : "", subdivision, district,
                     form.getCountryOfResidence());
 
+            boolean defaultAddressIsFiscalAddress = person.getDefaultPhysicalAddress() != null && person.getDefaultPhysicalAddress().isFiscalAddress();
+            boolean updateCountryOfResidence = person.getDefaultPhysicalAddress() != null && person.getDefaultPhysicalAddress().getCountryOfResidence() != form.getCountryOfResidence();
+            if(defaultAddressIsFiscalAddress && updateCountryOfResidence) {
+                // Mark the default address as not default address
+                person.getDefaultPhysicalAddress().setDefaultContact(false);
+            }
+            
             person.setDefaultPhysicalAddressData(physicalAddressData, true);
         }
 
