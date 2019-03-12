@@ -39,9 +39,8 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
         model.addAttribute("observations", RegistrationObservations.getReverseSortedObservations(registration));
         model.addAttribute("registration", registration);
 
-        String returnLink =
-                "/academicAdministration/registration.do?method=visualizeRegistration&registrationID="
-                        + registration.getExternalId();
+        String returnLink = "/academicAdministration/registration.do?method=visualizeRegistration&registrationID="
+                + registration.getExternalId();
         String contextPath = request.getContextPath();
         returnLink = GenericChecksumRewriter.injectChecksumInUrl(contextPath, returnLink, request.getSession());
         returnLink = contextPath.equals("/") ? returnLink : contextPath + returnLink;
@@ -71,7 +70,8 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
     }
 
     @RequestMapping(value = "/{registration}/observations/create", method = RequestMethod.GET)
-    public String prepareCreate(@PathVariable("registration") Registration registration, Model model, HttpServletRequest request) {
+    public String prepareCreate(@PathVariable("registration") Registration registration, Model model,
+            HttpServletRequest request) {
         model.addAttribute("createMode", true);
         return home(registration, model, request);
     }
@@ -89,12 +89,11 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
         if (!StringUtils.isEmpty(delete)) {
             model.addAttribute("deleted", true);
             registrationObservations.delete();
-            return home(registration, model, request);
         } else {
             registrationObservations.setValue(observations);
             model.addAttribute("saved", true);
-            return home(registration, model, request);
         }
+        return "redirect:/registrations/" + registration.getExternalId() + "/observations";
     }
 
     @Atomic

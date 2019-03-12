@@ -96,7 +96,7 @@
 <c:if test="${not empty editObservationText}">
 	<h2><spring:message code="label.student.observations.edit"></spring:message></h2>
 	<spring:message code="label.student.observations.by"></spring:message>:
-	${editObservation.versioningUpdatedBy}
+	${editObservation.versioningUpdatedBy.username}
 	<spring:message code="label.student.observations.in"></spring:message>:
 	<%=((RegistrationObservations) request.getAttribute("editObservation")).getVersioningUpdateDate().getDate().toString("dd/MM/yyyy hh:mm:ss")%>
 	<form id="editform" method="POST" action="${pageContext.request.contextPath}/registrations/${registration.externalId}/observations/${editObservation.externalId}">
@@ -111,7 +111,7 @@
 
 <script>
 	<c:if test="${not empty editObservationText}">
-		$('textarea').text("${editObservationText}");
+		$('textarea').text('${editObservationText}');
 	</c:if>
 	
 
