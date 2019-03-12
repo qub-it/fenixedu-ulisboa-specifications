@@ -36,7 +36,6 @@ import org.fenixedu.ulisboa.specifications.ui.student.enrolment.EnrolmentManagem
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassPreferenceStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.SchoolClassStudentEnrollmentDA;
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.ShiftEnrolmentController;
-import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
 
@@ -174,7 +173,7 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
     private boolean isDegreeExcluded(final User user, final HttpServletRequest request) {
         Set<Degree> excludedDegrees = BlueRecordConfiguration.getInstance().getExclusiveDegreesSet();
 
-        return user.getPerson().getStudent().getRegistrationsSet().stream()
-                .anyMatch(r -> r.isRegistered(new DateTime()) && excludedDegrees.contains(r.getDegree()));
+        return user.getPerson().getStudent().getRegistrationsSet().stream().filter(r -> r.isActive())
+                .allMatch(r -> excludedDegrees.contains(r.getDegree()));
     }
 }
