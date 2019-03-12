@@ -323,10 +323,7 @@ public class RegistrationHistoryReport implements Comparable<RegistrationHistory
     }
 
     public boolean hasAnyInactiveRegistrationStateForYear() {
-        return getRegistration()
-                .getRegistrationStates(getExecutionYear().getBeginLocalDate().toDateTimeAtStartOfDay(),
-                        getExecutionYear().getEndLocalDate().plusDays(1).toDateTimeAtStartOfDay().minusSeconds(1))
-                .stream().anyMatch(s -> !s.isActive());
+        return getRegistration().getRegistrationStatesTypes(getExecutionYear()).stream().anyMatch(s -> !s.isActive());
     }
 
     protected void addConclusion(ProgramConclusion programConclusion, RegistrationConclusionBean bean) {
