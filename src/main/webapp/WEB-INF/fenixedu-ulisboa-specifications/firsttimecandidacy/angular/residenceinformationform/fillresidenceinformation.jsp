@@ -164,10 +164,12 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
 				<div class="col-sm-10">
 					<input id="residenceInformationForm_address" class="form-control"
-						type="text" ng-model="object.address" name="address"
+						type="text" ng-model="object.address" name="address" ng-required="true"
 						value='<c:out value='${not empty param.address ? param.address : residenceInformationForm.address }'/>' />
 				</div>
 			</div>
+
+			<%-- 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label" id="labelArea">
 					<spring:message code="label.ResidenceInformationForm.area" />
@@ -179,6 +181,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 						value='<c:out value='${not empty param.area ? param.area : residenceInformationForm.area }'/>' />
 				</div>
 			</div>
+			--%>
 			
 			<div class="form-group row" >
 				<div class="col-sm-2 control-label" id="labelAreaCode" ng-class="object.countryOfResidence === defaultCountry ? 'required-field' : ''" >
@@ -245,6 +248,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     <div class="form-control-static">{{ object.parishOfResidenceName }}</div>
 				</div>
 			</div>
+
 			<div class="form-group row">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message
@@ -264,6 +268,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </ui-select>
 				</div>
 			</div>
+
 			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message
@@ -276,6 +281,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 						value='<c:out value='${not empty param.schooltimeaddress ? param.schooltimeaddress : residenceInformationForm.schoolTimeAddress }'/>' />
 				</div>
 			</div>
+			
+			<%-- 
 			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
 				<div class="col-sm-2 control-label">
 					<spring:message
@@ -288,6 +295,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 						value='<c:out value='${not empty param.schooltimearea ? param.schooltimearea : residenceInformationForm.schoolTimeArea }'/>' />
 				</div>
 			</div>
+			--%>
+			
 			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message

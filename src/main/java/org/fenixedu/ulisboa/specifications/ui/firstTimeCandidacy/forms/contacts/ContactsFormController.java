@@ -28,6 +28,7 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.Candidanc
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.ResidenceInformationFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.personalinfo.FiscalInformationFormController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -241,7 +242,7 @@ public class ContactsFormController extends FormAbstractController {
 
     @Override
     protected String backScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(ResidenceInformationFormController.CONTROLLER_URL, executionYear), model,
+        return redirect(urlWithExecutionYear(FiscalInformationFormController.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
     }
 

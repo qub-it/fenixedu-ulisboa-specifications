@@ -93,7 +93,6 @@ public class ResidenceInformationForm implements CandidancyForm {
                         .collect(Collectors.toList()));
             }
         } else {
-            setAreaCode(null);
             setAreaCodePart(null);
             setAreaCodeValuesFormatted(Collections.emptyList());
         }
@@ -311,8 +310,16 @@ public class ResidenceInformationForm implements CandidancyForm {
     }
 
     protected boolean isResidenceInformationFilled() {
-        return !(getDistrictOfResidence() == null || getDistrictSubdivisionOfResidence() == null || parishOfResidence == null
-                || StringUtils.isEmpty(address) || StringUtils.isEmpty(areaCode));
+        if(getCountryOfResidence() == null) {
+            return false;
+        }
+        
+        if(getCountryOfResidence().isDefaultCountry()) {
+            return !(getDistrictOfResidence() == null || getDistrictSubdivisionOfResidence() == null || parishOfResidence == null
+                    || StringUtils.isEmpty(address) || StringUtils.isEmpty(areaCode));
+        } else {
+            return !(StringUtils.isEmpty(getDistrictSubdivisionOfResidenceName()) || StringUtils.isEmpty(address));
+        }
     }
 
     protected boolean isAnySchoolTimeAddressInformationFilled() {

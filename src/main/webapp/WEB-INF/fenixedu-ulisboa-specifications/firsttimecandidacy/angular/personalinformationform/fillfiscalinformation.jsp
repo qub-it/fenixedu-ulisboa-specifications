@@ -1,3 +1,4 @@
+<%@page import="org.fenixedu.academic.FenixEduAcademicConfiguration"%>
 <%@page import="org.fenixedu.academic.domain.Country"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
@@ -78,10 +79,10 @@ ${portal.angularToolkit()}
 				</div>	
 			</c:if>
 
-<script>
+<script type="text/javascript">
 angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).controller('angularController', ['$scope', function($scope) {
 
-    $scope.object= ${residenceInformationFormJson};
+    $scope.object= ${fiscalInformationFormJson};
     $scope.postBack = createAngularPostbackFunction($scope);
     
     $scope.booleanvalues = [
@@ -98,15 +99,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         $scope.$apply();  
         $scope.postBack(model);
     };
-    $scope.onSchoolTimeAreaCodeRefresh = function(areaCode, namePart, model) {
-        if(namePart.length <= 3 || namePart === $scope.object.schoolTimeAreaCodePart) {
-            $scope.object.schoolTimeAreaCodeValues = undefined;
-            return;
-        }
-        $scope.object.schoolTimeAreaCodePart = namePart;
-        $scope.$apply();  
-        $scope.postBack(model);
-    };
+
     $scope.onCountryChange = function(country, model) {
         $scope.object.countriesValues = undefined;
         $scope.object.areaCodeValues = undefined;
@@ -116,16 +109,11 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
         
         $scope.postBack(model);
     };
+    
     $scope.onAreaCodeChange = function (areaCode, model) {
 	    $scope.postBack(model);	
     }
-    $scope.onResidenceTypeChange = function(residenceType, model) {
-	    if($scope.object.schoolTimeResidenceType == null) {
-		    return;
-	    }
-
-	    $scope.postBack(model);
-    }
+    
     $scope.submitForm = function() {
        $('form').submit();
     };
@@ -135,87 +123,137 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 <form name='form' method="post" class="form-horizontal" ng-app="angularApp" ng-controller="angularController"
      action="${pageContext.request.contextPath}${controllerURL}/fill">
 
-    <input type="hidden" name="postback"
-        value='${pageContext.request.contextPath}${controllerURL}/fillPostback' />
+    <input type="hidden" name="postback" value='${pageContext.request.contextPath}${controllerURL}/fillPostback' />
         
     <input name="bean" type="hidden" value="{{ object }}" />
 
 	<div class="panel panel-default">
 		<div class="panel-body">
+		
+			<div class="form-group row">
+				<label for="fiscalInformationForm_socialSecurityNumber" class="col-sm-2 control-label" ng-class="{'required-field' : true}">
+					<spring:message code="label.FiscalInformationForm.socialSecurityNumber" />
+				</label>
+
+				<div class="col-sm-10">
+					<input id="fiscalInformationForm_socialSecurityNumber" class="form-control" type="text" aria-describedby="socialSecurityNumber-info"
+						ng-model="object.socialSecurityNumber" name="socialSecurityNumber" ng-required="true"
+						value='<c:out value='${not empty param.socialsecuritynumber ? param.socialsecuritynumber : fiscalInformationForm.socialSecurityNumber }'/>'
+						pattern="(\d{9})" />
+						
+					<p class="alert alert-warning" id="socialSecurityNumber-info">
+						<spring:message code='label.FiscalInformationForm.socialSecurityNumber.default' arguments='<%= FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber() %>'/>
+					</p>
+				</div>
+			</div>
+
 			<div class="form-group row">
 				<div class="col-sm-2 control-label required-field">
-					<spring:message
-						code="label.ResidenceInformationForm.countryOfResidence" />
+					<spring:message code="label.FiscalInformationForm.associateExistingPhysicalAddresses" />
+				</div>
+
+				<div class="col-sm-2">
+                    <ui-select id="fiscalInformationForm_associateExistingPhysicalAddresses" name="associateExistingPhysicalAddresses"
+                        ng-model="$parent.object.associateExistingPhysicalAddresses" theme="bootstrap" > 
+                        <ui-select-match allow-clear="false">
+                            {{$select.selected.name}}
+                        </ui-select-match>
+                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
+                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+				</div>
+			</div>
+
+			<div class="form-group row" ng-show="object.associateExistingPhysicalAddresses === true" >
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.FiscalInformationForm.fiscalAddress" />
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_countryOfResidence" name="countryOfResidence" ng-model="$parent.object.countryOfResidence" on-select="onCountryChange($item,$model)" theme="bootstrap">
+                    <ui-select  id="fiscalInformationForm_fiscalAddress" name="fiscalAddress" ng-model="$parent.object.fiscalAddress" theme="bootstrap">
+                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
+                        <ui-select-choices  repeat="fiscalAddress.id as fiscalAddress in object.fiscalAddressValues | filter: $select.search">
+                            <span ng-bind-html="fiscalAddress.text | highlight: $select.search"></span>
+                        </ui-select-choices>
+                    </ui-select>
+				</div>
+			</div>
+
+			<div class="form-group row" ng-show="object.associateExistingPhysicalAddresses === false">
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.FiscalInformationForm.countryOfResidence" />
+				</div>
+
+				<div class="col-sm-10">
+                    <ui-select  id="fiscalInformationForm_countryOfResidence" name="countryOfResidence" ng-model="$parent.object.countryOfResidence" on-select="onCountryChange($item,$model)" theme="bootstrap">
                         <ui-select-match >{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="country.id as country in object.countriesValues | filter: $select.search">
                             <span ng-bind-html="country.text | highlight: $select.search"></span>
                         </ui-select-choices> 
-                    </ui-select>    
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label required-field">
-					<spring:message code="label.ResidenceInformationForm.address" />
-				</div>
-
-				<div class="col-sm-10">
-					<input id="residenceInformationForm_address" class="form-control"
-						type="text" ng-model="object.address" name="address"
-						value='<c:out value='${not empty param.address ? param.address : residenceInformationForm.address }'/>' />
-				</div>
-			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label" id="labelArea">
-					<spring:message code="label.ResidenceInformationForm.area" />
-				</div>
-
-				<div class="col-sm-10">
-					<input id="residenceInformationForm_area" class="form-control"
-						type="text" ng-model="object.area" name="area"
-						value='<c:out value='${not empty param.area ? param.area : residenceInformationForm.area }'/>' />
+                    </ui-select>
 				</div>
 			</div>
 			
-			<div class="form-group row" >
-				<div class="col-sm-2 control-label" id="labelAreaCode" ng-class="object.countryOfResidence === defaultCountry ? 'required-field' : ''" >
-					<spring:message code="label.ResidenceInformationForm.areaCode" />
+			<div class="form-group row" ng-show="object.associateExistingPhysicalAddresses === false">
+				<div class="col-sm-2 control-label required-field">
+					<spring:message code="label.FiscalInformationForm.address" />
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_areaCode" name="areaCode" ng-model="$parent.object.areaCode" on-select="onAreaCodeChange($item,$model)" 
+					<input id="fiscalInformationForm_address" class="form-control" type="text" ng-model="object.address" name="address"
+						value='<c:out value='${not empty param.address ? param.address : fiscalInformationForm.address }'/>' />
+				</div>
+			</div>
+			
+			<%-- 
+			<div class="form-group row" ng-show="object.associateExistingPhysicalAddresses === false">
+				<div class="col-sm-2 control-label" id="labelArea">
+					<spring:message code="label.FiscalInformationForm.area" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="fiscalInformationForm_area" class="form-control" type="text" ng-model="object.area" name="area"
+						value='<c:out value='${not empty param.area ? param.area : fiscalInformationForm.area }'/>' />
+				</div>
+			</div>
+			--%>
+			
+			<div class="form-group row" ng-show="object.associateExistingPhysicalAddresses === false">
+				<div class="col-sm-2 control-label" id="labelAreaCode" ng-class="object.countryOfResidence === defaultCountry ? 'required-field' : ''" >
+					<spring:message code="label.FiscalInformationForm.areaCode" />
+				</div>
+
+				<div class="col-sm-10">
+                    <ui-select  id="fiscalInformationForm_areaCode" name="areaCode" ng-model="$parent.object.areaCode" on-select="onAreaCodeChange($item,$model)" 
                     	theme="bootstrap" ng-show="object.countryOfResidence === defaultCountry" >
                         <ui-select-match placeholder="">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="areaCode.id as areaCode in object.areaCodeValues"
-                                            refresh="onAreaCodeRefresh($item, $select.search, $model)"
-                                            refresh-delay="0">
+                                            refresh="onAreaCodeRefresh($item, $select.search, $model)" refresh-delay="0">
                             <span ng-bind-html="areaCode.text | highlight: $select.search"></span>
                         </ui-select-choices> 
                     </ui-select>    
 
-					<input id="residenceInformationForm_areaCodeText"
-						ng-show="object.countryOfResidence !== defaultCountry"
+					<input id="fiscalInformationForm_areaCodeText" ng-show="object.countryOfResidence !== defaultCountry"
 						class="form-control" ng-model="object.areaCode" type="text" name="areaCode"
-						value='<c:out value='${not empty param.areaCode ? param.areaCode : residenceInformationForm.areaCode }'/>' />
-
+						value='<c:out value='${not empty param.areaCode ? param.areaCode : fiscalInformationForm.areaCode }'/>' />
 				</div>
+				
 			</div>
 			
-			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
+			<div class="form-group row" ng-show="object.associateExistingPhysicalAddresses === false && object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
 				<div class="col-sm-2 control-label required-field" id="labelDistrictOfResidence">
-					<spring:message code="label.ResidenceInformationForm.districtOfResidence" />
+					<spring:message code="label.FiscalInformationForm.districtOfResidence" />
 				</div>
 
 				<div class="col-sm-10">
                     <div class="form-control-static">{{ object.districtOfResidenceName }}</div>
 				</div>
 			</div>
-			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
+			
+			<div class="form-group row" ng-show="object.associateExistingPhysicalAddresses === false && object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
 				<div class="col-sm-2 control-label required-field" id="labelDistrictSubdivisionOfResidence">
-					<spring:message code="label.ResidenceInformationForm.districtSubdivisionOfResidence" />
+					<spring:message code="label.FiscalInformationForm.districtSubdivisionOfResidence" />
 				</div>
 
 				<div class="col-sm-10">
@@ -223,142 +261,29 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 				</div>
 			</div>
 			
-			<div class="form-group row" ng-show="object.countryOfResidence !== defaultCountry">
+			<div class="form-group row" ng-show="object.associateExistingPhysicalAddresses === false && object.countryOfResidence !== defaultCountry">
 				<div class="col-sm-2 control-label required-field" id="labelDistrictSubdivisionOfResidence">
-					<spring:message code="label.ResidenceInformationForm.districtSubdivisionOfResidence.city" />
+					<spring:message code="label.FiscalInformationForm.districtSubdivisionOfResidence.city" />
 				</div>
 
 				<div class="col-sm-10">
-					<input id="residenceInformationForm_districtSubdivisionOfResidence"
+					<input id="fiscalInformationForm_districtSubdivisionOfResidence"
 						ng-show="object.countryOfResidence !== defaultCountry"
 						class="form-control" ng-model="object.districtSubdivisionOfResidenceName" type="text" name="districtSubdivisionOfResidenceName"
-						value='<c:out value='${not empty param.districtSubdivisionOfResidenceName ? param.districtSubdivisionOfResidenceName : residenceInformationForm.districtSubdivisionOfResidenceName }'/>' />
+						value='<c:out value='${not empty param.districtSubdivisionOfResidenceName ? param.districtSubdivisionOfResidenceName : fiscalInformationForm.districtSubdivisionOfResidenceName }'/>' />
 				</div>
 			</div>
 			
-			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
+			<div class="form-group row" ng-show="object.associateExistingPhysicalAddresses === false && object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
 				<div class="col-sm-2 control-label required-field" id="labelParishOfResidence">
-					<spring:message code="label.ResidenceInformationForm.parishOfResidence" />
+					<spring:message code="label.FiscalInformationForm.parishOfResidence" />
 				</div>
 
 				<div class="col-sm-10">
                     <div class="form-control-static">{{ object.parishOfResidenceName }}</div>
 				</div>
 			</div>
-			<div class="form-group row">
-				<div class="col-sm-2 control-label required-field">
-					<spring:message
-						code="label.ResidenceInformationForm.dislocatedFromPermanentResidence" />
-				</div>
 
-				<div class="col-sm-2">
-                    <ui-select id="residenceInformationForm_dislocatedFromPermanentResidence" name="dislocatedFromPermanentResidence"
-                        ng-model="$parent.object.dislocatedFromPermanentResidence"
-                        theme="bootstrap" > 
-                        <ui-select-match allow-clear="false">
-                            {{$select.selected.name}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select>
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
-				<div class="col-sm-2 control-label required-field">
-					<spring:message
-						code="label.ResidenceInformationForm.schoolTimeAddress" />
-				</div>
-
-				<div class="col-sm-10">
-					<input id="residenceInformationForm_schoolTimeAddress"
-						class="form-control" ng-model="object.schoolTimeAddress" type="text" name="schoolTimeAddress"
-						value='<c:out value='${not empty param.schooltimeaddress ? param.schooltimeaddress : residenceInformationForm.schoolTimeAddress }'/>' />
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
-				<div class="col-sm-2 control-label">
-					<spring:message
-						code="label.ResidenceInformationForm.schoolTimeArea" />
-				</div>
-
-				<div class="col-sm-10">
-					<input id="residenceInformationForm_schoolTimeArea"
-						class="form-control" ng-model="object.schoolTimeArea" type="text" name="schoolTimeArea"
-						value='<c:out value='${not empty param.schooltimearea ? param.schooltimearea : residenceInformationForm.schoolTimeArea }'/>' />
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
-				<div class="col-sm-2 control-label required-field">
-					<spring:message
-						code="label.ResidenceInformationForm.schoolTimeAreaCode" />
-				</div>
-
-				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_schoolTimeAreaCode" name="schoolTimeAreaCode" ng-model="$parent.object.schoolTimeAreaCode" on-select="onAreaCodeChange($item, $model)" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="areaCode.id as areaCode in object.schoolTimeAreaCodeValues | filter: $select.search"
-                                            refresh="onSchoolTimeAreaCodeRefresh($item, $select.search, $model)"
-                                            refresh-delay="0">
-                            <span ng-bind-html="areaCode.text | highlight: $select.search"></span>
-                        </ui-select-choices> 
-                    </ui-select> 
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence && object.schoolTimeAreaCode.length > 3">
-				<div class="col-sm-2 control-label required-field">
-					<spring:message
-						code="label.ResidenceInformationForm.schoolTimeDistrictOfResidence" />
-				</div>
-
-				<div class="col-sm-10">
-                    <div class="form-control-static">{{ object.schoolTimeDistrictOfResidenceName }}</div>
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence && object.schoolTimeAreaCode.length > 3">
-				<div class="col-sm-2 control-label required-field">
-					<spring:message
-						code="label.ResidenceInformationForm.schoolTimeDistrictSubdivisionOfResidence" />
-				</div>
-
-				<div class="col-sm-10">
-                    <div class="form-control-static">{{ object.schoolTimeDistrictSubdivisionOfResidenceName }}</div>
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence && object.schoolTimeAreaCode.length > 3">
-				<div class="col-sm-2 control-label required-field">
-					<spring:message
-						code="label.ResidenceInformationForm.schoolTimeParishOfResidence" />
-				</div>
-
-				<div class="col-sm-10">
-                    <div class="form-control-static">{{ object.schoolTimeParishOfResidenceName }}</div>
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
-				<div class="col-sm-2 control-label ">
-					<spring:message code="label.ResidenceInformationForm.schoolTimeResidenceType" />
-				</div>
-
-				<div class="col-sm-4">
-                    <ui-select  id="residenceInformationForm_schoolTimeResidenceType" name="schoolTimeResidenceType" ng-model="$parent.object.schoolTimeResidenceType" on-select="onResidenceTypeChange($item, $model)" theme="bootstrap">
-                        <ui-select-match >{{$select.selected.text}}</ui-select-match> 
-                        <ui-select-choices  repeat="dislocatedResidenceType.id as dislocatedResidenceType in object.residenceTypeValues | filter: $select.search">
-                            <span ng-bind-html="dislocatedResidenceType.text | highlight: $select.search"></span>
-                        </ui-select-choices> 
-                    </ui-select> 
-				</div>
-			</div>
-			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence && object.isOtherResidenceType">
-				<div class="col-sm-2 control-label required-field">
-					<spring:message code="label.ResidenceInformationForm.otherSchoolTimeResidenceType" />
-				</div>
-
-				<div class="col-sm-10">
-					<input id="residenceInformationForm_otherSchoolTimeResidenceType" class="form-control" type="text" ng-model="object.otherSchoolTimeResidenceType" name="otherSchoolTimeResidenceType"
-						value='<c:out value='${not empty param.otherSchoolTimeResidenceType ? param.otherSchoolTimeResidenceType : residenceInformationForm.otherSchoolTimeResidenceType }'/>' />
-				</div>
-			</div>
 		</div>
 		<div class="panel-footer">
             <button type="button" class="btn btn-primary" role="button" ng-click="submitForm()"><spring:message code="label.submit" /></button>
