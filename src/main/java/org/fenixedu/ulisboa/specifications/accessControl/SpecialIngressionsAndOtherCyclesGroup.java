@@ -9,7 +9,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.degree.DegreeType;
@@ -138,7 +137,7 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
     }
 
     boolean isMemberStudent(final Student student) {
-        return student.getActiveRegistrationsIn(ExecutionSemester.readActualExecutionSemester()).stream().anyMatch(isValid);
+        return student.getActiveRegistrationStream().anyMatch(isValid);
     }
 
 }

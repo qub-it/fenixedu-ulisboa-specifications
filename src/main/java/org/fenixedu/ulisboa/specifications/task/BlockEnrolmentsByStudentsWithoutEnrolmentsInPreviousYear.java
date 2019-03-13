@@ -28,7 +28,7 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
     @Override
     public void runTask() throws Exception {
 
-        final ExecutionSemester currentExecutionSemester = ExecutionSemester.readActualExecutionSemester();
+        final ExecutionSemester currentExecutionSemester = ExecutionSemester.findCurrent(null);
         final ExecutionYear currentExecutionYear = currentExecutionSemester.getExecutionYear();
         final ExecutionYear previousExecutionYear = currentExecutionYear.getPreviousExecutionYear();
 

@@ -150,7 +150,7 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         pdi.getPersonalIngressionData().setStudent(studentCandidacy.getPerson().getStudent());
 
         DegreeCurricularPlan curricularPlan = studentCandidacy.getExecutionDegree().getDegreeCurricularPlan();
-        ExecutionSemester semester = ExecutionSemester.readActualExecutionSemester();
+        ExecutionSemester semester = ExecutionSemester.findCurrent(registration.getDegree().getCalendar());
         StudentCurricularPlan.createBolonhaStudentCurricularPlan(registration, curricularPlan, new YearMonthDay(), semester);
 
         RegistrationState registeredState = registration.getActiveState();

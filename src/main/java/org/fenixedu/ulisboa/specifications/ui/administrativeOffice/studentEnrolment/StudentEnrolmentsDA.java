@@ -108,7 +108,8 @@ public class StudentEnrolmentsDA
                 ExecutionSemester executionSemester = getDomainObject(request, "executionSemesterID");
                 if (executionSemester == null) {
                     final ExecutionYear lastScpExecutionYear = plan.getLastExecutionYear();
-                    final ExecutionSemester currentSemester = ExecutionSemester.readActualExecutionSemester();
+                    final ExecutionSemester currentSemester =
+                            ExecutionSemester.findCurrent(plan.getRegistration().getDegree().getCalendar());
                     executionSemester = lastScpExecutionYear == null
                             || currentSemester.getExecutionYear() == lastScpExecutionYear ? currentSemester : lastScpExecutionYear
                                     .getFirstExecutionPeriod();

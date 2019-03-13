@@ -99,10 +99,11 @@ public class RegistrationDataBean implements Serializable {
 
     private SchoolClass getSchoolClass() {
         if (this.schoolClass == null) {
+            final Registration registration = getRegistration();
             final ExecutionSemester executionSemester = getExecutionYear().isCurrent() ? ExecutionSemester
-                    .readActualExecutionSemester() : getExecutionYear().getFirstExecutionPeriod();
+                    .findCurrent(registration.getDegree().getCalendar()) : getExecutionYear().getFirstExecutionPeriod();
 
-            this.schoolClass = RegistrationServices.getSchoolClassBy(getRegistration(), executionSemester).orElse(null);
+            this.schoolClass = RegistrationServices.getSchoolClassBy(registration, executionSemester).orElse(null);
         }
 
         return this.schoolClass;
