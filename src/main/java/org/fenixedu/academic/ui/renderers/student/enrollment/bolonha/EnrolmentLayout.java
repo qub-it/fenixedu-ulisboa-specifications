@@ -208,11 +208,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
         final HtmlTableCell titleCell = groupHeaderRow.createCell();
         if (studentCurriculumGroupBean.getCurriculumModule().isRoot()) {
-            if (studentCurriculumGroupBean.getCurriculumModule().getDegreeCurricularPlanOfStudent().isEmpty()) {
-                titleCell.setBody(new HtmlText(studentCurriculumGroupBean.getCurriculumModule().getName().getContent()));
-            } else {
-                titleCell.setBody(createDegreeCurricularPlanLink(studentCurriculumGroupBean));
-            }
+            titleCell.setBody(createDegreeCurricularPlanLink(studentCurriculumGroupBean));
         } else if (studentCurriculumGroupBean.getCurriculumModule().isCycleCurriculumGroup()) {
             setTitleCellInformation(groupHeaderRow, titleCell, studentCurriculumGroupBean, executionSemester);
 
@@ -332,7 +328,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     static public void addCreditsConcluded(final CurriculumGroup group, final ExecutionSemester semester,
             final StringBuilder result) {
         result.append(" <span title=\"");
-        result.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded", semester.getExecutionYear().getQualifiedName()));
+        result.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded",
+                semester.getExecutionYear().getQualifiedName()));
         result.append(" \"> " + i18n(Bundle.APPLICATION, "label.curriculum.credits.concludedCredits") + " (");
         result.append(CurriculumModuleServices.getCreditsConcluded(group, semester.getExecutionYear()));
         result.append(")</span>");

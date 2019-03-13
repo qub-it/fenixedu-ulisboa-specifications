@@ -103,11 +103,7 @@ public class ImprovementEnrolmentLayout extends EnrolmentLayout {
         final HtmlTableRow headerRow = table.createRow();
         headerRow.setClasses(getRenderer().getGroupRowClasses());
         final HtmlTableCell titleCell = headerRow.createCell();
-        if (studentCurriculumGroupBean.getCurriculumModule().getDegreeCurricularPlanOfStudent().isEmpty()) {
-            titleCell.setBody(new HtmlText(studentCurriculumGroupBean.getCurriculumModule().getName().getContent()));
-        } else {
-            titleCell.setBody(createDegreeCurricularPlanLink(studentCurriculumGroupBean));
-        }
+        titleCell.setBody(createDegreeCurricularPlanLink(studentCurriculumGroupBean));
 
         final HtmlTable coursesTable = createCoursesTable(blockContainer, depth);
         generateAllEnrolments(coursesTable, studentCurriculumGroupBean, executionSemester);
