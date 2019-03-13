@@ -31,7 +31,7 @@ public class SecondCycleFirstYearGroup extends CustomGroup {
 
     @Override
     public Stream<User> getMembers() {
-        return ExecutionYear.readCurrentExecutionYear().getStudentsSet().stream()
+        return ExecutionYear.findCurrents().stream().flatMap(ey -> ey.getStudentsSet().stream())
                 .filter(r -> r.getDegreeType() == masterBolonha || r.getDegreeType() == phdBolonha)
                 .map(r -> r.getPerson().getUser());
     }
@@ -54,9 +54,8 @@ public class SecondCycleFirstYearGroup extends CustomGroup {
     }
 
     private boolean isMemberStudent(final Student student) {
-        return student.getActiveRegistrations().stream()
-                .anyMatch(r -> r.getStartExecutionYear() == ExecutionYear.readCurrentExecutionYear()
-                        && (r.getDegreeType() == masterBolonha || r.getDegreeType() == phdBolonha));
+        return student.getActiveRegistrations().stream().anyMatch(r -> r.getStartExecutionYear().isCurrent()
+                && (r.getDegreeType() == masterBolonha || r.getDegreeType() == phdBolonha));
     }
 
     @Override

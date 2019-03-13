@@ -3,7 +3,9 @@ package org.fenixedu.ulisboa.specifications.ui.blue_record.authentication;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -87,11 +89,10 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
 
         final List<ExecutionYear> result = new ArrayList<>();
 
-        final ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
-        result.add(currentExecutionYear);
-        if (currentExecutionYear.getNextExecutionYear() != null) {
-            result.add(currentExecutionYear.getNextExecutionYear());
-        }
+        final Collection<ExecutionYear> currents = ExecutionYear.findCurrents();
+        result.addAll(currents);
+
+        currents.stream().map(c -> c.getNextExecutionYear()).filter(Objects::nonNull).forEach(y -> result.add(y));
 
         return result;
     }

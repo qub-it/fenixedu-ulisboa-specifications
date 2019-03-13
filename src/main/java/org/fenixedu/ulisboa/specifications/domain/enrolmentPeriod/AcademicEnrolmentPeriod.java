@@ -213,7 +213,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
     }
 
     private boolean isValidRegistration(final Registration input, final boolean skipRegistrationState) {
-        if (!skipRegistrationState && !input.isActive()) {
+        if (!skipRegistrationState && !input.isActive()) { // TODO pass interval as argument
             return false;
         }
 

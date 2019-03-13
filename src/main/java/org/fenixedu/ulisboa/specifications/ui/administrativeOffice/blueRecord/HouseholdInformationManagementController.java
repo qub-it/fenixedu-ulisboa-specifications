@@ -147,7 +147,7 @@ public class HouseholdInformationManagementController extends HouseholdInformati
 
         if (form.getExecutionYear() == null) {
             addErrorMessage(ULisboaSpecificationsUtil.bundle("label.HouseholdInformationForm.executionYear.required"), model);
-            form.setExecutionYear(ExecutionYear.readCurrentExecutionYear());
+            form.setExecutionYear(ExecutionYear.findCurrent(null));
             valid = false;
         }
 

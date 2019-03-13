@@ -19,8 +19,8 @@ public class EnrolmentsInCurricularYear extends EnrolmentsInCurricularYear_Base 
 
     @Override
     public RuleResult execute(Curriculum curriculum) {
-        final ExecutionYear executionYear =
-                curriculum.getExecutionYear() == null ? ExecutionYear.readCurrentExecutionYear() : curriculum.getExecutionYear();
+        final ExecutionYear executionYear = curriculum.getExecutionYear() == null ? ExecutionYear.findCurrent(curriculum
+                .getStudentCurricularPlan().getRegistration().getDegree().getCalendar()) : curriculum.getExecutionYear();
 
         final int curricularYear = getYearMin();
         if (curriculum.getStudentCurricularPlan().getEnrolmentsByExecutionYear(executionYear).stream()

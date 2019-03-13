@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestProperty;
@@ -37,9 +38,10 @@ public class FillEnrolmentsByYearPropertyProcessor extends FillEnrolmentsByYearP
         }
 
         if (!request.hasEnrolmentsByYear()) {
-            ExecutionYear executionYear =
-                    request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear.readCurrentExecutionYear();
-            List<ICurriculumEntry> enrolments = request.getRegistration().getStudentCurricularPlan(executionYear)
+            final Registration registration = request.getRegistration();
+            ExecutionYear executionYear = request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear
+                    .findCurrent(registration.getDegree().getCalendar());
+            List<ICurriculumEntry> enrolments = registration.getStudentCurricularPlan(executionYear)
                     .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isNormalEnrolment)
                     .map(ICurriculumEntry.class::cast).collect(Collectors.toList());
             if (validate(enrolments)) {

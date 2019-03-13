@@ -95,7 +95,7 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     @RequestMapping(value = _SEARCH_URI)
     public String search(@RequestParam(value = "executionYear", required = false) ExecutionYear executionYear, Model model) {
         if (executionYear == null) {
-            executionYear = ExecutionYear.readCurrentExecutionYear();
+            executionYear = ExecutionYear.findCurrent(null);
         }
         loadModel(model, executionYear);
         return VIEW_URL + "search";
@@ -104,7 +104,7 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     @RequestMapping(value = _SEARCH_URI + "{oid}", method = RequestMethod.GET)
     public String backToSearch(@PathVariable(value = "oid") ExecutionYear executionYear, Model model) {
         if (executionYear == null) {
-            executionYear = ExecutionYear.readCurrentExecutionYear();
+            executionYear = ExecutionYear.findCurrent(null);
         }
         loadModel(model, executionYear);
         return VIEW_URL + "search";

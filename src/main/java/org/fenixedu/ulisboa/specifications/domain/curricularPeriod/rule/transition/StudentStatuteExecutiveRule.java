@@ -64,8 +64,8 @@ public class StudentStatuteExecutiveRule extends StudentStatuteExecutiveRule_Bas
     @Override
     public RuleResult execute(final Curriculum curriculum) {
         final Registration registration = curriculum.getStudentCurricularPlan().getRegistration();
-        final ExecutionYear executionYear =
-                curriculum.getExecutionYear() == null ? ExecutionYear.readCurrentExecutionYear() : curriculum.getExecutionYear();
+        final ExecutionYear executionYear = curriculum.getExecutionYear() == null ? ExecutionYear
+                .findCurrent(registration.getDegree().getCalendar()) : curriculum.getExecutionYear();
 
         for (final StatuteType iter : StatuteServices.findStatuteTypes(registration, executionYear)) {
             if (getStatuteType() == iter) {

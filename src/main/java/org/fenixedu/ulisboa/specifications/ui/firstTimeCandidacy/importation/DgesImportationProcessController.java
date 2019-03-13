@@ -103,7 +103,7 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
             executionYear = (ExecutionYear) FenixFramework.getDomainObject(flashExecutionYearId);
         }
         if (executionYear == null) {
-            executionYear = ExecutionYear.readCurrentExecutionYear();
+            executionYear = ExecutionYear.findCurrent(null);
         }
 
         //Creating a bean to provide a sorted execution year set
@@ -128,7 +128,7 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
     @RequestMapping(value = _CREATE_URI, method = RequestMethod.GET)
     public String create(final Model model) {
         if (getDgesBaseProcessBean(model) == null) {
-            setDgesBaseProcessBean(new DgesImportProcessBean(ExecutionYear.readCurrentExecutionYear()), model);
+            setDgesBaseProcessBean(new DgesImportProcessBean(ExecutionYear.findCurrent(null)), model);
         }
 
         return VIEW_URL + "/create";

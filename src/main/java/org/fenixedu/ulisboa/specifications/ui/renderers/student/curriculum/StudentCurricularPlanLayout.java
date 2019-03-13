@@ -265,8 +265,11 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected ExecutionYear initializeExecutionYear() {
 
-        if (!studentCurricularPlan.getRegistration().hasConcluded()) {
-            return ExecutionYear.readCurrentExecutionYear();
+        final Registration registration = studentCurricularPlan.getRegistration();
+        final ExecutionYear current = ExecutionYear.findCurrent(registration.getDegree().getCalendar());
+
+        if (!registration.hasConcluded()) {
+            return current;
         }
 
         final ExecutionYear lastApprovementExecutionYear = studentCurricularPlan.getLastApprovementExecutionYear();
@@ -279,7 +282,7 @@ public class StudentCurricularPlanLayout extends Layout {
             return lastSCPExecutionYear;
         }
 
-        return ExecutionYear.readCurrentExecutionYear();
+        return current;
     }
 
     protected void generateRowsForExecutionYearsOrganization(HtmlTable mainTable) {

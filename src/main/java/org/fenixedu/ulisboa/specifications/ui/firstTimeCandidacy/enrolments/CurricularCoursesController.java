@@ -138,7 +138,7 @@ public class CurricularCoursesController extends FirstTimeCandidacyAbstractContr
             secondSemCredits += enrolment.getEctsCredits();
         }
 
-        model.addAttribute("currentYear", ExecutionYear.readCurrentExecutionYear().getYear());
+        model.addAttribute("currentYear", ExecutionYear.findCurrent(registration.getDegree().getCalendar()).getYear());
         model.addAttribute("firstSemesterEnrolments", firstSemEnrolments);
         model.addAttribute("firstSemesterCredits", firstSemCredits);
         model.addAttribute("secondSemesterEnrolments", secondSemEnrolments);

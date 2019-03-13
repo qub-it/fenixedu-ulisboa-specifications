@@ -69,8 +69,9 @@ public class FlunkedCredits extends FlunkedCredits_Base {
     public RuleResult execute(final Curriculum input) {
         if (getStatuteType() != null) {
             final Registration registration = input.getStudentCurricularPlan().getRegistration();
-            final ExecutionYear executionYear =
-                    input.getExecutionYear() == null ? ExecutionYear.readCurrentExecutionYear() : input.getExecutionYear();
+
+            final ExecutionYear executionYear = input.getExecutionYear() == null ? ExecutionYear
+                    .findCurrent(registration.getDegree().getCalendar()) : input.getExecutionYear();
             if (StatuteServices.findStatuteTypes(registration, executionYear).stream().noneMatch(i -> getStatuteType() == i)) {
                 return createFalseLabelled(getMessagesSuffix(getStatuteType()));
             }

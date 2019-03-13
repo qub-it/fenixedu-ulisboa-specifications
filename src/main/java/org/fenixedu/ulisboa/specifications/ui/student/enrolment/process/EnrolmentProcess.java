@@ -321,8 +321,11 @@ public class EnrolmentProcess implements IBean {
                 lastEnrolmentStep = EnrolmentManagementDA.createEnrolmentStepEndProcess();
                 afterProcessURL = StudentPortalRedirectController.getEntryPointURL();
             } else {
-                beforeProcessURL = EnrolmentsController.getBackUrl();
-                afterProcessURL = EnrolmentsController.getNextUrl();
+                final Registration registration = candidacy.getRegistration();
+                final ExecutionYear executionYear =
+                        ExecutionYear.findCurrent(registration != null ? registration.getDegree().getCalendar() : null);
+                beforeProcessURL = EnrolmentsController.getBackUrl(executionYear);
+                afterProcessURL = EnrolmentsController.getNextUrl(executionYear);
                 lastEnrolmentStep = null;
             }
 

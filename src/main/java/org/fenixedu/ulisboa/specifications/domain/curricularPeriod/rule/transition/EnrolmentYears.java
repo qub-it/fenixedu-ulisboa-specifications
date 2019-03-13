@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
@@ -40,12 +41,13 @@ public class EnrolmentYears extends EnrolmentYears_Base {
 
     @Override
     public RuleResult execute(Curriculum curriculum) {
-        final ExecutionYear executionYear =
-                curriculum.getExecutionYear() == null ? ExecutionYear.readCurrentExecutionYear() : curriculum.getExecutionYear();
+        final Registration registration = curriculum.getStudentCurricularPlan().getRegistration();
+        
+        final ExecutionYear executionYear = curriculum.getExecutionYear() == null ? ExecutionYear
+                .findCurrent(registration.getDegree().getCalendar()) : curriculum.getExecutionYear();
 
-        final Collection<ExecutionYear> enrolmentYears =
-                RegistrationServices.getEnrolmentYears(curriculum.getStudentCurricularPlan().getRegistration()).stream()
-                        .filter(x -> x.isBefore(executionYear)).collect(Collectors.toSet());
+        final Collection<ExecutionYear> enrolmentYears = RegistrationServices.getEnrolmentYears(registration).stream()
+                .filter(x -> x.isBefore(executionYear)).collect(Collectors.toSet());
 
         return enrolmentYears.size() >= getValue().intValue() ? createTrue() : createFalseLabelled(getValue());
 

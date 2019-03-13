@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestProperty;
@@ -37,11 +38,12 @@ public class FillStandaloneEnrolmentsByYearPropertyProcessor extends FillStandal
         }
 
         if (!request.hasStandaloneEnrolmentsByYear()) {
-            ExecutionYear executionYear =
-                    request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear.readCurrentExecutionYear();
-            List<ICurriculumEntry> enrolments = request.getRegistration().getStudentCurricularPlan(executionYear)
-                    .getEnrolmentsByExecutionYear(executionYear).stream().filter(ULisboaConstants.isStandalone)
-                    .map(ICurriculumEntry.class::cast).collect(Collectors.toList());
+            final Registration registration = request.getRegistration();
+            ExecutionYear executionYear = request.hasExecutionYear() ? request.getExecutionYear() : ExecutionYear
+                    .findCurrent(registration.getDegree().getCalendar());
+            List<ICurriculumEntry> enrolments =
+                    registration.getStudentCurricularPlan(executionYear).getEnrolmentsByExecutionYear(executionYear).stream()
+                            .filter(ULisboaConstants.isStandalone).map(ICurriculumEntry.class::cast).collect(Collectors.toList());
             if (validate(enrolments)) {
                 ServiceRequestProperty.create(request,
                         ServiceRequestSlot.getByCode(ULisboaConstants.STANDALONE_ENROLMENTS_BY_YEAR), enrolments);

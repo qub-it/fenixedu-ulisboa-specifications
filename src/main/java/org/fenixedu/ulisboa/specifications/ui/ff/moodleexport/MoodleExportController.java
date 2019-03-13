@@ -101,7 +101,7 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
         MoodleExportBean moodleExportBean = new MoodleExportBean();
         populatePerson(student.getPerson(), moodleExportBean);
         moodleExportBean.setRole1("student");
-        ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
+        ExecutionYear currentExecutionYear = ExecutionYear.findCurrent(null);
         String yearName = calculateYearName(currentExecutionYear);
 
         List<String> coursesNames = new ArrayList<>();
@@ -145,7 +145,7 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
         MoodleExportBean moodleExportBean = new MoodleExportBean();
         populatePerson(person, moodleExportBean);
         moodleExportBean.setRole1("teacher");
-        ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
+        ExecutionYear currentExecutionYear = ExecutionYear.findCurrent(null);
         String yearName = calculateYearName(currentExecutionYear);
         List<String> coursesNames = new ArrayList<>();
         List<String> roles = new ArrayList<>();
@@ -171,7 +171,7 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
     }
 
     private Stream<Student> getSearchUniverseListStudentsDataSet() {
-        return ExecutionYear.readCurrentExecutionYear().getExecutionPeriodsSet().stream()
+        return ExecutionYear.findCurrents().stream().flatMap(ey -> ey.getExecutionPeriodsSet().stream())
                 .flatMap(es -> es.getEnrolmentsSet().stream()).map(en -> en.getStudent()).distinct();
     }
 
@@ -180,7 +180,7 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
     public static final String LISTTEACHERS_URL = CONTROLLER_URL + _LISTTEACHERS_URI;
 
     private Stream<Person> getSearchUniverseListTeachersDataSet() {
-        return ExecutionYear.readCurrentExecutionYear().getExecutionPeriodsSet().stream()
+        return ExecutionYear.findCurrents().stream().flatMap(ey -> ey.getExecutionPeriodsSet().stream())
                 .flatMap(es -> es.getAssociatedExecutionCoursesSet().stream()).flatMap(ec -> ec.getProfessorshipsSet().stream())
                 .map(p -> p.getPerson()).distinct();
     }

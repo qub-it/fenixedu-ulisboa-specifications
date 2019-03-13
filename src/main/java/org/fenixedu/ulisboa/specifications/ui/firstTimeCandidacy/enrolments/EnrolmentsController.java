@@ -196,18 +196,14 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     }
 
     boolean hasAnnualEnrollments(final Registration registration) {
-        return hasAnnualEnrollments(
-                registration.getStudentCurricularPlan(ExecutionYear.readCurrentExecutionYear().getFirstExecutionPeriod()));
+        return hasAnnualEnrollments(registration.getStudentCurricularPlan(
+                ExecutionYear.findCurrent(registration.getDegree().getCalendar()).getFirstExecutionPeriod()));
     }
 
     @Override
     protected String backScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
         return redirect(getBackUrl(executionYear), model, redirectAttributes);
-    }
-
-    public static String getBackUrl() {
-        return getBackUrl(ExecutionYear.readCurrentExecutionYear());
     }
 
     public static String getBackUrl(final ExecutionYear executionYear) {
@@ -223,10 +219,6 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
         return redirect(getNextUrl(executionYear), model, redirectAttributes);
-    }
-
-    public static String getNextUrl() {
-        return getNextUrl(ExecutionYear.readCurrentExecutionYear());
     }
 
     public static String getNextUrl(final ExecutionYear executionYear) {

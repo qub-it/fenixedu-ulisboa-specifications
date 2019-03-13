@@ -11,7 +11,7 @@ public class GeneralPurposeGradingTable extends GeneralPurposeGradingTable_Base 
 
     private GeneralPurposeGradingTable() {
         super();
-        setExecutionYear(ExecutionYear.readCurrentExecutionYear());
+        setExecutionYear(ExecutionYear.findCurrent(null));
     }
 
     public GeneralPurposeGradingTable(List<BigDecimal> sample) {

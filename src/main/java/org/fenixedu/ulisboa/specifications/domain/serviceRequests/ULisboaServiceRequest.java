@@ -172,10 +172,10 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
             ServiceRequestProperty property;
             if (request.findProperty(ULisboaConstants.EXECUTION_YEAR) != null) {
                 property = request.findProperty(ULisboaConstants.EXECUTION_YEAR);
-                property.setExecutionYear(ExecutionYear.readCurrentExecutionYear());
+                property.setExecutionYear(ExecutionYear.findCurrent(registration.getDegree().getCalendar()));
             } else {
                 property = ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR),
-                        ExecutionYear.readCurrentExecutionYear());
+                        ExecutionYear.findCurrent(registration.getDegree().getCalendar()));
                 request.addServiceRequestProperties(property);
             }
         }
@@ -233,10 +233,10 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
             ServiceRequestProperty property;
             if (request.findProperty(ULisboaConstants.EXECUTION_YEAR) != null) {
                 property = request.findProperty(ULisboaConstants.EXECUTION_YEAR);
-                property.setExecutionYear(ExecutionYear.readCurrentExecutionYear());
+                property.setExecutionYear(ExecutionYear.findCurrent(bean.getRegistration().getDegree().getCalendar()));
             } else {
                 property = ServiceRequestProperty.create(ServiceRequestSlot.getByCode(ULisboaConstants.EXECUTION_YEAR),
-                        ExecutionYear.readCurrentExecutionYear());
+                        ExecutionYear.findCurrent(bean.getRegistration().getDegree().getCalendar()));
                 request.addServiceRequestProperties(property);
             }
         }

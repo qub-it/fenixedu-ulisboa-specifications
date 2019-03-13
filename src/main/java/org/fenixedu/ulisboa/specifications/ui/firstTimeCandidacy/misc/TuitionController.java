@@ -136,8 +136,8 @@ public class TuitionController extends FirstTimeCandidacyAbstractController {
     }
 
     private void checkTuitions(Registration registration) {
-        ITuitionTreasuryEvent event = TreasuryBridgeAPIFactory.implementation()
-                .getTuitionForRegistrationTreasuryEvent(registration, ExecutionYear.readCurrentExecutionYear());
+        ITuitionTreasuryEvent event = TreasuryBridgeAPIFactory.implementation().getTuitionForRegistrationTreasuryEvent(
+                registration, ExecutionYear.findCurrent(registration.getDegree().getCalendar()));
         if (event == null) {
             throw new RuntimeException("Tuitions are not properly configured!");
         }

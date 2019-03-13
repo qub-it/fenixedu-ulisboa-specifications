@@ -65,7 +65,7 @@ public class ExtendedDegreeInfoBean implements IBean {
     private List<CourseGroupDegreeInfoBean> courseGroupInfos;
 
     public ExtendedDegreeInfoBean() {
-        setExecutionYear(ExecutionYear.readCurrentExecutionYear());
+        setExecutionYear(ExecutionYear.findCurrent(null));
         setExecutionYearOptions(ExecutionYear.readNotClosedExecutionYears());
 
         final Set<Degree> allDegrees = new TreeSet<>((x, y) -> {

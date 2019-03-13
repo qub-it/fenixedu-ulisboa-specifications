@@ -26,6 +26,8 @@
  */
 package org.fenixedu.ulisboa.specifications.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -55,10 +57,7 @@ public class StudentActive {
         }
 
         if (student != null) {
-            ExecutionYear currentExecutionYear = ExecutionYear.readCurrentExecutionYear();
-            ExecutionYear previousExecutionYear = currentExecutionYear.getPreviousExecutionYear();
-            Predicate<? super Registration> registrationHasEnrolmentsInLast2Years =
-                    registration -> hasAnyEnrolment(registration, previousExecutionYear, currentExecutionYear);
+            Predicate<? super Registration> registrationHasEnrolmentsInLast2Years = registration -> hasAnyEnrolment(registration);
             List<Registration> activeRegistrations = student.getActiveRegistrations();
             hasActiveRegistrationsWithEnrolments = !activeRegistrations.stream().filter(registrationHasEnrolmentsInLast2Years)
                     .collect(Collectors.toList()).isEmpty();
@@ -85,9 +84,12 @@ public class StudentActive {
                 LocalDate today = new LocalDate();
                 DateTime lastMonth = today.toDateTimeAtStartOfDay().minusMonths(1);
                 for (Registration activeRegistration : activeRegistrations) {
-                    activeRegistrationCreatedInTheLastMonth = activeRegistration.getRegistrationYear() == currentExecutionYear;
+                    activeRegistrationCreatedInTheLastMonth = activeRegistration.getRegistrationYear().isCurrent();
 
                     if (!activeRegistrationCreatedInTheLastMonth) {
+                        final ExecutionYear currentExecutionYear =
+                                ExecutionYear.findCurrent(activeRegistration.getDegree().getCalendar());
+
                         final RegistrationState lastState = activeRegistration.getLastRegistrationState(currentExecutionYear);
 
                         activeRegistrationCreatedInTheLastMonth = lastState != null && lastState.getStateDate() != null
@@ -106,7 +108,7 @@ public class StudentActive {
                 isFirstYearFirstTime = student.getPerson().getCandidaciesSet().stream()
                         .filter(candidacy -> candidacy instanceof StudentCandidacy).map(StudentCandidacy.class::cast)
                         .anyMatch(studentCandidacy -> studentCandidacy.getEntryPhase() != null
-                                && studentCandidacy.getExecutionYear() == currentExecutionYear && studentCandidacy.isActive());
+                                && studentCandidacy.getExecutionYear().isCurrent() && studentCandidacy.isActive());
             }
 
             // Removing detecion of other kind of candidate (still leaving the code just in case) 
@@ -129,15 +131,27 @@ public class StudentActive {
         return hasActiveRegistrationsWithEnrolments || isFirstYearFirstTime || activeRegistrationCreatedInTheLastMonth;
     }
 
-    static private boolean hasAnyEnrolment(final Registration registration, final ExecutionYear... years) {
-        if (registration == null || years == null) {
+    static private boolean hasAnyEnrolment(final Registration registration) {
+        if (registration == null) {
             return false;
         }
 
-        for (final ExecutionYear year : years) {
-            final StudentCurricularPlan plan = registration.getStudentCurricularPlan(year);
-            if (plan != null && plan.getRoot().hasEnrolment(year)) {
-                return true;
+        final Collection<ExecutionYear> years = new ArrayList<>();
+
+        final ExecutionYear current = ExecutionYear.findCurrent(registration.getDegree().getCalendar());
+        if (current != null) {
+            years.add(current);
+
+            final ExecutionYear previousExecutionYear = current.getPreviousExecutionYear();
+            if (previousExecutionYear != null) {
+                years.add(previousExecutionYear);
+            }
+
+            for (final ExecutionYear year : years) {
+                final StudentCurricularPlan plan = registration.getStudentCurricularPlan(year);
+                if (plan != null && plan.getRoot().hasEnrolment(year)) {
+                    return true;
+                }
             }
         }
 

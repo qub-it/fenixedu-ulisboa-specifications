@@ -82,10 +82,8 @@ public class IdentificationCardServicesController extends FenixeduUlisboaSpecifi
             if (size == 1) {
                 registrationToSend = activeRegistrations.iterator().next();
             } else if (size > 1) {
-                ExecutionYear executionYear = ExecutionYear.readCurrentExecutionYear();
                 Optional<Registration> findFirst =
-                        activeRegistrations.stream()
-                                .filter(registration -> registration.getStartExecutionYear() == executionYear)
+                        activeRegistrations.stream().filter(registration -> registration.getRegistrationYear().isCurrent())
                                 .sorted(REGISTRATION_COMPARATOR).findFirst();
                 if (findFirst.isPresent()) {
                     registrationToSend = findFirst.get();
@@ -111,9 +109,8 @@ public class IdentificationCardServicesController extends FenixeduUlisboaSpecifi
         Person person = Authenticate.getUser().getPerson();
         InputStream pdfTemplateStream;
         if (FirstYearRegistrationGlobalConfiguration.getInstance().hasMod43Template()) {
-            pdfTemplateStream =
-                    new ByteArrayInputStream(FirstYearRegistrationGlobalConfiguration.getInstance().getMod43Template()
-                            .getContent());
+            pdfTemplateStream = new ByteArrayInputStream(
+                    FirstYearRegistrationGlobalConfiguration.getInstance().getMod43Template().getContent());
         } else {
             pdfTemplateStream = context.getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
         }

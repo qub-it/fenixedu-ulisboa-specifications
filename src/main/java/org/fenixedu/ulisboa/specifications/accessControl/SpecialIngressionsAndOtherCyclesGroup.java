@@ -3,8 +3,10 @@ package org.fenixedu.ulisboa.specifications.accessControl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.ExecutionSemester;
@@ -62,8 +64,13 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
     @Override
     public Stream<User> getMembers() {
         Set<Registration> registrations = new HashSet<>();
-        registrations.addAll(ExecutionYear.readCurrentExecutionYear().getStudentsSet());
-        registrations.addAll(ExecutionYear.readCurrentExecutionYear().getPreviousExecutionYear().getStudentsSet());
+
+        registrations.addAll(
+                ExecutionYear.findCurrents().stream().flatMap(ey -> ey.getStudentsSet().stream()).collect(Collectors.toSet()));
+
+        registrations.addAll(ExecutionYear.findCurrents().stream().map(ey -> ey.getPreviousExecutionYear())
+                .filter(Objects::nonNull).flatMap(ey -> ey.getStudentsSet().stream()).collect(Collectors.toSet()));
+
         return registrations.stream().filter(isValid).map(registration -> registration.getStudent().getPerson().getUser());
     }
 
@@ -112,14 +119,12 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
             return true;
         }
         IngressionType ingressionType = registration.getIngressionType();
-        if (registration.getStartExecutionYear() == ExecutionYear.readCurrentExecutionYear()
-                && ingressionTypes.contains(ingressionType)) {
+        if (registration.getStartExecutionYear().isCurrent() && ingressionTypes.contains(ingressionType)) {
             return true;
         }
 
-        return registration.getRegistrationDataByExecutionYearSet().stream()
-                .filter(rdby -> rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear()
-                        || rdby.getExecutionYear() == ExecutionYear.readCurrentExecutionYear().getPreviousExecutionYear())
+        return registration.getRegistrationDataByExecutionYearSet().stream().filter(
+                rdby -> rdby.getExecutionYear().isCurrent() || rdby.getExecutionYear().getPreviousExecutionYear().isCurrent())
                 .anyMatch(rdby -> wasReingression(rdby));
     };
 

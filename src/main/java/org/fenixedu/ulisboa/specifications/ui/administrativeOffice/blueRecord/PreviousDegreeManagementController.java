@@ -65,7 +65,7 @@ public class PreviousDegreeManagementController extends PreviousDegreeOriginInfo
             final RedirectAttributes redirectAttributes, final HttpSession session) {
         session.setAttribute(REGISTRATION_SESSION_ATTR, registration);
 
-        ExecutionYear executionYear = ExecutionYear.readCurrentExecutionYear();
+        ExecutionYear executionYear = ExecutionYear.findCurrent(registration.getDegree().getCalendar());
 
         model.addAttribute("registration", registration);
         model.addAttribute("postAction", "update/" + registration.getExternalId());
@@ -80,7 +80,7 @@ public class PreviousDegreeManagementController extends PreviousDegreeOriginInfo
             final RedirectAttributes redirectAttributes, final HttpSession session) {
         session.setAttribute(REGISTRATION_SESSION_ATTR, registration);
         model.addAttribute("registration", registration);
-        ExecutionYear executionYear = ExecutionYear.readCurrentExecutionYear();
+        ExecutionYear executionYear = ExecutionYear.findCurrent(registration.getDegree().getCalendar());
         addControllerURLToModel(executionYear, model);
         if (!validate(executionYear, form, model)) {
             setForm(form, model);
