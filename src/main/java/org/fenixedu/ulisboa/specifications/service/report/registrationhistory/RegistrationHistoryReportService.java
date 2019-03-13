@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
@@ -344,6 +345,10 @@ public class RegistrationHistoryReportService {
             return RegistrationServices.getConclusionExecutionYear(b.getRegistration()) == r.getExecutionYear();
         }
         
+        final ExecutionInterval executionInterval = b.getExecutionInterval();
+        if (executionInterval != null) {
+            return executionInterval.convert(ExecutionYear.class) == r.getExecutionYear();
+        }
         return ExecutionYear.readByDateTime(b.getStateDate().toLocalDate().toDateTimeAtStartOfDay()) == r.getExecutionYear();
     }
 

@@ -252,6 +252,7 @@ public class RegistrationServices {
             final RegistrationStateBean bean = new RegistrationStateBean(s.getStateType());
             bean.setStateDateTime(s.getStateDate());
             bean.setRegistration(registration);
+            bean.setExecutionInterval(s.getExecutionInterval());
             
             return bean;
         }).collect(Collectors.toSet()));
