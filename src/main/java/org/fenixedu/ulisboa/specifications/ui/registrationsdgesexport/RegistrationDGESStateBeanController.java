@@ -1009,15 +1009,12 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
         Degree studentCandidacyDegree = studentCandidacy.getDegreeCurricularPlan().getDegree();
         String institutionName = "";
+        Unit institutionUnit = Bennu.getInstance().getInstitutionUnit();
+        if (institutionUnit != null) {
+            institutionName = institutionUnit.getName();
+        }
         String cycleName = "";
         if (studentCandidacyDegree != null) {
-            Unit unit = studentCandidacyDegree.getUnit();
-            if (unit != null) {
-                List<Unit> units = studentCandidacyDegree.getUnit().getParentUnitsPath();
-                if (units.size() != 0) {
-                    institutionName = units.get(0).getName();
-                }
-            }
             DegreeType degreeType = studentCandidacyDegree.getDegreeType();
             if (degreeType != null) {
                 CycleType firstOrderedCycleType = degreeType.getFirstOrderedCycleType();
