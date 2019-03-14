@@ -741,15 +741,15 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addPersonalData(bean, report);
                         addContactsData(bean, report);
                     }
-                    
+
                     private void addShiftsData(Enrolment enrolment, ExecutionSemester enrolmentPeriod) {
                         Collection<Shift> shifts = EnrolmentServices.getShiftsFor(enrolment, enrolmentPeriod);
                         for (ShiftType shiftType : ShiftType.values()) {
                             if (!isShiftTypeToBeIgnored(shiftType)) {
-                                Collection<Shift> shiftsOfType = shifts.stream().filter(s -> s.containsType(shiftType))
-                                        .collect(Collectors.toList());
-                                String shiftsString = shiftsOfType.stream().map(s -> s.getNome())
-                                        .collect(Collectors.joining(", "));
+                                Collection<Shift> shiftsOfType =
+                                        shifts.stream().filter(s -> s.containsType(shiftType)).collect(Collectors.toList());
+                                String shiftsString =
+                                        shiftsOfType.stream().map(s -> s.getNome()).collect(Collectors.joining(", "));
                                 addCell(bundle("label.Enrolment.shift", shiftType.getSiglaTipoAula()), shiftsString);
                             }
                         }
@@ -869,7 +869,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
             }
 
             for (final Registration registration : studentStatute.getStudent().getRegistrationsSet()) {
-                if (registration.getRegistrationStatesTypes(executionYear).stream().anyMatch(x -> x.isActive())) {
+                if (executionYear.isAfterOrEquals(registration.getRegistrationYear())
+                        && registration.getRegistrationStatesTypes(executionYear).stream().anyMatch(x -> x.isActive())) {
                     toExport.add(new RegistrationHistoryReport(registration, executionYear));
                 }
             }
