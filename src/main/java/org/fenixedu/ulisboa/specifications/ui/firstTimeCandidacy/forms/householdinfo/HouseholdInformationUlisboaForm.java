@@ -6,10 +6,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.GrantOwnerType;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
+
+import com.google.common.collect.Lists;
 
 public class HouseholdInformationUlisboaForm implements CandidancyForm {
 
@@ -28,9 +31,12 @@ public class HouseholdInformationUlisboaForm implements CandidancyForm {
     private List<TupleDataSourceBean> grantOwnerTypeValues;
     private Boolean flunkedUniversity;
     private Integer flunkedUniversityTimes;
+    private Country countryHighSchool;
+    private List<TupleDataSourceBean> countryHighSchoolValues;
 
     public HouseholdInformationUlisboaForm() {
         setGrantOwnerTypeValues(Arrays.asList(GrantOwnerType.values()));
+        setCountryHighSchoolValues(Lists.newArrayList(Country.readDistinctCountries()));
 
         updateLists();
     }
@@ -163,6 +169,27 @@ public class HouseholdInformationUlisboaForm implements CandidancyForm {
 
     public void setFlunkedUniversityTimes(final Integer flunkedUniversityTimes) {
         this.flunkedUniversityTimes = flunkedUniversityTimes;
+    }
+
+    public Country getCountryHighSchool() {
+        return countryHighSchool;
+    }
+
+    public void setCountryHighSchool(final Country countryHighSchool) {
+        this.countryHighSchool = countryHighSchool;
+    }
+
+    public List<TupleDataSourceBean> getCountryHighSchoolValues() {
+        return countryHighSchoolValues;
+    }
+
+    public void setCountryHighSchoolValues(final List<Country> countryHighSchoolValues) {
+        this.countryHighSchoolValues = countryHighSchoolValues.stream().map((c) -> {
+            TupleDataSourceBean tuple = new TupleDataSourceBean();
+            tuple.setId(c.getExternalId());
+            tuple.setText(c.getLocalizedName().getContent());
+            return tuple;
+        }).sorted(TupleDataSourceBean.COMPARE_BY_TEXT).collect(Collectors.toList());
     }
 
 }

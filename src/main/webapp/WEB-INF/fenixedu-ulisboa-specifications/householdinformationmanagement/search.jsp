@@ -284,6 +284,18 @@ ${portal.toolkit()}
                         </c:if>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3">
+                        <spring:message code="label.PersonalInformationForm.countryHighSchool" />
+                    </th>
+                    <td>
+                        <c:if test="${ student.person.countryHighSchool != null }">
+                            <c:out value='${student.person.countryHighSchool.name }' />
+                        </c:if>
+                    </td>
+                </tr>
+
+
             </tbody>
         </table>
     </div>

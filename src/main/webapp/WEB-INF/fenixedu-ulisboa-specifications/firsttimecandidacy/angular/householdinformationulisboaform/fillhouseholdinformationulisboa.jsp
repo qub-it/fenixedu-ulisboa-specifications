@@ -301,8 +301,32 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
             </div>
         </div>
     </c:if>            
-    
 
+    <c:if test="${ showCountryHighschool }">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group row">
+                    <label class="col-sm-2 control-label required-field">
+                        <spring:message code="label.PersonalInformationForm.countryHighSchool" />
+                    </label>
+                    
+                    <div class="col-sm-10">
+                        <ui-select id="personalInformationForm_countryHighSchool" name="countryHighSchool"
+                            ng-model="$parent.object.countryHighSchool"
+                            theme="bootstrap" > 
+                            <ui-select-match allow-clear="true">
+                                {{$select.selected.text}}
+                            </ui-select-match> 
+                            <ui-select-choices repeat="country.id as country in object.countryHighSchoolValues | filter: {normalizedText : $select.search}">
+                                <span ng-bind-html="country.text"></span>
+                            </ui-select-choices>
+                        </ui-select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </c:if>            
+    
     <div class="panel panel-default">
 		<div class="panel-footer">
             <button type="button" class="btn btn-primary" role="button" ng-click="submitForm()"><spring:message code="label.submit" /></button>

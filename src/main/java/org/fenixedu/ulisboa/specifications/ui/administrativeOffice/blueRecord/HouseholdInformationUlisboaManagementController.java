@@ -123,6 +123,7 @@ public class HouseholdInformationUlisboaManagementController extends HouseholdIn
     @Override
     public void addDefaultAttributes(Model model) {
         model.addAttribute(SHOW_GRANT_OWNER_TYPE, false);
+        model.addAttribute(SHOW_COUNTRY_HIGHSCHOOL, true);
     }
 
     /* ********************

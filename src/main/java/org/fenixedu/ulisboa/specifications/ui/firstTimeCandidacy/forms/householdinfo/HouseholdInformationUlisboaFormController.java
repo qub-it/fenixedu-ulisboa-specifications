@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GrantOwnerType;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Student;
@@ -40,6 +41,7 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
     public static final String FILL_URL = CONTROLLER_URL + _FILL_URI;
 
     protected static final String SHOW_GRANT_OWNER_TYPE = "showGrantOwnerType";
+    protected static final String SHOW_COUNTRY_HIGHSCHOOL = "showCountryHighschool";
 
     @Override
     protected String getControllerURL() {
@@ -92,6 +94,7 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
         final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, false);
 
         PersonUlisboaSpecifications personUl = student.getPerson().getPersonUlisboaSpecifications();
+        Person person = student.getPerson();
 
         if (personalData != null) {
             form.setGrantOwnerType(personalData.getGrantOwnerType());
@@ -123,6 +126,8 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
             }
 
         }
+
+        form.setCountryHighSchool(person.getCountryHighSchool());
 
         return form;
     }
@@ -246,6 +251,7 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
     @Atomic
     protected void writeData(final Student student, final ExecutionYear executionYear, final HouseholdInformationUlisboaForm form,
             final Model model) {
+        Person person = student.getPerson();
         boolean grantOwner = (boolean) model.asMap().get(SHOW_GRANT_OWNER_TYPE);
 
         if (grantOwner) {
@@ -301,6 +307,10 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
             personUlExecutionYear.setFlunkedUniversityTimes(form.getFlunkedUniversityTimes());
         }
 
+        if (form.getCountryHighSchool() != null) {
+            person.setCountryHighSchool(form.getCountryHighSchool());
+        }
+
     }
 
     @Override
@@ -330,6 +340,7 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
     @ModelAttribute
     public void addDefaultAttributes(final Model model) {
         model.addAttribute(SHOW_GRANT_OWNER_TYPE, true);
+        model.addAttribute(SHOW_COUNTRY_HIGHSCHOOL, false);
     }
 
 }
