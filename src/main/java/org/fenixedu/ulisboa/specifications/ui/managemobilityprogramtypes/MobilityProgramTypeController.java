@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and ServiÃ§os Partilhados da
  * Universidade de Lisboa:
  *  - Copyright Â© 2015 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: xpto@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu Specifications.
  *
  * FenixEdu Specifications is free software: you can redistribute it and/or modify
@@ -26,14 +26,12 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.managemobilityprogramtypes;
 
+import org.fenixedu.academic.domain.student.mobility.MobilityProgramType;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.academic.domain.student.mobility.MobilityProgramType;
 import org.fenixedu.ulisboa.specifications.dto.student.mobility.MobilityProgramTypeBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,8 +39,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class,
-        title = "label.title.manageMobilityProgramTypes", accessGroup = "logged")
+@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.manageMobilityProgramTypes",
+        accessGroup = "logged")
 @RequestMapping(MobilityProgramTypeController.CONTROLLER_URL)
 public class MobilityProgramTypeController extends FenixeduUlisboaSpecificationsBaseController {
 
@@ -90,8 +88,7 @@ public class MobilityProgramTypeController extends FenixeduUlisboaSpecifications
 
         try {
 
-            MobilityProgramType mobilityProgramType = MobilityProgramType.create(bean.getCode(),
-                    new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, bean.getName()), bean.isActive());
+            MobilityProgramType mobilityProgramType = MobilityProgramType.create(bean.getCode(), bean.getName(), bean.isActive());
 
             return redirect(READ_URL + "/" + mobilityProgramType.getExternalId(), model, redirectAttributes);
         } catch (DomainException de) {
@@ -120,8 +117,7 @@ public class MobilityProgramTypeController extends FenixeduUlisboaSpecifications
 
         try {
 
-            mobilityProgramType.edit(bean.getCode(), new LocalizedString(ULisboaConstants.DEFAULT_LOCALE, bean.getName()),
-                    bean.isActive());
+            mobilityProgramType.edit(bean.getCode(), bean.getName(), bean.isActive());
 
             return redirect(READ_URL + "/" + mobilityProgramType.getExternalId(), model, redirectAttributes);
         } catch (DomainException de) {

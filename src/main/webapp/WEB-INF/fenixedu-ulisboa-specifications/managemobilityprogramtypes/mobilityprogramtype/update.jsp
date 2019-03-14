@@ -42,7 +42,7 @@ ${portal.angularToolkit()}
 <div class="well well-sm" style="display: inline-block">
 	<span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>&nbsp;<a class=""
 		href="${pageContext.request.contextPath}<%= MobilityProgramTypeController.READ_URL %>/${mobilityProgramType.externalId}"><spring:message
-			code="label.event.back" /></a> |&nbsp;&nbsp;
+			code="label.event.back" /></a> 
 </div>
 <c:if test="${not empty infoMessages}">
 	<div class="alert alert-info" role="alert">
@@ -80,7 +80,7 @@ ${portal.angularToolkit()}
 
 <script>
 	angular.module('angularAppMobilityProgramType',
-			[ 'ngSanitize', 'ui.select' ]).controller(
+			[ 'ngSanitize', 'ui.select', 'bennuToolkit' ]).controller(
 			'MobilityProgramTypeController', [ '$scope', function($scope) {
 
 				$scope.object = ${mobilityProgramTypeBeanJson};
@@ -124,7 +124,7 @@ ${portal.angularToolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<input id="mobilityProgramType_name" class="form-control" type="text" name="name" ng-model="object.name" />
+					<input id="mobilityProgramType_name" class="form-control" name="name" bennu-localized-string="object.name" />
 				</div>
 			</div>
 			<div class="form-group row">
