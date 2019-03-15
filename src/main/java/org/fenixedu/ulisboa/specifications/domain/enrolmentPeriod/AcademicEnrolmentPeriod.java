@@ -1,6 +1,5 @@
 package org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -213,20 +212,7 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
     }
 
     private boolean isValidRegistration(final Registration input, final boolean skipRegistrationState) {
-        if (!skipRegistrationState && !input.isActive()) { // TODO pass interval as argument
-            return false;
-        }
-
-        if (isForCurricularCourses() && !getRegistrationsToEnrolByStudent(input.getStudent()).contains(input)) {
-            return false;
-        }
-
-        if (!skipRegistrationState && (isForShift() || isForClasses())
-                && !input.getStudent().getRegistrationsToEnrolInShiftByStudent().contains(input)) {
-            return false;
-        }
-
-        return true;
+        return skipRegistrationState || input.hasActiveLastState(getExecutionSemester());
     }
 
     private boolean isValidStudentNumber(final Registration input) {
@@ -234,20 +220,6 @@ public class AcademicEnrolmentPeriod extends AcademicEnrolmentPeriod_Base {
         return (getMinStudentNumber() == null || number >= getMinStudentNumber())
 
                 && (getMaxStudentNumber() == null || number <= getMaxStudentNumber());
-    }
-
-    /**
-     * Returns the registrations that can enrol in curricular courses
-     */
-    private Collection<Registration> getRegistrationsToEnrolByStudent(Student student) {
-        final List<Registration> result = new ArrayList<Registration>();
-        for (final Registration registration : student.getRegistrationsSet()) {
-            if (registration.getRegistrationProtocol().isEnrolmentByStudentAllowed()) {
-                result.add(registration);
-            }
-        }
-
-        return result;
     }
 
     /**

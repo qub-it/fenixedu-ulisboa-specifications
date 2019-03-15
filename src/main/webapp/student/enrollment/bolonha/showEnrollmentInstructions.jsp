@@ -27,8 +27,6 @@
 <%-- qubExtension --%>
 <jsp:include page="<%= "/layout/pleasewait.jsp"%>"/>
 
-<logic:present role="role(STUDENT)">
-
 <%-- TITLE --%>
 <div class="page-header">
 	<h1>
@@ -78,7 +76,5 @@
 		&nbsp;
 		<span class="glyphicon glyphicon-arrow-right" aria-hidden="true"></span>
 	</div>
-
-</logic:present>
 
 </logic:present>

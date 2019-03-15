@@ -85,13 +85,18 @@ public class StudentCurricularPlanEnrolmentManager
         }
     }
 
+    @Override
+    protected boolean isResponsiblePersonStudent() {
+        return getResponsiblePerson().getStudent() != null;
+    }
+
     /**
      * Changes org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolment
      */
     @Override
     protected void assertStudentEnrolmentPreConditions() {
 
-        if (!getResponsiblePerson().getStudent().getRegistrationsToEnrolByStudent().contains(getRegistration())) {
+        if (!getResponsiblePerson().getStudent().getActiveRegistrationsIn(getExecutionSemester()).contains(getRegistration())) {
             throw new DomainException("error.StudentCurricularPlan.student.is.not.allowed.to.perform.enrol");
         }
 
