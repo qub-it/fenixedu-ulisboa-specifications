@@ -161,40 +161,46 @@ public class FiscalInformationFormController extends FormAbstractController {
     }
 
     @Atomic
-    private void writeFiscalData(final Person person, final FiscalInformationForm fiscalInfoForm) {
+    private void writeFiscalData(final Person person, final FiscalInformationForm form) {
         PhysicalAddress fiscalAddress;
-        if(fiscalInfoForm.isAssociateExistingPhysicalAddresses()) {
-            fiscalAddress = fiscalInfoForm.getFiscalAddress();
+        if(form.isAssociateExistingPhysicalAddresses()) {
+            fiscalAddress = form.getFiscalAddress();
         } else {
             // Create fiscal address
             
-            String district = fiscalInfoForm.getDistrictSubdivisionOfResidence() != null ? fiscalInfoForm.getDistrictSubdivisionOfResidence()
-                    .getDistrict().getName() : null;
-            String subdivision =
-                    fiscalInfoForm.getDistrictSubdivisionOfResidence() != null ? fiscalInfoForm.getDistrictSubdivisionOfResidence().getName() : null;
-            
-            if(!fiscalInfoForm.getCountryOfResidence().isDefaultCountry()) {
-                subdivision = fiscalInfoForm.getDistrictSubdivisionOfResidenceName();
+            String district = "";
+            if (form.getCountryOfResidence().isDefaultCountry()) {
+                district = form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence().getDistrict()
+                        .getName() : null;
             }
 
-            String areaCode = "";
-            String areaOfAreaCode = "";
-            if (fiscalInfoForm.getAreaCode() != null) {
-                areaCode = fiscalInfoForm.getAreaCode().substring(0, 8);
-                areaOfAreaCode = fiscalInfoForm.getAreaCode().substring(9);
-            }
-            Parish parishOfResidence = fiscalInfoForm.getParishOfResidence();
+            String subdivision =
+                    form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence().getName() : null;
             
-            PhysicalAddressData physicalAddressData = new PhysicalAddressData(fiscalInfoForm.getAddress(), areaCode, areaOfAreaCode, fiscalInfoForm.getArea(),
-                    parishOfResidence != null ? parishOfResidence.getName() : "", subdivision, district,
-                            fiscalInfoForm.getCountryOfResidence());
+            if(!form.getCountryOfResidence().isDefaultCountry()) {
+                subdivision = form.getDistrictSubdivisionOfResidenceName();
+            }
+
+            String areaCode = form.getAreaCode();
+            String areaOfAreaCode = "";
+            if (form.getCountryOfResidence().isDefaultCountry() && form.getAreaCode() != null) {
+                areaCode = form.getAreaCode().substring(0, 8);
+                areaOfAreaCode = form.getAreaCode().substring(9);
+            }
+            
+            String parishOfResidence = "";
+            if(form.getCountryOfResidence().isDefaultCountry() && form.getParishOfResidence() != null) {
+                parishOfResidence = form.getParishOfResidence().getName();
+            }
+            
+            PhysicalAddressData physicalAddressData = new PhysicalAddressData(form.getAddress(), areaCode, areaOfAreaCode, form.getArea(),
+                    parishOfResidence, subdivision, district, form.getCountryOfResidence());
             
             fiscalAddress = PhysicalAddress.createPhysicalAddress(person, physicalAddressData, PartyContactType.PERSONAL, false);
             fiscalAddress.setValid();
-            
         }
         
-        person.editSocialSecurityNumber(fiscalInfoForm.getSocialSecurityNumber(), fiscalAddress);
+        person.editSocialSecurityNumber(form.getSocialSecurityNumber(), fiscalAddress);
     }
 
     
@@ -207,7 +213,7 @@ public class FiscalInformationFormController extends FormAbstractController {
             return person.getFiscalAddress() != form.getFiscalAddress();
         }
         
-        final PhysicalAddress fiscalAddress = person.getFiscalAddress();
+        final PhysicalAddress currentAddress = person.getFiscalAddress();
         
         // Fiscal address is composed in various fields
         
@@ -221,23 +227,23 @@ public class FiscalInformationFormController extends FormAbstractController {
             subdivision = form.getDistrictSubdivisionOfResidenceName();
         }
                 
-        boolean addressIsEqual = StringUtils.equals(form.getAddress(), fiscalAddress.getAddress());
+        boolean addressIsEqual = StringUtils.equals(form.getAddress(), currentAddress.getAddress());
 
-        addressIsEqual &= form.getCountryOfResidence() != fiscalAddress.getCountryOfResidence();
-        addressIsEqual &= StringUtils.equals(form.getAreaCode(), fiscalAddress.getAreaCode());
-        addressIsEqual &= StringUtils.equals(form.getArea(), fiscalAddress.getArea());
+        addressIsEqual &= form.getCountryOfResidence() != currentAddress.getCountryOfResidence();
+        addressIsEqual &= StringUtils.equals(form.getAreaCode(), currentAddress.getAreaCode());
+        addressIsEqual &= StringUtils.equals(form.getArea(), currentAddress.getArea());
         
         if(form.getCountryOfResidence().isDefaultCountry()) {
-            addressIsEqual &= StringUtils.equals(form.getParishOfResidence().getName(), fiscalAddress.getParishOfResidence());
+            addressIsEqual &= StringUtils.equals(form.getParishOfResidence().getName(), currentAddress.getParishOfResidence());
         }
         
-        addressIsEqual &= StringUtils.equals(subdivision, fiscalAddress.getDistrictSubdivisionOfResidence());
+        addressIsEqual &= StringUtils.equals(subdivision, currentAddress.getDistrictSubdivisionOfResidence());
         
         if(form.getCountryOfResidence().isDefaultCountry()) {
-            addressIsEqual &= StringUtils.equals(district, fiscalAddress.getDistrictOfResidence());
+            addressIsEqual &= StringUtils.equals(district, currentAddress.getDistrictOfResidence());
         }
         
-        return addressIsEqual;
+        return !addressIsEqual;
     }
 
     @Override

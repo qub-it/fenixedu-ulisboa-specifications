@@ -16,6 +16,10 @@
 
 	<name>FenixEdu ULisboa Specifications</name>
 
+	<properties>
+		<version.org.fenixedu.academic>19.0.0</version.org.fenixedu.academic>
+	</properties>
+
 	<build>
 		<plugins>
 
