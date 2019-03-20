@@ -135,7 +135,6 @@ public class FiscalInformationFormController extends FormAbstractController {
         return result.isEmpty();
     }
     
-    
     @Override
     protected void writeData(final ExecutionYear executionYear, final CandidancyForm candidancyForm, final Model model) {
         final Student student = getStudent(model);

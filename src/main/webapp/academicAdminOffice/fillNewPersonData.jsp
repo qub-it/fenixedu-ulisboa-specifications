@@ -36,21 +36,14 @@
 </html:messages>
 
 <fr:form action="/createStudent.do#precedentDegree">    
-    <html:hidden bundle="HTMLALT_RESOURCES" altKey="hidden.method" property="method" value="prepareShowFillOriginInformation"/>
+	<html:hidden bundle="HTMLALT_RESOURCES" altKey="hidden.method" property="method" value="prepareFillFiscalInformation"/>
+
     <fr:edit id="executionDegree" name="executionDegreeBean" visible="false" />
     <fr:edit id="person" name="personBean" visible="false" />
     <fr:edit id="chooseIngression" name="ingressionInformationBean" visible="false" />  
     
     <h3 class="mtop15 mbottom025"><bean:message key="label.person.title.personal.info" bundle="ACADEMIC_OFFICE_RESOURCES" /></h3>
     <bean:define id="personBean" name="personBean" type="org.fenixedu.academic.dto.person.PersonBean" />
-    <% 
-        if(personBean.getFiscalCountry() != null) {
-            pageContext.setAttribute("countryCode", personBean.getFiscalCountry().getCode());
-        } else {
-            pageContext.setAttribute("countryCode", Country.readDefault().getCode());
-        }
-    %>
-    
     <fr:edit id="personData" name="personBean">
         <fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_OFFICE_RESOURCES">
             <fr:slot name="givenNames" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator">
@@ -60,17 +53,6 @@
                 <fr:property name="size" value="50" />
             </fr:slot>
             <fr:slot name="gender" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" />
-            <fr:slot name="fiscalCountry" key="label.fiscalCountry" layout="menu-select-postback" required="true">
-                    <fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.CountryProvider" />
-                    <fr:property name="format" value="${name} (${code})"/>
-                    <fr:property name="sortBy" value="name"/>
-                    <fr:property name="destination" value="fiscalCountryPostback" />
-            </fr:slot>
-            <fr:slot name="socialSecurityNumber" required="true">
-                <fr:validator name="org.fenixedu.ulisboa.specifications.ui.renderers.validators.FiscalCodeValidator" >
-                    <fr:property name="countryCode" value="<%= (String) pageContext.getAttribute("countryCode") %>" />
-                </fr:validator>
-            </fr:slot>
             <fr:slot name="professionType" />
             <fr:slot name="professionalCondition" layout="menu-select">
                 <fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.ProfessionalSituationConditionTypeProviderForRaides"/>
@@ -109,49 +91,79 @@
         </fr:layout>
     </fr:edit>
     
-    <h3 class="mtop1 mbottom025"><bean:message key="label.person.title.addressInfo" bundle="ACADEMIC_OFFICE_RESOURCES" /></h3>
-    <fr:edit id="personAddress" name="personBean" >
-        <fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_OFFICE_RESOURCES" >
-            <fr:slot name="address" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator">
-                <fr:property name="size" value="50"/>
-            </fr:slot>
-            <fr:slot name="area" />
-            <fr:slot name="areaCode">
-                <fr:property name="size" value="10"/>
-                 <fr:validator name="pt.ist.fenixWebFramework.renderers.validators.RegexpValidator">
-                    <fr:property name="regexp" value="(\d{4}-\d{3})?"/>
-                    <fr:property name="message" value="error.areaCode.invalidFormat"/>
-                    <fr:property name="key" value="true"/>
-                    <fr:property name="bundle" value="ACADEMIC_OFFICE_RESOURCES" />
-                </fr:validator>
-            </fr:slot>
-            <fr:slot name="areaOfAreaCode" />
-            <fr:slot name="parishOfResidence" />
-            <fr:slot name="districtSubdivisionOfResidenceObject" layout="autoComplete" key="label.districtSubdivisionOfResidenceObject.required">
-                <fr:property name="size" value="50"/>
-                <fr:property name="format" value="${name} - (${district.name})"/>
-                <fr:property name="indicatorShown" value="true"/>       
-                <fr:property name="provider" value="org.fenixedu.academic.service.services.commons.searchers.SearchDistrictSubdivisions"/>
-                <fr:property name="args" value="slot=name,size=20"/>
-                <fr:property name="minChars" value="2"/>
-            </fr:slot>  
-            <fr:slot name="countryOfResidence" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
-                <fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.DistinctCountriesProvider" />
-                <fr:property name="format" value="${name}"/>
-                <fr:property name="sortBy" value="name"/>
-                <fr:property name="destination" value="countryPostback" />
-            </fr:slot>  
-        </fr:schema>
-    
-        <fr:layout name="tabular" >
-            <fr:property name="classes" value="tstyle4 thlight thright mtop05"/>
-            <fr:property name="columnClasses" value="width14em,,tdclear tderror1"/>
-            <fr:property name="requiredMarkShown" value="true" />
-            <fr:destination name="invalid" path="/createStudent.do?method=invalid" />
-        </fr:layout>
-        <fr:destination name="countryPostback" path="/createStudent.do?method=fillNewPersonDataPostback" />
-    </fr:edit>
-    
+	<h3 class="mtop1 mbottom025"><bean:message key="label.person.title.addressInfo" bundle="ACADEMIC_OFFICE_RESOURCES" /></h3>
+	<fr:edit id="personAddress" name="personBean">
+		<fr:schema type="org.fenixedu.academic.dto.person.PersonBean" bundle="ACADEMIC_OFFICE_RESOURCES" >
+			<% if(personBean.getPerson() != null && personBean.getPerson().getDefaultPhysicalAddress() != null 
+					&& personBean.getPerson().getDefaultPhysicalAddress().isFiscalAddress()) { %>
+
+			<fr:slot name="countryOfResidence" readOnly="true">
+				<fr:property name="format"  value="${name}" />
+			</fr:slot>
+			
+			<% } else { %>
+			<fr:slot name="countryOfResidence" layout="menu-select-postback" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" >
+				<fr:property name="providerClass" value="org.fenixedu.academic.ui.renderers.providers.DistinctCountriesProvider" />
+				<fr:property name="format" value="${name}"/>
+				<fr:property name="sortBy" value="name"/>		
+				<fr:property name="destination" value="country-postback" />
+			</fr:slot>
+			
+			<% } %>
+						
+			<fr:slot name="address" validator="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator">
+				<fr:property name="size" value="50"/>
+			</fr:slot>
+
+			<%-- 
+			<fr:slot name="area" />
+			--%>
+			
+			<fr:slot name="areaCode">
+				<fr:property name="size" value="10"/>
+
+				<% if(personBean.getCountryOfResidence() != null && personBean.getCountryOfResidence().isDefaultCountry()) { %>
+				<fr:validator name="pt.ist.fenixWebFramework.renderers.validators.RegexpValidator">
+		        	<fr:property name="regexp" value="(\d{4}-\d{3})?"/>
+		        	<fr:property name="message" value="error.areaCode.invalidFormat"/>
+		           	<fr:property name="key" value="true"/>
+		           	<fr:property name="bundle" value="ACADEMIC_OFFICE_RESOURCES" />
+		        </fr:validator>
+				<fr:validator name="pt.ist.fenixWebFramework.renderers.validators.RequiredValidator" />
+				<% } %>
+			</fr:slot>
+
+			<% if(personBean.getCountryOfResidence() != null && personBean.getCountryOfResidence().isDefaultCountry()) { %>
+			<fr:slot name="parishOfResidence" />
+			<% } %>
+
+			<% if(personBean.getCountryOfResidence() != null && personBean.getCountryOfResidence().isDefaultCountry()) { %>
+		   	<fr:slot name="districtSubdivisionOfResidenceObject" layout="autoComplete" key="label.districtSubdivisionOfResidenceObject.required" required="true">
+				<fr:property name="size" value="50"/>
+				<fr:property name="format" value="${name} (${district.name})"/>
+				<fr:property name="indicatorShown" value="true"/>		
+				<fr:property name="provider" value="org.fenixedu.academic.service.services.commons.searchers.SearchDistrictSubdivisions"/>
+				<fr:property name="args" value="slot=name,size=20"/>
+				<fr:property name="minChars" value="2"/>
+			</fr:slot>	
+			<% } %>
+			
+			<% if(personBean.getCountryOfResidence() == null || !personBean.getCountryOfResidence().isDefaultCountry()) { %>
+			<fr:slot name="districtSubdivisionOfResidence" required="true" key="label.districtSubdivisionOfResidence.city" bundle="ACADEMIC_OFFICE_RESOURCES" />
+			<% } %>
+			
+		</fr:schema>
+		
+		<fr:layout name="tabular" >
+			<fr:property name="classes" value="tstyle4 thlight thright mtop05"/>
+	        <fr:property name="columnClasses" value="width14em,,tdclear tderror1"/>
+	        <fr:property name="requiredMarkShown" value="true" />
+	        <fr:destination name="invalid" path="/createStudent.do?method=invalid" />
+		</fr:layout>
+        <fr:destination name="country-postback" path="/createStudent.do?method=fillNewPersonDataPostback" />
+
+	</fr:edit>
+	
     <h3 class="mtop1 mbottom025"><bean:message key="label.person.title.contactInfo" bundle="ACADEMIC_OFFICE_RESOURCES" /></h3>
     <fr:edit id="personContacts" name="personBean" schema="student.contacts-edit" >
         <fr:layout name="tabular" >
