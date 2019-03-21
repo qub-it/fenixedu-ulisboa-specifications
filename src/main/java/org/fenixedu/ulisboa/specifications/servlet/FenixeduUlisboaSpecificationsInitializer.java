@@ -486,7 +486,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         }
 
         if (logic == null) {
-            logger.warn("Grade Logic for institution '" + institutionUnit.getAcronym()
+            logger.warn("Grade Logic for institution '" + (institutionUnit != null ? institutionUnit.getAcronym() : "unknown institution")
                     + "' not found. Attempting to load from configuration property.");
             logic = loadClass("gradescale.typequalitative.logic.class",
                     ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
