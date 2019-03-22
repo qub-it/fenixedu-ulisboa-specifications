@@ -26,12 +26,13 @@
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -284,7 +285,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return getContext().getCurriculumAggregatorSet().stream().filter(i -> i.getSince().isAfter(getSince()))
                 .min(Comparator.comparing(CurriculumAggregator::getSince)).orElse(null);
     }
-    
+
     /**
      * Get Aggregator for EXACTLY the given year
      */
@@ -721,6 +722,178 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         }
 
         return result;
+    }
+
+    /**
+     * Checks if aggregator is top root aggregator
+     * 
+     * Example:
+     * 
+     * <code>
+     * - A (ROOT)
+     *   - B
+     *   - C
+     *     - D
+     *     - E
+     * </code>
+     * 
+     * A.isAggregationRoot => true
+     * B.isAggregationRoot => false
+     * C.isAggregationRoot => false
+     * D.isAggregationRoot => false
+     * 
+     */
+    public boolean isAggregationRoot() {
+        return getContext().getCurriculumAggregatorEntrySet().stream().noneMatch(e -> e.getAggregator().getSince() == getSince());
+    }
+
+    /**
+     * Finds top root aggregator
+     * 
+     * Example:
+     * 
+     * <code>
+     * - A (ROOT)
+     *   - B
+     *   - C
+     *     - D
+     *     - E
+     * </code>
+     * 
+     * A.getAggregationRoot => A
+     * B.getAggregationRoot => A
+     * C.getAggregationRoot => A
+     * D.getAggregationRoot => A
+     * 
+     */
+    public CurriculumAggregator getAggregationRoot() {
+        return isAggregationRoot() ? this : getContext().getCurriculumAggregatorEntrySet().stream()
+                .filter(e -> e.getAggregator().getSince() == getSince()).findFirst().map(e -> e.getAggregationRoot()).get();
+    }
+
+    /**
+     * Finds descendent aggregator entries (all children, grandchilds, etc.)
+     * 
+     * Example:
+     * 
+     * <code>
+     * - A (ROOT)
+     *   - B
+     *   - C
+     *     - D
+     *     - E
+     * </code>
+     * 
+     * A.getDescendentEntries => {B,C,D,E}
+     * B.getDescendentEntries => {}
+     * C.getDescendentEntries => {D,E}
+     * D.getDescendentEntries => {}
+     * 
+     */
+    public Collection<CurriculumAggregatorEntry> getDescendentEntries() {
+        return getEntriesSet().stream()
+                .flatMap(e -> Stream.concat(Stream.of(e),
+                        e.isAggregatorOfOthers() ? e.getAggregatorOfOthers().getDescendentEntries().stream() : Stream.empty()))
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Finds immediate parent context
+     * 
+     */
+    static public Context findParentContext(final Context context, final ExecutionYear executionYear) {
+        return context.getCurriculumAggregatorEntrySet().stream().filter(ce -> ce.getAggregator().getSince() == executionYear)
+                .findFirst().map(ce -> ce.getAggregator().getContext()).orElse(null);
+    }
+
+    /**
+     * Finds top root context
+     * 
+     * Example:
+     * 
+     * <code>
+     * - A (ROOT)
+     *   - B
+     *   - C
+     *     - D
+     *     - E
+     * </code>
+     * 
+     * findRootContext(A,year) => A
+     * findRootContext(B,year) => A
+     * findRootContext(C,year) => A
+     * findRootContext(D,year) => A
+     * 
+     */
+    static public Context findRootContext(final Context context, final ExecutionYear executionYear) {
+        final Context result = context.getCurriculumAggregatorSet().stream().filter(c -> c.getSince() == executionYear)
+                .findFirst().map(e -> e.getAggregationRoot().getContext()).orElse(null);
+
+        if (result != null) {
+            return result;
+        }
+
+        return context.getCurriculumAggregatorEntrySet().stream()
+                .filter(ce -> ce.getAggregationRoot().getSince() == executionYear).findFirst()
+                .map(ce -> ce.getAggregationRoot().getContext()).orElse(null);
+    }
+
+    /**
+     * Finds direct child contexts
+     * 
+     */
+    static public Collection<Context> findChildContexts(final Context context, final ExecutionYear executionYear) {
+        return context.getCurriculumAggregatorSet().stream().filter(c -> c.getSince() == executionYear)
+                .flatMap(e -> e.getEntriesSet().stream()).map(ce -> ce.getContext()).collect(Collectors.toSet());
+    }
+
+    /**
+     * Finds direct child contexts which are also aggregators
+     * 
+     * Example:
+     * 
+     * <code>
+     * - A (ROOT)
+     *   - B
+     *   - C
+     *     - D
+     *     - E
+     * </code>
+     * 
+     * findChildAggregatorContexts(A,year) => {C}
+     * findChildAggregatorContexts(B,year) => {}
+     * findChildAggregatorContexts(D,year) => {}
+     * findChildAggregatorContexts(E,year) => {}
+     * 
+     */
+    static public Collection<Context> findChildAggregatorContexts(final Context context, final ExecutionYear executionYear) {
+        return context.getCurriculumAggregatorSet().stream().filter(c -> c.getSince() == executionYear)
+                .flatMap(e -> e.getEntriesSet().stream()).filter(e -> e.isAggregatorOfOthers()).map(ce -> ce.getContext())
+                .collect(Collectors.toSet());
+    }
+
+    /**
+     * Finds descendent contexts (all children, grandchilds, etc.)
+     * 
+     * Example:
+     * 
+     * <code>
+     * - A (ROOT)
+     *   - B
+     *   - C
+     *     - D
+     *     - E
+     * </code>
+     * 
+     * findDescendentContexts(A,year) => {B,C,D,E}
+     * findDescendentContexts(B,year) => {}
+     * findDescendentContexts(C,year) => {D,E}
+     * findDescendentContexts(D,year) => {}
+     * 
+     */
+    static public Collection<Context> findDescendentContexts(final Context context, final ExecutionYear executionYear) {
+        return context.getCurriculumAggregatorSet().stream().filter(c -> c.getSince() == executionYear)
+                .flatMap(e -> e.getDescendentEntries().stream()).map(ce -> ce.getContext()).collect(Collectors.toSet());
     }
 
 }

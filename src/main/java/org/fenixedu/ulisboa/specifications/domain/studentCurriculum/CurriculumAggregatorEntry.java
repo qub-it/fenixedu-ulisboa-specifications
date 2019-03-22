@@ -226,11 +226,11 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
     public CurriculumLine getLastCurriculumLine(final StudentCurricularPlan plan) {
         return getLastCurriculumLine(plan, false);
     }
-    
+
     public CurriculumLine getLastCurriculumLineApproved(final StudentCurricularPlan plan) {
         return getLastCurriculumLine(plan, true);
     }
-    
+
     private CurriculumLine getLastCurriculumLine(final StudentCurricularPlan plan, final boolean approved) {
         final CurriculumLine result;
 
@@ -303,6 +303,77 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         }
 
         return result;
+    }
+
+    /**
+     * Checks if this entry is also an aggregation (parent) of other entries
+     * 
+     * Example:
+     * 
+     * <code>
+     * - A (ROOT)
+     *   - B
+     *   - C
+     *     - D
+     *     - E
+     * </code>
+     * 
+     * A.isAggregatorOfOthers => CANNOT APPLY to A because is never an entry
+     * B.isAggregatorOfOthers => false
+     * C.isAggregatorOfOthers  => true
+     * D.isAggregatorOfOthers  => false
+     * 
+     */
+    boolean isAggregatorOfOthers() {
+        return getAggregatorOfOthers() != null;
+    }
+
+    
+    /**
+     * Returns the other entries aggregation configuration
+     * 
+     * Example:
+     * 
+     * <code>
+     * - A (ROOT)
+     *   - B
+     *   - C
+     *     - D
+     *     - E
+     * </code>
+     *     
+     * A.getAggregatorOfOthers => CANNOT APPLY to A because is never an entry
+     * B.getAggregatorOfOthers => null
+     * C.isAggregatorOfOthers  => Aggregator associated to C (has D and E as children)
+     * D.isAggregatorOfOthers  => null
+     * 
+     */
+    CurriculumAggregator getAggregatorOfOthers() {
+        return getContext().getCurriculumAggregatorSet().stream().filter(ca -> ca.getSince() == getAggregator().getSince())
+                .findFirst().orElse(null);
+    }
+
+    /**
+     * Returns the aggregation root
+     * 
+     * Example:
+     * 
+     * <code>
+     * - A (ROOT)
+     *   - B
+     *   - C
+     *     - D
+     *     - E
+     * </code>
+     * 
+     * A.getAggregationRoot => CANNOT APPLY to A because is never an entry 
+     * B.getAggregationRoot => A
+     * C.getAggregationRoot => A
+     * D.getAggregationRoot => A
+     * 
+     */
+    CurriculumAggregator getAggregationRoot() {
+        return getAggregator().getAggregationRoot();
     }
 
 }
