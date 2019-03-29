@@ -2,10 +2,8 @@ package org.fenixedu.ulisboa.specifications.domain.ects;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
 

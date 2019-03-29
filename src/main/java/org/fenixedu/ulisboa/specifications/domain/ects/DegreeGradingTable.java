@@ -14,10 +14,12 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.ConclusionInformationDataProvider;
@@ -127,9 +129,11 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
                 .map(ed -> ed.getDegreeCurricularPlan()).collect(Collectors.toSet());
         for (DegreeCurricularPlan dcp : dcps) {
             Degree degree = dcp.getDegree();
+
             if (!GradingTableSettings.getApplicableDegreeTypes().contains(degree.getDegreeType())) {
                 continue;
             }
+
             programConclusionLoop: for (ProgramConclusion programConclusion : ProgramConclusion.conclusionsFor(dcp)
                     .collect(Collectors.toSet())) {
                 DegreeGradingTable table = find(executionYear, programConclusion, degree);
@@ -183,6 +187,17 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
             InstitutionGradingTable.copyData(this);
             setCopied(true);
         }
+
+        checkUniquenessOfTable();
+    }
+
+    private void checkUniquenessOfTable() {
+        if (DegreeGradingTable.find(getExecutionYear()).stream()
+                .anyMatch(t -> t != this && t.getDegree() == getDegree() && t.getProgramConclusion() == getProgramConclusion())) {
+            throw new ULisboaSpecificationsDomainException("error.DegreeGradingTable.already.exists",
+                    getExecutionYear().getQualifiedName(), "[" + getDegree().getCode() + "] " + getDegree().getPresentationName(),
+                    getProgramConclusion().getName().getContent());
+        }
     }
 
     private List<BigDecimal> harvestSample() {
@@ -195,8 +210,9 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
 
             if (conclusionsMap.get(year) != null) {
                 for (RegistrationConclusionBean bean : conclusionsMap.get(year)) {
-                    Integer finalAverage = bean.getFinalGrade().getNumericValue() != null ? bean.getFinalGrade().getNumericValue()
-                            .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
+                    final Grade finalGrade = bean.getFinalGrade();
+                    Integer finalAverage = finalGrade.isNumeric() && finalGrade.getNumericValue() != null ? finalGrade
+                            .getNumericValue().setScale(0, RoundingMode.HALF_UP).intValue() : 0;
                     if (finalAverage == 0) {
                         continue;
                     }

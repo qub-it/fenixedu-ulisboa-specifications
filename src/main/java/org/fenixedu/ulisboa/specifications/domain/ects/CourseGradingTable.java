@@ -15,11 +15,13 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
 import pt.ist.fenixframework.CallableWithoutException;
 
@@ -147,6 +149,17 @@ public class CourseGradingTable extends CourseGradingTable_Base {
             GradingTableGenerator.defaultData(this);
             setCopied(true);
         }
+
+        checkUniquenessOfTable();
+    }
+
+    private void checkUniquenessOfTable() {
+        if (CourseGradingTable.find(getExecutionYear()).stream()
+                .anyMatch(t -> t != this && t.getCompetenceCourse() == getCompetenceCourse())) {
+            throw new ULisboaSpecificationsDomainException("error.CourseGradingTable.already.exists",
+                    getExecutionYear().getQualifiedName(),
+                    getCompetenceCourse().getCode() + " - " + getCompetenceCourse().getName());
+        }
     }
 
     private List<BigDecimal> harvestSample() {
@@ -164,6 +177,11 @@ public class CourseGradingTable extends CourseGradingTable_Base {
                     if (!enrolment.isApproved()) {
                         continue;
                     }
+                    
+                    if (!GradeScale.TYPE20.equals(enrolment.getGrade().getGradeScale())) {
+                        continue;
+                    }
+                    
                     Integer finalGrade = isNumeric(enrolment.getGrade()) ? enrolment.getGrade().getNumericValue()
                             .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
                     if (finalGrade == 0) {

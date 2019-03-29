@@ -1,8 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.ects;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,19 +55,19 @@ public class GradingTableGenerator {
         }
 
         // 3. Apply algorithm and return table
-        final Carla carla = new Carla();
+        final GradeDistributionConverter carla = new GradeDistributionConverter();
         final Map<BigDecimal, String> tableMap = carla.process(heapedGradeDistro);
         for (BigDecimal mark : tableMap.keySet()) {
             table.addMark(mark, tableMap.get(mark));
         }
     }
 
-    private static class Carla {
+    private static class GradeDistributionConverter {
         private Map<String, BigDecimal> distro = new LinkedHashMap<String, BigDecimal>();
         private static String[] ectsGrades = { "E", "D", "C", "B", "A" };
         private int gradePointer = 0;
 
-        Carla() {
+        GradeDistributionConverter() {
             distro.put("E", new BigDecimal("0.10"));
             distro.put("D", new BigDecimal("0.35"));
             distro.put("C", new BigDecimal("0.65"));

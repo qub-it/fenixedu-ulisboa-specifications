@@ -12,18 +12,16 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData.GradeConversion;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionInformation;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 
 import pt.ist.fenixframework.Atomic;
-import pt.ist.fenixframework.CallableWithoutException;
 import pt.ist.fenixframework.FenixFramework;
 
 public class InstitutionGradingTable extends InstitutionGradingTable_Base {
@@ -74,6 +72,16 @@ public class InstitutionGradingTable extends InstitutionGradingTable_Base {
             GradingTableGenerator.defaultData(this);
             setCopied(true);
         }
+        
+        checkUniquenessOfTable();
+    }
+
+    private void checkUniquenessOfTable() {
+        final InstitutionGradingTable existing = InstitutionGradingTable.find(getExecutionYear());
+        if (existing != null && existing != this) {
+            throw new ULisboaSpecificationsDomainException("error.InstitutionGradingTable.already.exists",
+                    getExecutionYear().getQualifiedName());
+        }
     }
 
     private List<BigDecimal> harvestSample() {
@@ -86,9 +94,8 @@ public class InstitutionGradingTable extends InstitutionGradingTable_Base {
 
             if (conclusionsMap.get(year) != null) {
                 for (RegistrationConclusionBean bean : conclusionsMap.get(year)) {
-                    Integer finalAverage =
-                            bean.getFinalGrade().getNumericValue() != null ? bean.getFinalGrade().getNumericValue()
-                                    .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
+                    Integer finalAverage = bean.getFinalGrade().getNumericValue() != null ? bean.getFinalGrade().getNumericValue()
+                            .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
                     if (finalAverage == 0) {
                         continue;
                     }
