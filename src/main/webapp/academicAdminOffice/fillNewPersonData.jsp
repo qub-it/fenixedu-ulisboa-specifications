@@ -137,7 +137,7 @@
 			<fr:slot name="parishOfResidence" />
 			<% } %>
 
-			<% if(personBean.getCountryOfResidence() != null && personBean.getCountryOfResidence().isDefaultCountry()) { %>
+			<% if(personBean.getCountryOfResidence() == null || personBean.getCountryOfResidence().isDefaultCountry()) { %>
 		   	<fr:slot name="districtSubdivisionOfResidenceObject" layout="autoComplete" key="label.districtSubdivisionOfResidenceObject.required" required="true">
 				<fr:property name="size" value="50"/>
 				<fr:property name="format" value="${name} (${district.name})"/>
@@ -148,7 +148,7 @@
 			</fr:slot>	
 			<% } %>
 			
-			<% if(personBean.getCountryOfResidence() == null || !personBean.getCountryOfResidence().isDefaultCountry()) { %>
+			<% if(personBean.getCountryOfResidence() != null && !personBean.getCountryOfResidence().isDefaultCountry()) { %>
 			<fr:slot name="districtSubdivisionOfResidence" required="true" key="label.districtSubdivisionOfResidence.city" bundle="ACADEMIC_OFFICE_RESOURCES" />
 			<% } %>
 			
