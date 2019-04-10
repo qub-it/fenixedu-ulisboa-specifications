@@ -35,7 +35,7 @@ import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonPeriod;
-import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonPeriod.EvaluationSeasonPeriodType;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonPeriodType;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.season.EvaluationSeasonPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;

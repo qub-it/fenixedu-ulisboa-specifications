@@ -41,7 +41,7 @@ import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonPeriod;
-import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonPeriod.EvaluationSeasonPeriodType;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonPeriodType;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
