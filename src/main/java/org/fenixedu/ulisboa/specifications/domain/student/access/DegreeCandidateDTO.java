@@ -22,8 +22,6 @@ package org.fenixedu.ulisboa.specifications.domain.student.access;
 import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.EntryPhase;
-import org.fenixedu.academic.domain.ExecutionDegree;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.contacts.MobilePhone;
@@ -40,7 +38,6 @@ import org.fenixedu.academic.util.PhoneUtil;
 import org.fenixedu.academic.util.StringFormatter;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.UserProfile;
-import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.joda.time.LocalDate;
@@ -271,10 +268,6 @@ public class DegreeCandidateDTO {
                 FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber());
 
         return person;
-    }
-
-    public ExecutionDegree getExecutionDegree(final ExecutionYear executionYear, final Space space) {
-        return ExecutionDegree.readByDegreeCodeAndExecutionYearAndCampus(getDegreeCode(), executionYear, space);
     }
 
     public Country getNationality() {
