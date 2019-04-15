@@ -896,6 +896,10 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
                 .filter(request -> request instanceof ULisboaServiceRequest).map(ULisboaServiceRequest.class::cast);
     }
 
+    public static Stream<ULisboaServiceRequest> findByExecutionYearProperty(ExecutionYear executionYear) {
+        return executionYear.getServiceRequestPropertiesSet().stream().map(p -> p.getULisboaServiceRequest()).distinct();
+    }
+
     public static Stream<ULisboaServiceRequest> findByRegistration(final Registration registration) {
         return findAll().filter(request -> request.getRegistration().equals(registration));
     }
