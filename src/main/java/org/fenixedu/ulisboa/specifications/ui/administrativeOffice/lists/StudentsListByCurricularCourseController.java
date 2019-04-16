@@ -87,7 +87,7 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
             @PathVariable("executionSemester") ExecutionSemester executionSemester,
             @PathVariable("executionDegree") ExecutionDegree executionDegree) {
         JsonArray result = new JsonArray();
-        executionDegree.getDegreeCurricularPlan().getExecutionCoursesByExecutionPeriod(executionSemester).stream()
+        executionDegree.getDegreeCurricularPlan().getExecutionCourses(executionSemester).stream()
                 .sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR).forEach(ec -> addExecutionCourse(result, ec));
         return new GsonBuilder().create().toJson(result);
     }
