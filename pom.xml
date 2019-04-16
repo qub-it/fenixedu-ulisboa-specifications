@@ -52,12 +52,12 @@
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-learning</artifactId>
-			<version>3.6.0-FORK</version>
+			<version>3.6.1-FORK</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
 			<artifactId>fenixedu-academic-core</artifactId>
-			<version>20.0.0</version>
+			<version>21.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
