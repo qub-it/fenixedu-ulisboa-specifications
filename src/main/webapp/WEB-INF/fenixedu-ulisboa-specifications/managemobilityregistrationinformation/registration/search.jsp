@@ -88,7 +88,9 @@ ${portal.angularToolkit()}
 				</div>
 
 				<div class="col-sm-10">
-					<input id="registration_number" class="form-control" type="text" name="number" value='<c:out value='${param.number}'/>' />
+					<spring:message code='error.MobilityRegistrationInformation.studentNumber' var="studentNumberNotValid"/>
+					<input id="registration_number" class="form-control" type="text" name="number" pattern="^\d+$" oninvalid="this.setCustomValidity('${studentNumberNotValid}')" onchange="this.setCustomValidity('')"
+					 value='<c:out value='${param.number}'/>' />
 				</div>
 			</div>
 			<div class="form-group row">
