@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest;
 
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +30,7 @@ import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
-import org.fenixedu.academictreasury.util.Constants;
+import org.fenixedu.academictreasury.util.AcademicTreasuryConstants;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -317,13 +318,13 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     }
 
     private Collection<PaymentReferenceCode> getAllOpenPaymentCodes(final List<DebitEntry> activeDebitEntries) {
-        return activeDebitEntries.stream().filter(entry -> !Constants.isZero(entry.getOpenAmount()))
+        return activeDebitEntries.stream().filter(entry -> !AcademicTreasuryConstants.isZero(entry.getOpenAmount()))
                 .flatMap(entry -> entry.getPaymentCodesSet().stream()).map(payCode -> payCode.getPaymentReferenceCode())
                 .collect(Collectors.toList());
     }
 
     private boolean isAnyPaymentLeft(final List<DebitEntry> activeDebitEntries) {
-        return activeDebitEntries.stream().filter(entry -> !Constants.isZero(entry.getOpenAmount())).count() > 0;
+        return activeDebitEntries.stream().filter(entry -> !AcademicTreasuryConstants.isZero(entry.getOpenAmount())).count() > 0;
     }
 
     private void addDocumentTemplatesToModel(final ULisboaServiceRequest serviceRequest, final Model model) {

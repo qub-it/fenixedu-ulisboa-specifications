@@ -47,7 +47,7 @@ import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
-import org.fenixedu.academictreasury.util.Constants;
+import org.fenixedu.academictreasury.util.AcademicTreasuryConstants;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -227,6 +227,6 @@ public class ULisboaConstants {
     public static final Locale DEFAULT_LOCALE = new Locale("PT");
 
     public static final TupleDataSourceBean SELECT_OPTION =
-            new TupleDataSourceBean("", BundleUtil.getString(Constants.BUNDLE, "label.TupleDataSourceBean.select.description"));
+            new TupleDataSourceBean("", AcademicTreasuryConstants.academicTreasuryBundle("label.TupleDataSourceBean.select.description"));
 
 }
