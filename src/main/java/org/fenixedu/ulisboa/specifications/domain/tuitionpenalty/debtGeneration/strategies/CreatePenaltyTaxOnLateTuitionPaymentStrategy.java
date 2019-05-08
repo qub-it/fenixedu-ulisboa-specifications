@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain.tuitionpenalty.debtGeneration.strategies;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -7,6 +8,7 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academictreasury.domain.debtGeneration.AcademicDebtGenerationProcessingResult;
 import org.fenixedu.academictreasury.domain.debtGeneration.AcademicDebtGenerationRule;
 import org.fenixedu.academictreasury.domain.debtGeneration.IAcademicDebtGenerationRuleStrategy;
 import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
@@ -24,6 +26,8 @@ import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
@@ -79,20 +83,22 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
 
     @Override
     @Atomic(mode = TxMode.READ)
-    public void process(final AcademicDebtGenerationRule rule) {
+    public List<AcademicDebtGenerationProcessingResult> process(final AcademicDebtGenerationRule rule) {
 
         if (!rule.isActive()) {
             throw new AcademicTreasuryDomainException("error.AcademicDebtGenerationRule.not.active.to.process");
         }
 
         if (TuitionPenaltyConfiguration.getInstance().getTuitionPenaltyServiceRequestType() == null) {
-            return;
+            return Lists.newArrayList();
         }
 
         if (TuitionPenaltyConfiguration.getInstance().getTuitionPenaltyServiceRequestType() == null) {
-            return;
+            return Lists.newArrayList();
         }
 
+        final List<AcademicDebtGenerationProcessingResult> resultList = Lists.newArrayList();
+        
         for (final DegreeCurricularPlan degreeCurricularPlan : rule.getDegreeCurricularPlansSet()) {
             for (final Registration registration : degreeCurricularPlan.getRegistrations()) {
 
@@ -110,51 +116,69 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
                     continue;
                 }
 
+                final AcademicDebtGenerationProcessingResult result = new AcademicDebtGenerationProcessingResult(rule, registration);
+                resultList.add(result);
                 try {
                     processPenaltiesForRegistration(rule, registration);
                 } catch (final AcademicTreasuryDomainException e) {
-                    logger.info(e.getMessage());
+                    result.markException(e);
+                    logger.debug(e.getMessage());
                 } catch (final Exception e) {
+                    result.markException(e);
                     e.printStackTrace();
                 }
             }
         }
+        
+        return resultList;
     }
 
     @Override
     @Atomic(mode = TxMode.READ)
-    public void process(final AcademicDebtGenerationRule rule, final Registration registration) {
+    public List<AcademicDebtGenerationProcessingResult> process(final AcademicDebtGenerationRule rule, final Registration registration) {
         if (!rule.isActive()) {
             throw new AcademicTreasuryDomainException("error.AcademicDebtGenerationRule.not.active.to.process");
         }
 
         if (TuitionPenaltyConfiguration.getInstance().getTuitionPenaltyServiceRequestType() == null) {
-            return;
+            return Lists.newArrayList();
         }
 
         if (TuitionPenaltyConfiguration.getInstance().getTuitionPenaltyServiceRequestType() == null) {
-            return;
+            return Lists.newArrayList();
         }
 
         if (TuitionPenaltyConfiguration.getInstance().getExecutionYearSlot() == null) {
-            return;
+            return Lists.newArrayList();
         }
 
         if (registration.getStudentCurricularPlan(rule.getExecutionYear()) == null) {
-            return;
+            return Lists.newArrayList();
         }
 
         if (!rule.getDegreeCurricularPlansSet()
                 .contains(registration.getStudentCurricularPlan(rule.getExecutionYear()).getDegreeCurricularPlan())) {
-            return;
+            return Lists.newArrayList();
         }
 
         // Discard registrations not active and with no enrolments
         if (!registration.hasAnyActiveState(rule.getExecutionYear())) {
-            return;
+            return Lists.newArrayList();
         }
 
-        processPenaltiesForRegistration(rule, registration);
+        final AcademicDebtGenerationProcessingResult result = new AcademicDebtGenerationProcessingResult(rule, registration);
+
+        try {
+            processPenaltiesForRegistration(rule, registration);
+        } catch (final AcademicTreasuryDomainException e) {
+            result.markException(e);
+            logger.debug(e.getMessage());
+        } catch (final Exception e) {
+            result.markException(e);
+            e.printStackTrace();
+        }
+        
+        return Lists.newArrayList(result);
     }
 
     private void processPenaltiesForRegistration(final AcademicDebtGenerationRule rule, final Registration registration) {
@@ -261,7 +285,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
 
                     if (!academicServiceRequest.isPresent() || !academicServiceRequest.get().isCharged()) {
                         // Charge
-                        EmolumentServices.createAcademicServiceRequestEmolument(request);
+                        EmolumentServices.createAcademicServiceRequestEmolumentForDefaultFinantialEntity(request);
                     }
 
                     continue outer;
