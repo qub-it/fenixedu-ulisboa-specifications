@@ -1,12 +1,15 @@
 package org.fenixedu.ulisboa.specifications.domain.grade.fmd;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeComparator;
@@ -39,8 +42,8 @@ public class FMDTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
         CONFIGURATION.put(MB, new LocalizedString(Locale.getDefault(), "Muito Bom").with(Locale.ENGLISH, "Very good"));
         CONFIGURATION.put(BD,
                 new LocalizedString(Locale.getDefault(), "Bom com Distinção").with(Locale.ENGLISH, "Good with Distinction"));
-        CONFIGURATION
-                .put(CA, new LocalizedString(Locale.getDefault(), "Com Aproveitamento").with(Locale.ENGLISH, "Successfully"));
+        CONFIGURATION.put(CA,
+                new LocalizedString(Locale.getDefault(), "Com Aproveitamento").with(Locale.ENGLISH, "Successfully"));
         CONFIGURATION.put(DL,
                 new LocalizedString(Locale.getDefault(), "Distinção e Louvor").with(Locale.ENGLISH, "Distinction and Praise"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
@@ -93,6 +96,17 @@ public class FMDTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     @Override
     public int compareGrades(Grade leftGrade, Grade rightGrade) {
         return COMPARATOR.compare(leftGrade, rightGrade);
+    }
+
+    @Override
+    public boolean hasRestrictedGrades() {
+        return true;
+    }
+
+    @Override
+    public Collection<Grade> getPossibleGrades() {
+        return CONFIGURATION.keySet().stream().map(v -> Grade.createGrade(v, GradeScale.TYPEQUALITATIVE))
+                .collect(Collectors.toSet());
     }
 
 }

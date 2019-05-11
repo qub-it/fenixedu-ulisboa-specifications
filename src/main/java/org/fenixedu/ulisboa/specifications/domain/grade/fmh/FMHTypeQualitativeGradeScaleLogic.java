@@ -1,12 +1,15 @@
 package org.fenixedu.ulisboa.specifications.domain.grade.fmh;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeComparator;
@@ -31,8 +34,8 @@ public class FMHTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     private static final String MBDL = "MBDL";
     private static final String U = "U";
 
-    private static final List<String> SORTED_GRADES = Arrays.asList(RE, SU, A, M, U, AM, AB, B, BD, AD, ADL, AMB, AMBD, MB, MBD,
-            MBDL, E);
+    private static final List<String> SORTED_GRADES =
+            Arrays.asList(RE, SU, A, M, U, AM, AB, B, BD, AD, ADL, AMB, AMBD, MB, MBD, MBDL, E);
     private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
@@ -45,8 +48,8 @@ public class FMHTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
         CONFIGURATION.put(U, new LocalizedString(Locale.getDefault(), "Unanimidade").with(Locale.ENGLISH, "Unanimity"));
         CONFIGURATION.put(AM,
                 new LocalizedString(Locale.getDefault(), "Aprovado por maioria").with(Locale.ENGLISH, "Approved with majority"));
-        CONFIGURATION
-                .put(AB, new LocalizedString(Locale.getDefault(), "Aprovado Bom").with(Locale.ENGLISH, "Approved with Good"));
+        CONFIGURATION.put(AB,
+                new LocalizedString(Locale.getDefault(), "Aprovado Bom").with(Locale.ENGLISH, "Approved with Good"));
         CONFIGURATION.put(B, new LocalizedString(Locale.getDefault(), "Bom").with(Locale.ENGLISH, "Good"));
         CONFIGURATION.put(BD,
                 new LocalizedString(Locale.getDefault(), "Bom com distinção").with(Locale.ENGLISH, "Good with distinction"));
@@ -59,8 +62,8 @@ public class FMHTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
                 "Approved with Very good"));
         CONFIGURATION.put(MBD,
                 new LocalizedString(Locale.getDefault(), "M.Bom Distinção").with(Locale.ENGLISH, "Very Good with distinction"));
-        CONFIGURATION.put(AMBD, new LocalizedString(Locale.getDefault(), "Aprovado com Muito Bom com Distinção").with(
-                Locale.ENGLISH, "Approved with Very good with distinction"));
+        CONFIGURATION.put(AMBD, new LocalizedString(Locale.getDefault(), "Aprovado com Muito Bom com Distinção")
+                .with(Locale.ENGLISH, "Approved with Very good with distinction"));
         CONFIGURATION.put(MBDL, new LocalizedString(Locale.getDefault(), "M.Bom Distinção Louvor").with(Locale.ENGLISH,
                 "Very good with distinction and Honors"));
         CONFIGURATION.put(E, new LocalizedString(Locale.getDefault(), "Excelente").with(Locale.ENGLISH, "Excellent"));
@@ -111,6 +114,17 @@ public class FMHTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     @Override
     public int compareGrades(Grade leftGrade, Grade rightGrade) {
         return COMPARATOR.compare(leftGrade, rightGrade);
+    }
+
+    @Override
+    public boolean hasRestrictedGrades() {
+        return true;
+    }
+
+    @Override
+    public Collection<Grade> getPossibleGrades() {
+        return CONFIGURATION.keySet().stream().map(v -> Grade.createGrade(v, GradeScale.TYPEQUALITATIVE))
+                .collect(Collectors.toSet());
     }
 
 }

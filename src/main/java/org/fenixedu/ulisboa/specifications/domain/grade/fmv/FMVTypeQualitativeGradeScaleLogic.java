@@ -1,12 +1,15 @@
 package org.fenixedu.ulisboa.specifications.domain.grade.fmv;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeComparator;
@@ -37,8 +40,8 @@ public class FMVTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
                 new LocalizedString(Locale.getDefault(), "Bom com Distinção").with(Locale.ENGLISH, "Good with Distinction"));
         CONFIGURATION.put(MBD, new LocalizedString(Locale.getDefault(), "Muito Bom com Distinção").with(Locale.ENGLISH,
                 "Very good with Distinction"));
-        CONFIGURATION.put(AMBD, new LocalizedString(Locale.getDefault(), "Aprovado com Muito Bom com Distinção").with(
-                Locale.ENGLISH, "Approved with Very Good with Distinction"));
+        CONFIGURATION.put(AMBD, new LocalizedString(Locale.getDefault(), "Aprovado com Muito Bom com Distinção")
+                .with(Locale.ENGLISH, "Approved with Very Good with Distinction"));
         CONFIGURATION.put(AMB, new LocalizedString(Locale.getDefault(), "Aprovado com Muito Bom").with(Locale.ENGLISH,
                 "Approved with Very Good"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
@@ -93,6 +96,17 @@ public class FMVTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     @Override
     public int compareGrades(Grade leftGrade, Grade rightGrade) {
         return COMPARATOR.compare(leftGrade, rightGrade);
+    }
+
+    @Override
+    public boolean hasRestrictedGrades() {
+        return true;
+    }
+
+    @Override
+    public Collection<Grade> getPossibleGrades() {
+        return CONFIGURATION.keySet().stream().map(v -> Grade.createGrade(v, GradeScale.TYPEQUALITATIVE))
+                .collect(Collectors.toSet());
     }
 
 }

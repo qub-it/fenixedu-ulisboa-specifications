@@ -1,12 +1,15 @@
 package org.fenixedu.ulisboa.specifications.domain.grade.fl;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeComparator;
@@ -92,7 +95,7 @@ public class FLTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     public String qualify(Grade grade) {
         return CONFIGURATION.get(grade.getValue()).getContent();
     }
-    
+
     @Override
     public LocalizedString getExtendedValue(Grade grade) {
         return CONFIGURATION.get(grade.getValue());
@@ -101,6 +104,17 @@ public class FLTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     @Override
     public int compareGrades(Grade leftGrade, Grade rightGrade) {
         return COMPARATOR.compare(leftGrade, rightGrade);
+    }
+
+    @Override
+    public boolean hasRestrictedGrades() {
+        return true;
+    }
+
+    @Override
+    public Collection<Grade> getPossibleGrades() {
+        return CONFIGURATION.keySet().stream().map(v -> Grade.createGrade(v, GradeScale.TYPEQUALITATIVE))
+                .collect(Collectors.toSet());
     }
 
 }

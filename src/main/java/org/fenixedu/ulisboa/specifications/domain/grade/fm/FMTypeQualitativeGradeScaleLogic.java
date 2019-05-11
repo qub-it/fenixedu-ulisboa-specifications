@@ -1,12 +1,15 @@
 package org.fenixedu.ulisboa.specifications.domain.grade.fm;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeComparator;
@@ -88,14 +91,14 @@ public class FMTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
                 new LocalizedString(Locale.getDefault(), "Muito Bom por Maioria").with(Locale.ENGLISH, "Very good by Majority"));
         CONFIGURATION.put(MBU, new LocalizedString(Locale.getDefault(), "Muito Bom por Unanimidade").with(Locale.ENGLISH,
                 "Very good by Unanimity"));
-        CONFIGURATION.put(AUDL, new LocalizedString(Locale.getDefault(), "Aprovado por Unanimidade com Distinção e Louvor").with(
-                Locale.ENGLISH, "Approved by Unanimity with Distinction and Praise"));
-        CONFIGURATION.put(AMDL, new LocalizedString(Locale.getDefault(), "Aprovado por Maioria com Distinção e Louvor").with(
-                Locale.ENGLISH, "Approved by Majority with Distinction and Praise"));
-        CONFIGURATION.put(AMD, new LocalizedString(Locale.getDefault(), "Aprovado por Maioria com Distinção").with(
-                Locale.ENGLISH, "Approved by Majority with Distinction"));
-        CONFIGURATION.put(AUD, new LocalizedString(Locale.getDefault(), "Aprovado por Unanimidade com distinção").with(
-                Locale.ENGLISH, "Approved by Unanimity with Distinction"));
+        CONFIGURATION.put(AUDL, new LocalizedString(Locale.getDefault(), "Aprovado por Unanimidade com Distinção e Louvor")
+                .with(Locale.ENGLISH, "Approved by Unanimity with Distinction and Praise"));
+        CONFIGURATION.put(AMDL, new LocalizedString(Locale.getDefault(), "Aprovado por Maioria com Distinção e Louvor")
+                .with(Locale.ENGLISH, "Approved by Majority with Distinction and Praise"));
+        CONFIGURATION.put(AMD, new LocalizedString(Locale.getDefault(), "Aprovado por Maioria com Distinção").with(Locale.ENGLISH,
+                "Approved by Majority with Distinction"));
+        CONFIGURATION.put(AUD, new LocalizedString(Locale.getDefault(), "Aprovado por Unanimidade com distinção")
+                .with(Locale.ENGLISH, "Approved by Unanimity with Distinction"));
 
     }
 
@@ -145,6 +148,17 @@ public class FMTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     @Override
     public int compareGrades(Grade leftGrade, Grade rightGrade) {
         return COMPARATOR.compare(leftGrade, rightGrade);
+    }
+
+    @Override
+    public boolean hasRestrictedGrades() {
+        return true;
+    }
+
+    @Override
+    public Collection<Grade> getPossibleGrades() {
+        return CONFIGURATION.keySet().stream().map(v -> Grade.createGrade(v, GradeScale.TYPEQUALITATIVE))
+                .collect(Collectors.toSet());
     }
 
 }
