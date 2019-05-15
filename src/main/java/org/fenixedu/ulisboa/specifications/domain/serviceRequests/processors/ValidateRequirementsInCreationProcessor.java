@@ -93,7 +93,7 @@ public class ValidateRequirementsInCreationProcessor extends ValidateRequirement
                     .filter(r -> allSRTCodesNeeded.contains(r.getServiceRequestType().getCode())).collect(Collectors.toList());
 
             //Check for each code a request in a valid situation (state)
-            Set<String> notValidCodes = new HashSet<>();
+            Set<Set<String>> notValidCodes = new HashSet<>();
             for (String srtCode : getServiceRequestTypesNeededSet()) {
                 Set<String> multipleNames = Sets.newHashSet(srtCode.split(";"));
                 List<ULisboaServiceRequest> subList = requests.stream()
@@ -108,8 +108,7 @@ public class ValidateRequirementsInCreationProcessor extends ValidateRequirement
                     }
                 }
                 if (!hasValidRequest) {
-                    String outputAllMultipleCodes = srtCode.replaceAll(";", " ou ");
-                    notValidCodes.add(outputAllMultipleCodes);
+                    notValidCodes.add(multipleNames);
                 }
             }
 
@@ -122,18 +121,23 @@ public class ValidateRequirementsInCreationProcessor extends ValidateRequirement
         }
     }
 
-    private String transformCodeToName(Set<String> notValidCodes) {
+    private String transformCodeToName(Set<Set<String>> notValidCodes) {
         StringBuilder sb = new StringBuilder();
-        for (String code : notValidCodes) {
-            Optional<ServiceRequestType> srt = ServiceRequestType.findUniqueByCode(code);
-            if (srt.isPresent()) {
-                sb.append(srt.get().getName().getContent());
-            } else {
-                sb.append(code);
+        for (Set<String> srtCodes : notValidCodes) {
+            sb.append("(");
+            for (String code : srtCodes) {
+                Optional<ServiceRequestType> srt = ServiceRequestType.findUniqueByCode(code);
+                if (srt.isPresent()) {
+                    sb.append(srt.get().getName().getContent());
+                } else {
+                    sb.append(code);
+                }
+                sb.append(" ou ");
             }
-            sb.append(", ");
+            sb.append(") e ");
         }
-        return sb.toString();
+        String result = sb.toString();
+        return result.substring(0, result.length() - 3);
     }
 
 }
