@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
@@ -33,8 +34,9 @@ public class CurriculumEntryServicesImpl implements CurriculumEntryServices {
     }
 
     @Override
-    public LocalizedString getCurriculumEntryDescription(final ICurriculumEntry input) {
-        LocalizedString result = CurriculumLineServices.getCurriculumEntryDescription(input, false, false);
+    public LocalizedString getCurriculumEntryDescription(final ICurriculumEntry input,
+            final StudentCurricularPlan studentCurricularPlan) {
+        LocalizedString result = CurriculumLineServices.getCurriculumEntryDescription(input, studentCurricularPlan, false, false);
 
         // null forces hidden; empty forces fallback
         if (result != null) {

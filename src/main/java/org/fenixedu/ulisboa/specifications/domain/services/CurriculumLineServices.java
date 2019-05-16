@@ -114,11 +114,12 @@ abstract public class CurriculumLineServices {
         return curriculumLine.getExtendedInformation() == null ? null : curriculumLine.getExtendedInformation().getWeight();
     }
 
-    static public LocalizedString getCurriculumEntryDescription(final ICurriculumEntry entry, final boolean overrideHidden,
+    static public LocalizedString getCurriculumEntryDescription(final ICurriculumEntry entry,
+            final StudentCurricularPlan studentCurricularPlan, final boolean overrideHidden,
             final boolean overrideInfoExplained) {
 
         final Builder result = new LocalizedString().builder();
-        final Set<CurriculumLine> lines = entry.getCurriculumLinesForCurriculum();
+        final Set<CurriculumLine> lines = entry.getCurriculumLinesForCurriculum(studentCurricularPlan);
 
         if (lines.isEmpty()) {
             if (Enrolment.class.isAssignableFrom(entry.getClass())) {

@@ -136,14 +136,9 @@ public class CurriculumLayout extends Layout {
         generateWeightCell(row, entry);
         generateCellWithText(row, averageEntry.getApprovalTypeDescription(), null).setStyle("font-size: xx-small");
         generateCellWithText(row, averageEntry.getEntryInfo(), null).setStyle("font-size: xx-small");
-        generateCellWithText(row, averageEntry.getEntryCurriculumLinesInfo(), null).setStyle("font-size: xx-small");
+        generateCellWithText(row, averageEntry.getTargetCurriculumLinesInfo(), null).setStyle("font-size: xx-small");
 
-        // TODO legidio, where should this logic be?.... in Enrolment?
-        final Set<CurriculumLine> lines = entry.getCurriculumLinesForCurriculum();
-        StudentCurricularPlanLayout.generateDate(
-                lines.isEmpty() ? entry.getApprovementDate() : lines.stream().filter(i -> i.getApprovementDate() != null)
-                        .map(i -> i.getApprovementDate()).max(YearMonthDay::compareTo).orElse(null),
-                row, (String) null, (String) null);
+        StudentCurricularPlanLayout.generateDate(averageEntry.getConclusionDateOnTarget(), row, (String) null, (String) null);
     }
 
     private void generateCodeAndNameCell(final HtmlTableRow enrolmentRow, final ICurriculumEntry entry) {

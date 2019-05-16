@@ -34,6 +34,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -45,6 +46,7 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.CurriculumLayout;
+import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Lists;
 
@@ -55,23 +57,31 @@ public class AverageEntry implements Comparable<AverageEntry> {
     static final public String ENTRY_INFO_EQUALS = "Idem";
 
     private ICurriculumEntry entry;
+    private StudentCurricularPlan studentCurricularPlan;
     private String approvalTypeDescription;
     private Integer curricularYear;
     private Integer curricularSemester;
     private String entryInfo;
-    private String entryCurriculumLinesInfo;
+    private String targetCurriculumLinesInfo;
+    private YearMonthDay conclusionDateOnTarget;
 
-    public AverageEntry(final ICurriculumEntry entry) {
+    public AverageEntry(final ICurriculumEntry entry, final StudentCurricularPlan studentCurricularPlan) {
         this.entry = entry;
-        this.approvalTypeDescription = getApprovalTypeDescription(entry);
+        this.studentCurricularPlan = studentCurricularPlan;
+        this.approvalTypeDescription = getApprovalTypeDescription(entry, studentCurricularPlan);
         this.curricularYear = getCurricularYear(entry);
         this.curricularSemester = getCurricularSemester(entry);
         this.entryInfo = getEntryInfo(entry);
-        this.entryCurriculumLinesInfo = getEntryCurriculumLinesInfo(entry);
+        this.targetCurriculumLinesInfo = getTargetCurriculumLinesInfo(entry, studentCurricularPlan);
+        this.conclusionDateOnTarget = getConclusionDateOnTarget(entry, studentCurricularPlan);
     }
 
     public ICurriculumEntry getEntry() {
         return entry;
+    }
+
+    public StudentCurricularPlan getStudentCurricularPlan() {
+        return studentCurricularPlan;
     }
 
     public ExecutionYear getExecutionYear() {
@@ -102,8 +112,12 @@ public class AverageEntry implements Comparable<AverageEntry> {
         return entryInfo;
     }
 
-    public String getEntryCurriculumLinesInfo() {
-        return entryCurriculumLinesInfo;
+    public String getTargetCurriculumLinesInfo() {
+        return targetCurriculumLinesInfo;
+    }
+    
+    public YearMonthDay getConclusionDateOnTarget() {
+        return conclusionDateOnTarget;
     }
 
     @Override
@@ -130,24 +144,25 @@ public class AverageEntry implements Comparable<AverageEntry> {
         final List<AverageEntry> result = Lists.newLinkedList();
         final Predicate<AverageEntry> predicate = i -> i.isAccountable();
 
-        curriculum.getEnrolmentRelatedEntries().stream().map(i -> new AverageEntry(i)).filter(predicate)
-                .collect(Collectors.toCollection(() -> result));
+        curriculum.getEnrolmentRelatedEntries().stream().map(i -> new AverageEntry(i, curriculum.getStudentCurricularPlan()))
+                .filter(predicate).collect(Collectors.toCollection(() -> result));
 
-        curriculum.getDismissalRelatedEntries().stream().map(i -> new AverageEntry(i)).filter(predicate)
-                .collect(Collectors.toCollection(() -> result));
+        curriculum.getDismissalRelatedEntries().stream().map(i -> new AverageEntry(i, curriculum.getStudentCurricularPlan()))
+                .filter(predicate).collect(Collectors.toCollection(() -> result));
 
         Collections.sort(result);
         return result;
     }
 
     private boolean isAccountable() {
-        return getEntry().getCurriculumLinesForCurriculum().stream().filter(i -> i.isDismissal()).map(Dismissal.class::cast)
-                .map(i -> i.getCredits()).filter(i -> i != null).map(i -> i.getReason())
+        return getEntry().getCurriculumLinesForCurriculum(studentCurricularPlan).stream().filter(i -> i.isDismissal())
+                .map(Dismissal.class::cast).map(i -> i.getCredits()).filter(i -> i != null).map(i -> i.getReason())
                 .noneMatch(i -> i != null && !i.getAverageEntry());
     }
 
-    static private String getApprovalTypeDescription(final ICurriculumEntry entry) {
-        LocalizedString result = CurriculumLineServices.getCurriculumEntryDescription(entry, true, true);
+    static private String getApprovalTypeDescription(final ICurriculumEntry entry,
+            final StudentCurricularPlan studentCurricularPlan) {
+        LocalizedString result = CurriculumLineServices.getCurriculumEntryDescription(entry, studentCurricularPlan, true, true);
 
         // here we want some info, even if we were given null
         if (result == null || result.isEmpty()) {
@@ -181,6 +196,22 @@ public class AverageEntry implements Comparable<AverageEntry> {
         return result;
     }
 
+    static private String getTargetCurriculumLinesInfo(final ICurriculumEntry entry,
+            final StudentCurricularPlan studentCurricularPlan) {
+        final Set<CurriculumLine> lines = entry.getCurriculumLinesForCurriculum(studentCurricularPlan);
+
+        if (lines.isEmpty()) {
+            return ENTRY_INFO_EMPTY;
+        }
+
+        if (lines.size() == 1 && lines.contains(entry)) {
+            return ENTRY_INFO_EQUALS;
+        }
+
+        return lines.stream().map(line -> getEntryInfo((ICurriculumEntry) line)).distinct().sorted()
+                .collect(Collectors.joining(" "));
+    }
+
     static private String getEntryInfo(final ICurriculumEntry entry) {
         String curricularYear = "";
         String curricularSemester = "";
@@ -194,19 +225,13 @@ public class AverageEntry implements Comparable<AverageEntry> {
         return curricularYear + curricularSemester + executionYear;
     }
 
-    static private String getEntryCurriculumLinesInfo(final ICurriculumEntry entry) {
-        final Set<CurriculumLine> lines = entry.getCurriculumLinesForCurriculum();
+    static public YearMonthDay getConclusionDateOnTarget(final ICurriculumEntry entry,
+            final StudentCurricularPlan studentCurricularPlan) {
+        final Set<CurriculumLine> lines = entry.getCurriculumLinesForCurriculum(studentCurricularPlan);
 
-        if (lines.isEmpty()) {
-            return ENTRY_INFO_EMPTY;
-        }
+        return lines.isEmpty() ? entry.getApprovementDate() : lines.stream().filter(i -> i.getApprovementDate() != null)
+                .map(i -> i.getApprovementDate()).max(YearMonthDay::compareTo).orElse(null);
 
-        if (lines.size() == 1 && lines.contains(entry)) {
-            return ENTRY_INFO_EQUALS;
-        }
-
-        return lines.stream().map(line -> getEntryInfo((ICurriculumEntry) line)).distinct().sorted()
-                .collect(Collectors.joining(" "));
     }
 
 }
