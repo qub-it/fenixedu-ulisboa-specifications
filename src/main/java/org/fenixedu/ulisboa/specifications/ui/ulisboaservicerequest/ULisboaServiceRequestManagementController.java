@@ -1,6 +1,5 @@
 package org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest;
 
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -228,15 +227,18 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             addErrorMessage(e.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
-        } catch (RuntimeException e) {
-            addErrorMessage(e.getMessage(), model);
         } catch (Exception e) {
-            if (e instanceof RuntimeException && e.getCause() != null) {
-                Throwable cause = e.getCause();
-                if (cause instanceof DomainException
-                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
-                    String message = BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.create");
-                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+            if (e instanceof RuntimeException) {
+                if (e.getCause() != null) {
+                    Throwable cause = e.getCause();
+                    if (cause instanceof DomainException
+                            || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                        String message =
+                                BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.create");
+                        addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                    }
+                } else {
+                    addErrorMessage(e.getMessage(), model);
                 }
             } else {
                 addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);

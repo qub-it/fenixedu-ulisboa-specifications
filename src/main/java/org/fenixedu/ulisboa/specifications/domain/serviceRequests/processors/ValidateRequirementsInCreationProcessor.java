@@ -125,17 +125,18 @@ public class ValidateRequirementsInCreationProcessor extends ValidateRequirement
         StringBuilder sb = new StringBuilder();
         for (Set<String> srtCodes : notValidCodes) {
             sb.append("(");
-            for (String code : srtCodes) {
-                Optional<ServiceRequestType> srt = ServiceRequestType.findUniqueByCode(code);
+
+            String srtNames = srtCodes.stream().map(srtCode -> {
+                Optional<ServiceRequestType> srt = ServiceRequestType.findUniqueByCode(srtCode);
                 if (srt.isPresent()) {
-                    sb.append(srt.get().getName().getContent());
-                } else {
-                    sb.append(code);
+                    return srt.get().getName().getContent();
                 }
-                sb.append(" ou ");
-            }
+                return srtCode;
+            }).collect(Collectors.joining(" ou "));
+            sb.append(srtNames);
             sb.append(") e ");
         }
+
         String result = sb.toString();
         return result.substring(0, result.length() - 3);
     }
