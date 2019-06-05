@@ -11,6 +11,7 @@
     <filter>
         <filter-name>blueRecordFilter</filter-name>
         <filter-class>org.fenixedu.ulisboa.specifications.servlet.filters.ULisboaRedirectorWebFilter</filter-class>
+        <async-supported>true</async-supported>
     </filter>    
 
     <filter-mapping>
