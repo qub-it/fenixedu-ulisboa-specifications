@@ -1,4 +1,9 @@
+- Refactor: Moved configuration properties regarding quality mode to academic-extensions module
+
 2.16.1 (04-06-2019)
+- Improvement: Handle all exceptions when trying to create a new service request.
+- Bug Fix: Fix minor bug in error message when request can not be created.
+
 2.16.0 (16-05-2019)
 - Improvement: AverageEntry API cleanup  
 - Bug Fix: Collecting target curriculum lines for ICurriculumEntry requires curricular plan because this information is specific to calculated curriculum / curricular plan

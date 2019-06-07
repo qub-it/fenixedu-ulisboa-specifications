@@ -1,5 +1,6 @@
 package org.fenixedu.ulisboa.specifications.domain;
 
+import org.fenixedu.academic.FenixEduAcademicExtensionsConfiguration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
@@ -38,7 +39,7 @@ public class ULisboaPortalConfiguration extends ULisboaPortalConfiguration_Base 
     }
 
     public boolean isQualityMode() {
-        Boolean qualityMode = ULisboaConfiguration.getConfiguration().isQualityMode();
+        Boolean qualityMode = FenixEduAcademicExtensionsConfiguration.getConfiguration().isQualityMode();
         return qualityMode != null ? qualityMode : false;
     }
 

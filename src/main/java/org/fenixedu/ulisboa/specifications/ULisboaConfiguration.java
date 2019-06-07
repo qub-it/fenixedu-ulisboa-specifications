@@ -56,14 +56,6 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "domain.academic.curriculumAggregator.firstExecutionYearName", defaultValue = "2016/2017")
         public String getCurriculumAggregatorFirstExecutionYearName();
 
-        @ConfigurationProperty(key = "quality.mode")
-        public Boolean isQualityMode();
-
-        @ConfigurationProperty(key = "quality.mode.masterPassword")
-        public String getMasterPassword();
-
-        @ConfigurationProperty(key = "quality.mode.lightMasterPassword")
-        public String getLightMasterPassword();
 
         @ConfigurationProperty(key = "services.sas.activeStudents.enabled", defaultValue = "false")
         public Boolean getActiveStudentsServoceEnable();

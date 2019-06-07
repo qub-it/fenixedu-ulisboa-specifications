@@ -29,13 +29,13 @@ package org.fenixedu.ulisboa.specifications.ui;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.fenixedu.academic.FenixEduAcademicExtensionsConfiguration;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.Group;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.spring.FenixEDUBaseController;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,7 +59,7 @@ public class MockUser extends FenixEDUBaseController {
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(final Model model, final RedirectAttributes redirectAttributes) {
-        boolean qualityMode = Boolean.TRUE.equals(ULisboaConfiguration.getConfiguration().isQualityMode());
+        boolean qualityMode = Boolean.TRUE.equals(FenixEduAcademicExtensionsConfiguration.getConfiguration().isQualityMode());
         boolean developmentMode = Boolean.TRUE.equals(CoreConfiguration.getConfiguration().developmentMode());
 
         if (!qualityMode && !developmentMode) {
@@ -72,7 +72,7 @@ public class MockUser extends FenixEDUBaseController {
     public String index(@RequestParam(value = "username") final String username, final Model model,
             final RedirectAttributes redirectAttributes, final HttpServletRequest request, final HttpServletResponse response) {
         if (!Strings.isNullOrEmpty(username)) {
-            boolean qualityMode = Boolean.TRUE.equals(ULisboaConfiguration.getConfiguration().isQualityMode());
+            boolean qualityMode = Boolean.TRUE.equals(FenixEduAcademicExtensionsConfiguration.getConfiguration().isQualityMode());
             boolean developmentMode = Boolean.TRUE.equals(CoreConfiguration.getConfiguration().developmentMode());
 
             if (!qualityMode && !developmentMode) {
