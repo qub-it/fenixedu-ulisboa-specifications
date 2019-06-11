@@ -151,6 +151,11 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     @Override
     public void contextInitialized(final ServletContextEvent event) {
 
+        if (ULisboaSpecificationsRoot.getInstance().getCurricularPeriodConfigurationSet().stream()
+                .anyMatch(c -> c.getBennu() == null)) {
+            migrateSpecificationsRootToBennuRoot();
+        }
+
         ULisboaSpecificationsRoot.init();
         MarkSheetSettings.init();
         configurePortal();
@@ -236,6 +241,12 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         registerDeletionListenerOnQualification();
         registerDeletionListenerOnUnit();
 
+    }
+
+    @Atomic
+    private void migrateSpecificationsRootToBennuRoot() {
+        ULisboaSpecificationsRoot.getInstance().getCurricularPeriodConfigurationSet()
+                .forEach(c -> c.setBennu(Bennu.getInstance()));
     }
 
     private void registerDeletionListenerOnUnit() {
@@ -486,7 +497,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         }
 
         if (logic == null) {
-            logger.warn("Grade Logic for institution '" + (institutionUnit != null ? institutionUnit.getAcronym() : "unknown institution")
+            logger.warn("Grade Logic for institution '"
+                    + (institutionUnit != null ? institutionUnit.getAcronym() : "unknown institution")
                     + "' not found. Attempting to load from configuration property.");
             logic = loadClass("gradescale.typequalitative.logic.class",
                     ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());

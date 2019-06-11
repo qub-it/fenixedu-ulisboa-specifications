@@ -23,7 +23,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule;
+package org.fenixedu.academic.domain.curricularRules.curricularPeriod;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -35,7 +35,6 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 import pt.ist.fenixframework.Atomic;

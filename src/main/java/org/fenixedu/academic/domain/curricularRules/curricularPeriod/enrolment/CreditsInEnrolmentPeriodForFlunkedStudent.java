@@ -1,12 +1,12 @@
-package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment;
+package org.fenixedu.academic.domain.curricularRules.curricularPeriod.enrolment;
 
 import java.math.BigDecimal;
 
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 import pt.ist.fenixframework.Atomic;

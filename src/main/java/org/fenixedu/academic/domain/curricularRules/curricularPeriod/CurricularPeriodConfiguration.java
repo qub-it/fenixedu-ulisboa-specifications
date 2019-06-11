@@ -23,7 +23,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.fenixedu.ulisboa.specifications.domain.curricularPeriod;
+package org.fenixedu.academic.domain.curricularRules.curricularPeriod;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -36,10 +36,8 @@ import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.RuleEnrolment;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.RuleTransition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,6 +50,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
     protected CurricularPeriodConfiguration() {
         super();
         setULisboaSpecificationsRoot(ULisboaSpecificationsRoot.getInstance());
+        super.setBennu(Bennu.getInstance());
     }
 
     protected void init(final CurricularPeriod curricularPeriod) {

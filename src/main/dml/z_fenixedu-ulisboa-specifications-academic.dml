@@ -1,0 +1,152 @@
+package org.fenixedu.academic.domain;
+
+external class .org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+
+// ==================== BEGIN: CurricularPeriodConfiguration ====================
+
+class curricularRules.curricularPeriod.CurricularPeriodConfiguration {
+}
+
+relation CurricularPeriodConfigurationRoot {
+	.org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot {
+		multiplicity 1..1;
+	}
+	curricularRules.curricularPeriod.CurricularPeriodConfiguration playsRole curricularPeriodConfiguration {
+		multiplicity *;
+	}
+}
+
+relation CurricularPeriodConfigurationBennu {
+
+	.org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+		multiplicity 0..1;
+	}
+	
+	curricularRules.curricularPeriod.CurricularPeriodConfiguration playsRole curricularPeriodConfigurations {
+		multiplicity *;
+	}
+}
+
+relation CurricularPeriodConfigurations {
+	.org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod playsRole curricularPeriod {
+		multiplicity 1..1;
+	}
+	curricularRules.curricularPeriod.CurricularPeriodConfiguration playsRole configuration {
+		multiplicity 0..1;
+	}
+}
+
+class curricularRules.curricularPeriod.CurricularPeriodRule {
+	BigDecimal value;
+	boolean hideMessagePrefix;
+	Integer semester;
+	Integer yearMin;
+	Integer yearMax;
+	Boolean applyToOptionals;
+}
+
+	class curricularRules.curricularPeriod.RuleEnrolment extends curricularRules.curricularPeriod.CurricularPeriodRule {
+		boolean includeEnrolments;
+		Boolean applyToFlunkedStudents;
+	}
+	
+		class curricularRules.curricularPeriod.enrolment.CreditsInEnrolmentPeriod extends curricularRules.curricularPeriod.RuleEnrolment {
+		}
+		
+			class curricularRules.curricularPeriod.enrolment.CreditsInEnrolmentPeriodForHighestCurricularYear extends curricularRules.curricularPeriod.enrolment.CreditsInEnrolmentPeriod {
+			}
+			
+			class curricularRules.curricularPeriod.enrolment.CreditsInEnrolmentPeriodForFlunkedStudent extends curricularRules.curricularPeriod.enrolment.CreditsInEnrolmentPeriod {
+			}
+		
+			class curricularRules.curricularPeriod.enrolment.CreditsInEnrolmentPeriodByRegistrationData extends curricularRules.curricularPeriod.enrolment.CreditsInEnrolmentPeriod {
+			}
+			
+			class curricularRules.curricularPeriod.enrolment.CreditsInEnrolmentPeriodForPartialRegime extends curricularRules.curricularPeriod.enrolment.CreditsInEnrolmentPeriod {
+			}
+		
+		class curricularRules.curricularPeriod.enrolment.CreditsInCurricularPeriod extends curricularRules.curricularPeriod.RuleEnrolment {
+		}
+		
+		class curricularRules.curricularPeriod.enrolment.CreditsNotEnroled extends curricularRules.curricularPeriod.RuleEnrolment {
+		}
+		
+		class curricularRules.curricularPeriod.enrolment.CreditsEnroledAsFirstTime extends curricularRules.curricularPeriod.RuleEnrolment {
+		}
+		
+	class curricularRules.curricularPeriod.RuleTransition extends curricularRules.curricularPeriod.CurricularPeriodRule {
+		boolean allowToCollectAllCurricularPlans;
+		String codesCSV;
+	}
+
+		class curricularRules.curricularPeriod.transition.RuleTransitionOr extends curricularRules.curricularPeriod.RuleTransition {
+		}
+		
+		class curricularRules.curricularPeriod.transition.FlunkedCredits extends curricularRules.curricularPeriod.RuleTransition {
+		}
+		
+		class curricularRules.curricularPeriod.transition.ApprovedCredits extends curricularRules.curricularPeriod.RuleTransition {
+		}
+		
+		class curricularRules.curricularPeriod.transition.ApprovedCourses extends curricularRules.curricularPeriod.RuleTransition {
+		}
+		
+		class curricularRules.curricularPeriod.transition.FlunkedCurricularCourses extends curricularRules.curricularPeriod.RuleTransition {
+		}
+		
+		class curricularRules.curricularPeriod.transition.StudentStatuteExecutiveRule extends curricularRules.curricularPeriod.RuleTransition {
+		}
+		
+		class curricularRules.curricularPeriod.transition.EnrolmentYears extends curricularRules.curricularPeriod.RuleTransition {
+		}
+		
+		class curricularRules.curricularPeriod.transition.EnrolmentsInCurricularYear extends curricularRules.curricularPeriod.RuleTransition {
+		}
+		
+		class curricularRules.curricularPeriod.transition.MinimumPartialAverage extends curricularRules.curricularPeriod.RuleTransition {
+		}
+		
+relation CurricularPeriodConfigurationRuleEnrolment {
+	curricularRules.curricularPeriod.CurricularPeriodConfiguration playsRole configurationEnrolment {
+		multiplicity 0..1;
+	}
+	curricularRules.curricularPeriod.RuleEnrolment playsRole ruleEnrolment {
+		multiplicity *;
+	}
+}
+
+relation RuleEnrolmentStatuteType {
+	curricularRules.curricularPeriod.RuleEnrolment playsRole ruleEnrolments { multiplicity *; }
+	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypes { multiplicity *; }
+}
+
+relation CurricularPeriodConfigurationRuleTransition {
+	curricularRules.curricularPeriod.CurricularPeriodConfiguration playsRole configurationTransition {
+		multiplicity 0..1;
+	}
+	curricularRules.curricularPeriod.RuleTransition playsRole ruleTransition {
+		multiplicity *;
+	}
+}
+
+relation RuleTransitionChildren {
+	curricularRules.curricularPeriod.RuleTransition playsRole parentRuleTransition {
+		multiplicity 0..1;
+	}
+	curricularRules.curricularPeriod.RuleTransition playsRole children {
+		multiplicity *;
+	}
+}
+
+relation StatuteTypeRuleTransition {
+	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypeForRuleTransition {
+		multiplicity 0..1;
+	}
+	curricularRules.curricularPeriod.RuleTransition playsRole ruleTransitions {
+		multiplicity *;
+	}
+}
+
+
+
+// ==================== END: CurricularPeriodConfiguration ====================

@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment;
+package org.fenixedu.academic.domain.curricularRules.curricularPeriod.enrolment;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -7,11 +7,11 @@ import java.util.Set;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 

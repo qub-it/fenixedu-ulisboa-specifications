@@ -23,23 +23,23 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.enrolment;
+package org.fenixedu.academic.domain.curricularRules.curricularPeriod.enrolment;
 
 import java.math.BigDecimal;
 import java.util.Set;
 import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.Enrolment;
+import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
-
-import pt.ist.fenixframework.Atomic;
 
 import com.google.common.collect.Sets;
+
+import pt.ist.fenixframework.Atomic;
 
 public class CreditsInEnrolmentPeriod extends CreditsInEnrolmentPeriod_Base {
 

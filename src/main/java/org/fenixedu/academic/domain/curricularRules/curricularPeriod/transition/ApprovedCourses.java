@@ -1,14 +1,14 @@
-package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.transition;
+package org.fenixedu.academic.domain.curricularRules.curricularPeriod.transition;
 
 import java.math.BigDecimal;
 import java.util.function.Predicate;
 
+import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 
 import pt.ist.fenixframework.Atomic;

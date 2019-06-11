@@ -29,7 +29,7 @@
 <%@page import="org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.CurricularPeriodRule"%>
+
 <h2>
 	<bean:write name="bolonhaStudentEnrollmentBean"  property="funcionalityTitle" />
 </h2>

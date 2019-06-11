@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.curricularPeriod.rule.transition;
+package org.fenixedu.academic.domain.curricularRules.curricularPeriod.transition;
 
 import java.math.BigDecimal;
 import java.util.Iterator;
@@ -6,17 +6,17 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
+import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.curricularPeriod.CurricularPeriodConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pt.ist.fenixframework.Atomic;
-
 import com.google.common.collect.Sets;
+
+import pt.ist.fenixframework.Atomic;
 
 public class FlunkedCurricularCourses extends FlunkedCurricularCourses_Base {
 
