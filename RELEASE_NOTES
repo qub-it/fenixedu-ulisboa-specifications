@@ -1,3 +1,5 @@
+- Refactor: Moved domain entities to academic-extensions module
+
 2.17.0 (07-06-2019)
 - Refactor: Moved configuration properties regarding quality mode to academic-extensions module
 

@@ -841,14 +841,7 @@ class SecondCycleFirstYearPersistentGroup extends .org.fenixedu.bennu.core.domai
 
 // ======================= = Enrolment in Scool Classes begin = =========================
 
-relation RegistrationSchoolClass {
-    .org.fenixedu.academic.domain.SchoolClass playsRole schoolClasses {
-        multiplicity *;
-    }
-    .org.fenixedu.academic.domain.student.Registration playsRole registrations {
-        multiplicity *;
-    }
-}
+
 
 relation SchoolClassPrecedence {
     .org.fenixedu.academic.domain.SchoolClass playsRole nextSchoolClass;
