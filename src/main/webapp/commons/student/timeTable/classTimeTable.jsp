@@ -21,6 +21,7 @@
 <%-- WARNING: This JSP is used to generate the first year candidate report (printAllDocuments.jsp). Beware when editing it! --%>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<%@page import="org.fenixedu.academic.domain.student.RegistrationServices"%>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
 <%@ taglib uri="http://jakarta.apache.org/taglibs/struts-example-1.0" prefix="app" %>
@@ -53,7 +54,7 @@
 					<html:link page="<%="/studentTimeTable.do?method=showTimeTable&registrationId=" + registrationId + "&executionSemesterID=" + executionSemesterID %>">
 						<c:out value="${executionSemester.qualifiedName}"></c:out>
 						<bean:define id="executionSemester" name="executionSemester" type="org.fenixedu.academic.domain.ExecutionSemester" />
-						<% request.setAttribute("thisSchoolClass", org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices.getSchoolClassBy(registration, executionSemester)); %>
+						<% request.setAttribute("thisSchoolClass", RegistrationServices.getSchoolClassBy(registration, executionSemester)); %>
 						<c:if test="${thisSchoolClass.present}">
 							<span class="badge"><c:out value="${thisSchoolClass.get().name}" /></span>
 						</c:if>

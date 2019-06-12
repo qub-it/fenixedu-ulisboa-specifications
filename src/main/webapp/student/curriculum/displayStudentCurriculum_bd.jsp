@@ -18,6 +18,7 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.fenixedu.academic.domain.student.RegistrationServices"%>
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
@@ -27,7 +28,6 @@
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/academic" prefix="academic" %>
 <%@ page language="java" %>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.DetailedType"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
 <%@page import="org.fenixedu.academic.domain.StudentCurricularPlan"%>
 <%@page import="org.apache.commons.collections.comparators.ReverseComparator"%>
 <%@page import="java.util.Comparator"%>

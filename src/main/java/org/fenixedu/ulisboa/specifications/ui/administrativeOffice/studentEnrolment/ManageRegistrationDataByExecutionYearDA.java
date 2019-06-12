@@ -9,11 +9,11 @@ import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
+import org.fenixedu.academic.domain.student.RegistrationDataServices;
 import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.SearchForStudentsDA;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
-import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
 import org.fenixedu.ulisboa.specifications.dto.student.RegistrationDataBean;
 
 import pt.ist.fenixframework.Atomic;

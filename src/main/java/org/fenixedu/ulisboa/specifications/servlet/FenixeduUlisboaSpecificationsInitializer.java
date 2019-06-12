@@ -51,6 +51,7 @@ import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsI
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleConfigurationInitializer;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
+import org.fenixedu.academic.domain.enrolment.EnrolmentPredicateInitializer;
 import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationExtendedInformation;
 import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
 import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
@@ -58,6 +59,9 @@ import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYearExtendedInformation;
+import org.fenixedu.academic.domain.student.RegistrationExtendedInformation;
+import org.fenixedu.academic.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.academic.domain.student.curriculum.conclusion.ConclusionProcessListenersInitializer;
 import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
@@ -110,10 +114,6 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
-import org.fenixedu.ulisboa.specifications.domain.student.EnrolmentPredicateInitializer;
-import org.fenixedu.ulisboa.specifications.domain.student.RegistrationDataByExecutionYearExtendedInformation;
-import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
-import org.fenixedu.ulisboa.specifications.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorMarkSheetServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;

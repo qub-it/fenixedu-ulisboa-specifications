@@ -10,7 +10,6 @@
 <%@page import="org.fenixedu.academic.domain.ExecutionYear"%>
 <%@page import="org.fenixedu.academic.domain.student.Registration"%>
 <%@page import="org.fenixedu.academic.domain.student.curriculum.ICurriculum"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
 <html:xhtml />
 
 <h2><bean:message key="label.programConclusionsSummary" bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES"/></h2>

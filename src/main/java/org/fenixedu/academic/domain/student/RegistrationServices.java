@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.services;
+package org.fenixedu.academic.domain.student;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,8 +33,6 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
-import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
@@ -50,8 +48,8 @@ import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.dto.student.RegistrationStateBean;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
-import org.fenixedu.ulisboa.specifications.domain.student.RegistrationExtendedInformation;
+import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CreditsReasonType;
 import org.fenixedu.ulisboa.specifications.dto.student.RegistrationDataBean;
 import org.joda.time.DateTime;

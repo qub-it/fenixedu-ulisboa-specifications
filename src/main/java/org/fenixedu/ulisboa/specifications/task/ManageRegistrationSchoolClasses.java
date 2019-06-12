@@ -8,9 +8,9 @@ import java.util.Optional;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.scheduler.custom.CustomTask;
-import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 import pt.ist.fenixframework.FenixFramework;
 

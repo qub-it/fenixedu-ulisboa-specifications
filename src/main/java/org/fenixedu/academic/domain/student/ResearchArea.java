@@ -1,10 +1,9 @@
-package org.fenixedu.ulisboa.specifications.domain.student;
+package org.fenixedu.academic.domain.student;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Objects;
 
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;

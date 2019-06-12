@@ -66,6 +66,7 @@ import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
+import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
@@ -81,7 +82,6 @@ import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByE
 import org.fenixedu.ulisboa.specifications.domain.UniversityChoiceMotivationAnswer;
 import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer;
 import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
-import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;

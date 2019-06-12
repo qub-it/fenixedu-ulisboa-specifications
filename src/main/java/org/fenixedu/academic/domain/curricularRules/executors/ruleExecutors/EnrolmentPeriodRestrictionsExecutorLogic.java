@@ -33,8 +33,8 @@ import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
-import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

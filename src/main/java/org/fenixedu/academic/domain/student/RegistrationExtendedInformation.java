@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.student;
+package org.fenixedu.academic.domain.student;
 
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -6,6 +6,8 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 
 import pt.ist.fenixframework.FenixFramework;
 
+//TODO: Merge with registration
+@Deprecated
 public class RegistrationExtendedInformation extends RegistrationExtendedInformation_Base {
 
     protected RegistrationExtendedInformation() {

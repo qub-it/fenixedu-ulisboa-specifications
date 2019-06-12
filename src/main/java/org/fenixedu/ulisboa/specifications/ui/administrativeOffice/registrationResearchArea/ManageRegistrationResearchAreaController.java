@@ -3,10 +3,10 @@ package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.registration
 import java.util.List;
 
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.ResearchArea;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.student.ResearchArea;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;

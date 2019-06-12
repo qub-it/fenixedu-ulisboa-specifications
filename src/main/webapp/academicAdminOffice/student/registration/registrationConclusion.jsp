@@ -18,6 +18,7 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.fenixedu.academic.domain.student.RegistrationServices"%>
 <%@page import="org.fenixedu.academic.domain.student.curriculum.conclusion.RegistrationConclusionServices"%>
 <%@page import="org.fenixedu.academic.domain.student.curriculum.Curriculum"%>
 <%@page import="org.fenixedu.academic.domain.ExecutionYear"%>
@@ -41,7 +42,6 @@
 <%@page import="org.fenixedu.bennu.core.i18n.BundleUtil" %>
 <%@page import="org.fenixedu.academic.util.Bundle"%>
 <%@page import="org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer" %>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
 
 <html:xhtml/>
 

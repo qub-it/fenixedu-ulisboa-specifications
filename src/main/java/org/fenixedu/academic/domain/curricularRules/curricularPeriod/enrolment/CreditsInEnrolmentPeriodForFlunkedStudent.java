@@ -7,7 +7,7 @@ import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularP
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
+import org.fenixedu.academic.domain.student.RegistrationServices;
 
 import pt.ist.fenixframework.Atomic;
 

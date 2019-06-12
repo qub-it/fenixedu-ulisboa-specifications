@@ -551,3 +551,91 @@ relation GradingTableSettingsDegreeType {
 
 
 // ====================== = End Of ECTS Grading Table = ========================
+
+
+// ======================= BEGIN: RegistrationExtendedInformation =========================
+
+class student.RegistrationExtendedInformation {
+	BigDecimal ingressionGradeA;
+	BigDecimal ingressionGradeB;
+	BigDecimal ingressionGradeC;
+	BigDecimal ingressionGradeD;
+	
+	BigDecimal internshipGrade;
+	LocalDate internshipConclusionDate;
+	
+	boolean curriculumAccumulated;
+	boolean manuallyAssignedNumber;
+}
+
+relation BennuRegistrationExtendedInformation {
+	student.RegistrationExtendedInformation playsRole registrationExtendedInformations {
+		multiplicity *;
+	}
+	
+	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+}
+
+relation RegistrationRegistrationExtendedInformation {
+    .org.fenixedu.academic.domain.student.Registration playsRole registration {
+    	multiplicity 1..1;
+    }
+    
+    student.RegistrationExtendedInformation playsRole extendedInformation;
+}
+
+// ======================= END: RegistrationExtendedInformation =========================
+
+
+// ======================= BEGIN: RegistrationDataByExecutionYearExtendedInformation =========================
+
+class student.RegistrationDataByExecutionYearExtendedInformation {
+	Integer curricularYear;
+}
+
+relation BennuRegistrationDataByExecutionYearExtendedInformation {
+	student.RegistrationDataByExecutionYearExtendedInformation playsRole registrationDataByExecutionYearExtendedInformations {
+		multiplicity *;
+	}
+	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+}
+
+relation RegistrationDataByExecutionYearWithExtendedInformation {
+    .org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear playsRole dataByExecutionYear {
+    	multiplicity 1..1;
+    }
+    
+    student.RegistrationDataByExecutionYearExtendedInformation playsRole extendedInformation;
+}
+
+// ======================= END: RegistrationDataByExecutionYearExtendedInformation =========================
+
+class student.ResearchArea {
+	String code;
+	LocalizedString name;
+}
+
+	relation ResearchAreaBennu {
+		.org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+			multiplicity 1..1;
+		}
+	
+		student.ResearchArea playsRole researchAreas {
+			multiplicity *;
+		}
+	}
+	
+	relation ResearchAreaStudentCurricularPlan {
+		.org.fenixedu.academic.domain.student.Registration playsRole registration {
+			multiplicity *;
+		}
+	
+		student.ResearchArea playsRole researchArea {
+			multiplicity 0..1;
+		}
+	}
+	

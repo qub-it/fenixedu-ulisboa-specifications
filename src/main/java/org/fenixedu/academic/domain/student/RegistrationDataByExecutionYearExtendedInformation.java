@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.student;
+package org.fenixedu.academic.domain.student;
 
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -6,6 +6,8 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 
 import pt.ist.fenixframework.FenixFramework;
 
+//TODO: Merge with registration data by execution interval
+@Deprecated
 public class RegistrationDataByExecutionYearExtendedInformation extends RegistrationDataByExecutionYearExtendedInformation_Base {
 
     protected RegistrationDataByExecutionYearExtendedInformation() {

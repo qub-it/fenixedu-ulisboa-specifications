@@ -18,6 +18,7 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.fenixedu.academic.domain.student.RegistrationServices"%>
 <%@page import="org.fenixedu.academic.domain.student.curriculum.conclusion.RegistrationConclusionServices"%>
 <%@page import="java.util.HashSet"%>
 <%@page import="java.util.Set"%>
@@ -37,7 +38,6 @@
 <%@page import="org.fenixedu.commons.i18n.I18N" %>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
 <%@page import="java.util.stream.Collectors" %>
 <%@page import="org.fenixedu.academic.domain.student.Registration" %>
 <%@page import="java.util.List"%>

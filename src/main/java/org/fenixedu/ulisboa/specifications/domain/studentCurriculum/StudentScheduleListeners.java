@@ -18,8 +18,8 @@ import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.curricularRules.StudentSchoolClassCurricularRule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
-import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 /**
  * @author shezad

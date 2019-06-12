@@ -18,6 +18,7 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
+<%@page import="org.fenixedu.academic.domain.student.RegistrationServices"%>
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html"%>
 <html:xhtml />
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean"%>
@@ -28,7 +29,7 @@
 <%@page import="org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage"%>
 <%@page import="org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult"%>
 <%@page import="org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
+
 
 <h2>
 	<bean:write name="bolonhaStudentEnrollmentBean"  property="funcionalityTitle" />

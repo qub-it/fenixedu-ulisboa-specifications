@@ -23,7 +23,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.fenixedu.ulisboa.specifications.domain.student;
+package org.fenixedu.academic.domain.student;
 
 import java.text.MessageFormat;
 import java.util.function.Supplier;
@@ -45,6 +45,8 @@ import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+//Move code to academic core
+@Deprecated
 abstract public class RegistrationRegimeVerifierInitializer {
 
     static private final Logger logger = LoggerFactory.getLogger(RegistrationRegimeVerifierInitializer.class);
