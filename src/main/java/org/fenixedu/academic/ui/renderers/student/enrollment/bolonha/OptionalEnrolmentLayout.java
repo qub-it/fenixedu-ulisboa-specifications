@@ -37,6 +37,7 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseRestrictions;
 import org.fenixedu.academic.domain.curricularRules.CompositeRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.AnyCurricularCourseExceptionsExecutorLogic;
@@ -47,7 +48,6 @@ import org.fenixedu.academic.dto.student.enrollment.bolonha.BolonhaStudentOption
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
-import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseRestrictions;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 

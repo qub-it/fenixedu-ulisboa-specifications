@@ -31,21 +31,10 @@ package org.fenixedu.ulisboa.specifications.domain;
 
 enum org.fenixedu.academic.domain.ShiftType as ShiftTypeSpecifications;
 enum org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel as CurricularRuleLevel;
-enum org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AcademicEnrolmentPeriodType as AcademicEnrolmentPeriodType;
-enum org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment as AutomaticEnrolment;
 enum org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType as UIComponentType;
 enum org.fenixedu.ulisboa.specifications.domain.studentCurriculum.AggregationEnrolmentType as AggregationEnrolmentType;
 enum org.fenixedu.ulisboa.specifications.domain.studentCurriculum.AggregationMemberEvaluationType as AggregationMemberEvaluationType;
 enum org.fenixedu.ulisboa.specifications.domain.studentCurriculum.AggregationGradeCalculator as AggregationGradeCalculator;
-
-
-valueType org.fenixedu.ulisboa.specifications.domain.ects.GradingTableData as GradingTableData {
-    externalizeWith {
-        String toJson();
-    }
-
-    internalizeWith fromJson();
-}
 
 
 external class .org.fenixedu.bennu.core.domain.User;
@@ -510,91 +499,8 @@ relation ULisboaSpecificationsRootMaximumNumberOfCreditsForEnrolmentPeriodEnforc
 class curricularRules.CurriculumAggregatorApproval extends .org.fenixedu.academic.domain.curricularRules.Rule {
 }
 
-class curricularRules.ConditionedRoute extends .org.fenixedu.academic.domain.curricularRules.Rule {
-}
-
-class curricularRules.StudentStatuteCurricularRule extends .org.fenixedu.academic.domain.curricularRules.Rule {
-}
-
-	relation StudentStatuteCurricularRuleStatuteType {
-		curricularRules.StudentStatuteCurricularRule playsRole studentStatuteCurricularRules {
-			multiplicity *;
-		}
-		
-		.org.fenixedu.academic.domain.student.StatuteType playsRole statuteType {
-			multiplicity 1..1;
-		}
-	}
-	
-	relation StudentStatuteCurricularRuleCurricularPeriod {
-		curricularRules.StudentStatuteCurricularRule playsRole studentStatuteCurricularRules {
-			multiplicity *;
-		}
-		
-		.org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod playsRole curricularPeriod {
-			multiplicity 0..1;
-		}
-	}
-	
-class curricularRules.StudentSchoolClassCurricularRule extends .org.fenixedu.academic.domain.curricularRules.Rule {
-	String schoolClassNames;
-	Boolean schoolClassMustContainCourse;
-	Boolean courseMustHaveFreeShifts;
-	Boolean enrolInShiftIfUnique;
-	Boolean allAvailableShiftsMustBeEnrolled;
-}
-
-class curricularRules.CreditsLimitWithPreviousApprovals extends .org.fenixedu.academic.domain.curricularRules.Rule {
-}
-
-	relation CreditsLimitWithPreviousApprovalsCurricularRule {
-		curricularRules.CreditsLimitWithPreviousApprovals playsRole creditsLimitWithPreviousApprovals {
-			multiplicity *;
-		}
-		
-		.org.fenixedu.academic.domain.degreeStructure.CourseGroup playsRole previousGroups {
-			multiplicity 1..*;
-		}
-	}
-
-class curricularRules.AnyCurricularCourseRestrictions extends .org.fenixedu.academic.domain.curricularRules.Rule {
-}
-
-    relation AnyCurricularCourseRestrictionsCourseGroup {
-        curricularRules.AnyCurricularCourseRestrictions playsRole anyCurricularCourseRestrictions {
-            multiplicity *;
-        }
-        .org.fenixedu.academic.domain.degreeStructure.CourseGroup playsRole courseGroups {
-            multiplicity *;
-        }
-    }
-	
 // ==================== END: CurricularRule ====================
 
-// ==================== BEGIN: CurricularRule Executor Logics ====================
-
-class curricularRules.AnyCurricularCourseExceptionsConfiguration {
-}
-
-    relation AnyCurricularCourseExceptionsConfigurationRoot {
-    	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot {
-    		multiplicity 1..1;
-    	}
-    	curricularRules.AnyCurricularCourseExceptionsConfiguration playsRole anyCurricularCourseExceptionsConfiguration {
-    		multiplicity 0..1;
-    	}
-    }
-    
-    relation AnyCurricularCourseExceptionsCompetenceCourse {
-    	curricularRules.AnyCurricularCourseExceptionsConfiguration playsRole anyCurricularCourseExceptionsConfiguration {
-    		multiplicity *;
-    	}
-    	.org.fenixedu.academic.domain.CompetenceCourse playsRole competenceCourses {
-    		multiplicity *;
-    	}
-    }
-
-// ==================== END: CurricularRule Executor Logics ====================
 
 // ==================== BEGIN: Credits Reason Type ====================
 
@@ -1146,113 +1052,6 @@ relation ServiceRequestRestrictionProgramConclusion {
     }
 }
 
-// ====================== = ECTS Grading Table = ========================
-
-class ects.GradingTable {
-	GradingTableData data;
-	boolean copied;
-}
-
-	class ects.InstitutionGradingTable extends ects.GradingTable {
-	}
-	class ects.DegreeGradingTable extends ects.GradingTable {
-	}
-	class ects.CourseGradingTable extends ects.GradingTable {
-	}
-	class ects.GeneralPurposeGradingTable extends ects.GradingTable {
-	}
-	class ects.DefaultGradingTable extends ects.GradingTable {
-	}
-	
-class ects.GradingTableSettings {
-	Integer minSampleSize;
-	Integer minPastYears;
-	Integer maxPastYears;
-}
-
-
-relation GradingTableBennu {
-	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
-        multiplicity 1..1;
-    }
-    public ects.GradingTable playsRole gradingTables {
-    	multiplicity *;
-    }
-}
-
-relation GradingTableExecutionYear {
-	.org.fenixedu.academic.domain.ExecutionYear playsRole executionYear {
-        multiplicity 0..1;
-    }
-    public ects.GradingTable playsRole gradingTables {
-    	multiplicity *;
-    }
-}
-
-relation DegreeGradingTableDegree {
-	public .org.fenixedu.academic.domain.Degree playsRole degree{
-        multiplicity 1..1;
-    }
-	public ects.DegreeGradingTable playsRole degreeGradingTables {
-    	multiplicity *;
-    }
-}
-
-relation DegreeGradingTableProgramConclusion {
-	public .org.fenixedu.academic.domain.degreeStructure.ProgramConclusion playsRole programConclusion {
-        multiplicity 1..1;
-    }
-    public ects.DegreeGradingTable playsRole degreeGradingTables {
-    	multiplicity *;
-    }
-}
-
-relation DegreeGradingTableRegistration {
-	public .org.fenixedu.academic.domain.student.Registration playsRole registration {
-        multiplicity 0..1;
-    }
-    public ects.DegreeGradingTable playsRole degreeGradingTables {
-    	multiplicity *;
-    }
-}
-
-relation CourseGradingTableCompetenceCourse {
-	public .org.fenixedu.academic.domain.CompetenceCourse playsRole competenceCourse {
-		multiplicity 1..1;
-	}
-	public ects.CourseGradingTable playsRole courseGradingTables {
-    	multiplicity *;
-    }
-}
-
-relation CourseGradingTableCurriculumLine {
-	public .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine playsRole curriculumLine {
-        multiplicity 0..1;
-    }
-	public ects.CourseGradingTable playsRole courseGradingTable {
-    	multiplicity 0..1;
-    }
-}
-
-relation GradingTableSettingsBennu {
-	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
-        multiplicity 1..1;
-    }
-    public ects.GradingTableSettings playsRole gradingTableSettings {
-    	multiplicity 0..1;
-    }
-}
-
-relation GradingTableSettingsDegreeType {
-	public .org.fenixedu.academic.domain.degree.DegreeType playsRole applicableDegreeTypes {
-        multiplicity *;
-    }
-    public ects.GradingTableSettings playsRole gradingTableSettings {
-    	multiplicity 0..1;
-    }
-}
-
-
 
 // ====================== = ExtendeDegreeInfo = ========================
 
@@ -1603,85 +1402,6 @@ relation MobilityRegistatrionUlisboaInformationIncomingCountry {
 }
 
 
-//======================= = AcademicEnrolmentPeriod = =========================
-
-class enrolmentPeriod.AcademicEnrolmentPeriod {
-	LocalizedString name;
-    DateTime startDate;
-    DateTime endDate;
-    Boolean firstTimeRegistration;
-    Boolean restrictToSelectedStatutes;
-    Boolean restrictToSelectedIngressionTypes;
-    Integer minStudentNumber;
-    Integer maxStudentNumber;
-    Integer curricularYear;
-    AcademicEnrolmentPeriodType enrolmentPeriodType;
-    AutomaticEnrolment automaticEnrolment;
-    Boolean allowEnrolWithDebts;
-    Boolean schoolClassSelectionMandatory;
-}
-
-relation AcademicEnrolmentPeriodBennu {
-    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
-        multiplicity *;
-    }
-
-    protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
-        multiplicity 1..1;
-    }
-}
-
-relation AcademicEnrolmentPeriodExecutionSemester {
-    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
-        multiplicity *;
-    }
-
-    public .org.fenixedu.academic.domain.ExecutionSemester playsRole executionSemester {
-        multiplicity 1..1;
-    }    
-}
-
-relation AcademicEnrolmentPeriodDegreeCurricularPlan {
-    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
-        multiplicity *;
-    }
-
-    public .org.fenixedu.academic.domain.DegreeCurricularPlan playsRole degreeCurricularPlans {
-        multiplicity *;
-    }    
-}
-
-relation AcademicEnrolmentPeriodStatuteType {
-    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
-        multiplicity *;
-    }
-
-    public .org.fenixedu.academic.domain.student.StatuteType playsRole statuteTypes {
-        multiplicity *;
-    }    
-}
-
-relation AcademicEnrolmentPeriodIngressionType {
-    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
-        multiplicity *;
-    }
-    public .org.fenixedu.academic.domain.candidacy.IngressionType playsRole ingressionTypes {
-        multiplicity *;
-    }
-}
-
-relation AcademicEnrolmentPeriodEnrolmentType {
-    public enrolmentPeriod.AcademicEnrolmentPeriod playsRole academicEnrolmentPeriods {
-        multiplicity *;
-    }
-    public .org.fenixedu.academic.domain.EnrolmentType playsRole enrolmentTypes {
-        multiplicity *;
-    }
-}
-
-
-//======================= = END AcademicEnrolmentPeriod = =========================
-
 
 // ====================== = CurriculumLineExtendedInformation = ========================
 
@@ -1836,98 +1556,7 @@ class tuitionpenalty.TuitionPenaltyConfiguration {
 	}
 
 	
-/* Prescriptions */
-class degree.prescription.PrescriptionConfig {
-	String name;
-	BigDecimal partialRegimeBonus;
-	boolean reingressionRestartsYearCount;
-}
 
-
-relation BennuPrescriptionConfig {
-
-	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
-        multiplicity 1..1;
-    }
-    
-	degree.prescription.PrescriptionConfig playsRole prescriptionConfigs {
-		multiplicity *;
-	}
-	
-}
-
-relation PrescriptionConfigDegreeCurricularPlan {
-
-	degree.prescription.PrescriptionConfig playsRole prescriptionConfigs {
-		multiplicity *;
-	}
-	
-	.org.fenixedu.academic.domain.DegreeCurricularPlan playsRole degreeCurricularPlans {
-        multiplicity *;
-    }			
-	
-}
-
-relation PrescriptionConfigBeginExecutionYear {
-	.org.fenixedu.academic.domain.ExecutionYear playsRole beginExecutionYear;
-	degree.prescription.PrescriptionConfig playsRole prescriptionConfigsAsBeginExecutionYear {
-		multiplicity *;
-	}
-}
-
-class degree.prescription.PrescriptionEntry {
-	BigDecimal enrolmentYears;
-	BigDecimal minEctsApproved;
-}
-
-relation PrescriptionConfigPrescriptionEntry {
-	
-	degree.prescription.PrescriptionConfig playsRole prescriptionConfig {
-        multiplicity 1..1;
-    }
-	
-	degree.prescription.PrescriptionEntry playsRole prescriptionEntries {
-        multiplicity *;
-    }
-}
-
-class degree.prescription.PrescriptionBonificationStatute {
-	BigDecimal bonus;
-}
-
-relation BennuPrescriptionBonificationStatute {
-	
-	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
-        multiplicity 1..1;
-    }
-    
-	degree.prescription.PrescriptionBonificationStatute playsRole prescriptionBonificationStatutes {
-		multiplicity *;
-	}
-	
-}
-
-relation PrescriptionConfigPrescriptionBonificationStatute {
-
-	degree.prescription.PrescriptionConfig playsRole configuration {
-		multiplicity 1..1;
-	}
-	
-	degree.prescription.PrescriptionBonificationStatute playsRole bonificationStatutes {
-		multiplicity *;
-	}
-}
-
-relation PrescriptionBonificationStatuteStatuteType {
-
-	degree.prescription.PrescriptionBonificationStatute playsRole prescriptionBonificationStatutes {
-		multiplicity *;
-	}
-	
-	.org.fenixedu.academic.domain.student.StatuteType playsRole statuteType {
-		multiplicity 1..1;
-	}
-}
 
 class bluerecord.BlueRecordConfiguration {
     Boolean isCgdFormToFill;

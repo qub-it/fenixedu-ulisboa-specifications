@@ -2,10 +2,10 @@
  /**
  * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
  * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
- * software development project between Quorum Born IT and Serviços Partilhados da
+ * software development project between Quorum Born IT and Serviï¿½os Partilhados da
  * Universidade de Lisboa:
- *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
- *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
+ *  - Copyright ï¿½ 2015 Quorum Born IT (until any Go-Live phase)
+ *  - Copyright ï¿½ 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  * Contributors: diogo.simoe@qub-it.com 
  *
@@ -30,8 +30,8 @@
 <%@page import="java.util.Set"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ectsgradingtable.EctsGradingTableBackofficeController"%>
 <%@page import="org.fenixedu.academic.domain.organizationalStructure.Unit"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable"%>
+<%@page import="org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable"%>
+<%@page import="org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>

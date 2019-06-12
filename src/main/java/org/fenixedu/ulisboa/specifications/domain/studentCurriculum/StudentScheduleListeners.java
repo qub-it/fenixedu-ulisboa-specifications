@@ -15,10 +15,10 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
+import org.fenixedu.academic.domain.curricularRules.StudentSchoolClassCurricularRule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
-import org.fenixedu.ulisboa.specifications.domain.curricularRules.StudentSchoolClassCurricularRule;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 
 /**

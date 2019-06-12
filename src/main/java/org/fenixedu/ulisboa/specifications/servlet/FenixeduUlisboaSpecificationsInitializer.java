@@ -46,7 +46,9 @@ import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.Qualification;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
+import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleConfigurationInitializer;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationExtendedInformation;
@@ -80,10 +82,8 @@ import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
-import org.fenixedu.ulisboa.specifications.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
-import org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.ruleExecutors.CurricularRuleConfigurationInitializer;
-import org.fenixedu.ulisboa.specifications.domain.ects.CourseGradingTable;
-import org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable;
+import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
+import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20AbsoluteGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20GradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.fa.FATypeQualitativeGradeScaleLogic;
@@ -151,8 +151,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     @Override
     public void contextInitialized(final ServletContextEvent event) {
 
-        if (ULisboaSpecificationsRoot.getInstance().getCurricularPeriodConfigurationSet().stream()
-                .anyMatch(c -> c.getBennu() == null)) {
+        if (ULisboaSpecificationsRoot.getInstance().getCurricularPeriodConfigurationSet().stream().anyMatch(
+                c -> c.getBennu() == null) || Bennu.getInstance().getAnyCurricularCourseExceptionsConfiguration() == null) {
             migrateSpecificationsRootToBennuRoot();
         }
 
@@ -247,6 +247,9 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     private void migrateSpecificationsRootToBennuRoot() {
         ULisboaSpecificationsRoot.getInstance().getCurricularPeriodConfigurationSet()
                 .forEach(c -> c.setBennu(Bennu.getInstance()));
+        if (ULisboaSpecificationsRoot.getInstance().getAnyCurricularCourseExceptionsConfiguration() != null) {            
+            ULisboaSpecificationsRoot.getInstance().getAnyCurricularCourseExceptionsConfiguration().setBennu(Bennu.getInstance());
+        }
     }
 
     private void registerDeletionListenerOnUnit() {

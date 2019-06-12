@@ -32,7 +32,7 @@
 <%@page import="org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil"%>
 <%@page import="org.fenixedu.academic.dto.student.RegistrationConclusionBean" %>
 <%@page import="org.fenixedu.academic.domain.Grade" %>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable" %>
+<%@page import="org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable" %>
 <%@page import="org.fenixedu.bennu.core.i18n.BundleUtil" %>
 <%@page import="org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer" %>
 

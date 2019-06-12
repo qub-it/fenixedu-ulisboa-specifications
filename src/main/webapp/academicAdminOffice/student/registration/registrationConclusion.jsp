@@ -34,7 +34,7 @@
 <%@page import="org.fenixedu.academic.dto.student.RegistrationConclusionBean" %>
 <%@page import="org.fenixedu.academic.domain.Grade" %>
 <%@page import="org.fenixedu.academic.predicate.AccessControl"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.ects.DegreeGradingTable" %>
+<%@page import="org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable" %>
 <%@page import="org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup" %>
 <%@page import="org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType" %>
 <%@page import="org.fenixedu.bennu.core.security.Authenticate" %>

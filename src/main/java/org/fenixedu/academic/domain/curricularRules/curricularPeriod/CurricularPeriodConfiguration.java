@@ -82,6 +82,7 @@ public class CurricularPeriodConfiguration extends CurricularPeriodConfiguration
     public void delete() {
         DomainException.throwWhenDeleteBlocked(getDeletionBlockers());
         super.setULisboaSpecificationsRoot(null);
+        super.setBennu(null);
         super.setCurricularPeriod(null);
         for (; !getRuleEnrolmentSet().isEmpty(); getRuleEnrolmentSet().iterator().next().delete()) {
             ;

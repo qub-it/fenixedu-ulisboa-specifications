@@ -1,4 +1,4 @@
-<%@page import="org.fenixedu.ulisboa.specifications.domain.enrolmentPeriod.AutomaticEnrolment"%>
+<%@page import="org.fenixedu.academic.domain.enrolment.period.AutomaticEnrolment"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.enrolmentperiod.manageenrolmentperiod.AcademicEnrolmentPeriodController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
