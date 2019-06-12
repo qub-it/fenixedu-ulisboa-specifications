@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
+import org.fenixedu.academic.domain.curriculum.grade.QualitativeGradeComparator;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeComparator;
 
 public class FATypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 

@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.grade.common;
+package org.fenixedu.academic.domain.curriculum.grade;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -11,7 +11,7 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.domain.grade.common.QualitativeGradeComparator;
+import org.fenixedu.academic.domain.curriculum.grade.QualitativeGradeComparator;
 
 public class ISCSPTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
