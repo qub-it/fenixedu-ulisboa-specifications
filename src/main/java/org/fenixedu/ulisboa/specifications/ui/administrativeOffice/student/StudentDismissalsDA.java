@@ -11,12 +11,12 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.IEnrolment;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.curriculum.CreditsReasonType;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.SearchForStudentsDA;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CreditsReasonType;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 

@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
+package org.fenixedu.academic.domain.student.curriculum;
 
 import java.math.BigDecimal;
 import java.util.Collection;

@@ -639,3 +639,65 @@ class student.ResearchArea {
 		}
 	}
 	
+// ==================== BEGIN: Credits Reason Type ====================
+
+class student.curriculum.CreditsReasonType {
+	LocalizedString reason (REQUIRED);
+	boolean active;
+	boolean averageEntry;
+	boolean infoHidden;
+	LocalizedString infoText (REQUIRED);
+	boolean infoExplained;
+	boolean infoExplainedWithCountry;
+	boolean infoExplainedWithInstitution;
+	boolean infoExplainedWithEcts;
+}
+
+relation CreditsReasonTypeDomainObject {
+	student.curriculum.CreditsReasonType playsRole creditsReasonTypes {
+		multiplicity *;
+	}
+	
+	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject {
+		multiplicity 1..1;
+	}
+}
+
+relation CreditsReasonTypeCredits {
+	student.curriculum.CreditsReasonType playsRole reason;
+	
+	.org.fenixedu.academic.domain.studentCurriculum.Credits playsRole credits {
+		multiplicity *;
+	}
+}
+
+// ==================== END: Credits Reason Type ====================
+	
+// ====================== = CurriculumLineExtendedInformation = ========================
+
+class student.curriculum.CurriculumLineExtendedInformation {
+	String remarks;
+	Integer curricularYear;
+	Boolean excludedFromAverage;
+	boolean excludedFromCurriculum;
+	BigDecimal ectsCredits;
+	BigDecimal weight;
+}
+
+relation BennuCurriculumLineExtendedInformation {
+	student.curriculum.CurriculumLineExtendedInformation playsRole curriculumLineExtendedInformations {
+		multiplicity *;
+	}
+	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
+        multiplicity 1..1;
+    }
+}
+
+relation CurriculumLineCurriculumLineExtendedInformation {
+    .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine playsRole curriculumLine {
+    	multiplicity 1..1;
+    }
+    
+    student.curriculum.CurriculumLineExtendedInformation playsRole extendedInformation;
+}
+	

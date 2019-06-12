@@ -502,40 +502,6 @@ class curricularRules.CurriculumAggregatorApproval extends .org.fenixedu.academi
 // ==================== END: CurricularRule ====================
 
 
-// ==================== BEGIN: Credits Reason Type ====================
-
-class studentCurriculum.CreditsReasonType {
-	LocalizedString reason (REQUIRED);
-	boolean active;
-	boolean averageEntry;
-	boolean infoHidden;
-	LocalizedString infoText (REQUIRED);
-	boolean infoExplained;
-	boolean infoExplainedWithCountry;
-	boolean infoExplainedWithInstitution;
-	boolean infoExplainedWithEcts;
-}
-
-relation CreditsReasonTypeDomainObject {
-	studentCurriculum.CreditsReasonType playsRole creditsReasonTypes {
-		multiplicity *;
-	}
-	
-	.org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject {
-		multiplicity 1..1;
-	}
-}
-
-relation CreditsReasonTypeCredits {
-	studentCurriculum.CreditsReasonType playsRole reason;
-	
-	.org.fenixedu.academic.domain.studentCurriculum.Credits playsRole credits {
-		multiplicity *;
-	}
-}
-
-// ==================== END: Credits Reason Type ====================
-
 // ==================== Parishes as domain objects
 class Parish{
 	String code (REQUIRED);
@@ -1374,36 +1340,6 @@ relation MobilityRegistatrionUlisboaInformationIncomingCountry {
     .org.fenixedu.academic.domain.Country playsRole incomingCountry {
         multiplicity 0..1;
     }
-}
-
-
-
-// ====================== = CurriculumLineExtendedInformation = ========================
-
-class studentCurriculum.CurriculumLineExtendedInformation {
-	String remarks;
-	Integer curricularYear;
-	Boolean excludedFromAverage;
-	boolean excludedFromCurriculum;
-	BigDecimal ectsCredits;
-	BigDecimal weight;
-}
-
-relation BennuCurriculumLineExtendedInformation {
-	studentCurriculum.CurriculumLineExtendedInformation playsRole curriculumLineExtendedInformations {
-		multiplicity *;
-	}
-	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
-        multiplicity 1..1;
-    }
-}
-
-relation CurriculumLineCurriculumLineExtendedInformation {
-    .org.fenixedu.academic.domain.studentCurriculum.CurriculumLine playsRole curriculumLine {
-    	multiplicity 1..1;
-    }
-    
-    studentCurriculum.CurriculumLineExtendedInformation playsRole extendedInformation;
 }
 
 // ========================= Student active override ==============================

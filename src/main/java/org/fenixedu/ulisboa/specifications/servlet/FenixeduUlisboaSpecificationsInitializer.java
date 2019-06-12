@@ -65,6 +65,7 @@ import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYearExten
 import org.fenixedu.academic.domain.student.RegistrationExtendedInformation;
 import org.fenixedu.academic.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.academic.domain.student.curriculum.EctsAndWeightProviders;
 import org.fenixedu.academic.domain.student.curriculum.conclusion.ConclusionProcessListenersInitializer;
 import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
@@ -120,7 +121,6 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULi
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorMarkSheetServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.task.tmp.FixBugProcessorTypeTask;
 import org.fenixedu.ulisboa.specifications.task.tmp.UpdateServiceRequestType;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.authentication.BlueRecordRedirector;

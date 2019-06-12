@@ -17,6 +17,8 @@ import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
+import org.fenixedu.academic.domain.student.curriculum.CreditsReasonType;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -27,8 +29,6 @@ import org.fenixedu.academic.domain.studentCurriculum.Equivalence;
 import org.fenixedu.academic.domain.studentCurriculum.Substitution;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CreditsReasonType;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumLineExtendedInformation;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
 
