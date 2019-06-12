@@ -26,8 +26,8 @@
 <%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLayout"%>
 <%@page import="org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult"%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer"%>
+<%@page import="org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult"%>
+<%@page import="org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices"%>
 
 <h2>

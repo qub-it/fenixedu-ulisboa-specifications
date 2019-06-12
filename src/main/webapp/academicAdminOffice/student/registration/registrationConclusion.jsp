@@ -18,7 +18,7 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices"%>
+<%@page import="org.fenixedu.academic.domain.student.curriculum.conclusion.RegistrationConclusionServices"%>
 <%@page import="org.fenixedu.academic.domain.student.curriculum.Curriculum"%>
 <%@page import="org.fenixedu.academic.domain.ExecutionYear"%>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>

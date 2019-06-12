@@ -1,7 +1,6 @@
 package org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,19 +10,18 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
+import org.fenixedu.academic.domain.student.curriculum.AverageEntry;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
+import org.fenixedu.academic.domain.student.gradingTable.DefaultGradingTable;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.ui.renderers.student.curriculum.CurriculumRenderer;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
-import org.fenixedu.academic.domain.student.gradingTable.DefaultGradingTable;
-import org.fenixedu.ulisboa.specifications.domain.student.curriculum.AverageEntry;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
-import org.joda.time.YearMonthDay;
 
 import pt.ist.fenixWebFramework.renderers.components.HtmlBlockContainer;
 import pt.ist.fenixWebFramework.renderers.components.HtmlComponent;

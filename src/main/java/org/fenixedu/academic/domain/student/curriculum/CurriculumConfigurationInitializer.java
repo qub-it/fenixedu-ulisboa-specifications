@@ -23,7 +23,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.fenixedu.ulisboa.specifications.domain.student.curriculum;
+package org.fenixedu.academic.domain.student.curriculum;
 
 import java.math.BigDecimal;
 import java.util.Collections;
@@ -42,6 +42,7 @@ import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurricularYear
 import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurriculumEntryPredicate;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum.CurriculumGradeCalculator;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup.ConclusionProcessEnabler;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup.CurriculumSupplier;
@@ -56,7 +57,6 @@ import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServi
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.student.RegistrationDataServices;
-import org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;

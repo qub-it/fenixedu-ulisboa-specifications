@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion;
+package org.fenixedu.academic.domain.student.curriculum.conclusion;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;

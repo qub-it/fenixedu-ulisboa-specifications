@@ -6,6 +6,7 @@ import java.util.Map;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
+import org.fenixedu.academic.domain.student.curriculum.AverageEntry;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -13,7 +14,6 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.qubdocs.util.CurriculumEntryServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
-import org.fenixedu.ulisboa.specifications.domain.student.curriculum.AverageEntry;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 public class CurriculumEntryServicesImpl implements CurriculumEntryServices {

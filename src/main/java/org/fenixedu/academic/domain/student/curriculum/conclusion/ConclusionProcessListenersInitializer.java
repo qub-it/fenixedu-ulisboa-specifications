@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion;
+package org.fenixedu.academic.domain.student.curriculum.conclusion;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;

@@ -1,7 +1,6 @@
 package org.fenixedu.academic.domain.student.gradingTable;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.bennu.core.domain.Bennu;

@@ -10,6 +10,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
@@ -17,7 +18,6 @@ import org.fenixedu.academic.domain.studentCurriculum.RootCurriculumGroup;
 import org.fenixedu.academic.dto.student.RegistrationStateBean;
 import org.fenixedu.ulisboa.specifications.domain.services.CurriculumModuleServices;
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
-import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 

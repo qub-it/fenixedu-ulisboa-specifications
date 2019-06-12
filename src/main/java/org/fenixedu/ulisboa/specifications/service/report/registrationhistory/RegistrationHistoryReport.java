@@ -41,6 +41,7 @@ import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.StudentStatute;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalCurriculumGroup;
@@ -55,7 +56,6 @@ import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificatio
 import org.fenixedu.ulisboa.specifications.domain.services.RegistrationServices;
 import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.fenixedu.ulisboa.specifications.domain.student.ResearchArea;
-import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
 import org.joda.time.format.DateTimeFormat;

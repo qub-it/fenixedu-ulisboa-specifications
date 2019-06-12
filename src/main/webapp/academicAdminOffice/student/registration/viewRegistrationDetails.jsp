@@ -18,7 +18,7 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion.RegistrationConclusionServices"%>
+<%@page import="org.fenixedu.academic.domain.student.curriculum.conclusion.RegistrationConclusionServices"%>
 <%@page import="java.util.HashSet"%>
 <%@page import="java.util.Set"%>
 <%@page import="java.util.stream.Stream"%>

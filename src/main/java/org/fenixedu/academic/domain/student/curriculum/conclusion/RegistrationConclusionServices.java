@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.student.curriculum.conclusion;
+package org.fenixedu.academic.domain.student.curriculum.conclusion;
 
 import java.util.Collection;
 import java.util.Comparator;
