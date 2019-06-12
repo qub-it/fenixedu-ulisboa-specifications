@@ -30,85 +30,20 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
-import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriod;
-import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.enrolment.StudentCurricularPlanEnrolmentManager;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 
 import com.google.common.collect.Sets;
 
-public class StudentCurricularPlanEnrolmentManager
-        extends org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentManager {
+public class StudentCurricularPlanEnrolmentWithAggregatorManager extends StudentCurricularPlanEnrolmentManager {
 
-    public StudentCurricularPlanEnrolmentManager(final EnrolmentContext enrolmentContext) {
+    public StudentCurricularPlanEnrolmentWithAggregatorManager(final EnrolmentContext enrolmentContext) {
         super(enrolmentContext);
         checkCurriculumAggregatorParticipants();
-    }
-
-    /**
-     * Changes org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentManager
-     */
-    @Override
-    protected void assertEnrolmentPreConditions() {
-
-        if (isResponsiblePersonManager()) {
-            return;
-        }
-
-        checkDebts();
-
-        if (isResponsiblePersonAllowedToEnrolStudents() || isResponsibleInternationalRelationOffice()) {
-            assertAcademicAdminOfficePreConditions();
-
-        } else if (isResponsiblePersonStudent()) {
-            assertStudentEnrolmentPreConditions();
-
-        } else {
-            assertOtherRolesPreConditions();
-        }
-    }
-
-    /**
-     * Changes org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolment
-     */
-    @Override
-    protected void assertAcademicAdminOfficePreConditions() {
-
-        checkEnrolmentWithoutRules();
-
-        if (updateRegistrationAfterConclusionProcessPermissionEvaluated()) {
-            return;
-        }
-    }
-
-    @Override
-    protected boolean isResponsiblePersonStudent() {
-        return getResponsiblePerson().getStudent() != null;
-    }
-
-    /**
-     * Changes org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolment
-     */
-    @Override
-    protected void assertStudentEnrolmentPreConditions() {
-
-        if (!getResponsiblePerson().getStudent().getActiveRegistrationsIn(getExecutionSemester()).contains(getRegistration())) {
-            throw new DomainException("error.StudentCurricularPlan.student.is.not.allowed.to.perform.enrol");
-        }
-
-        if (getCurricularRuleLevel() != CurricularRuleLevel.ENROLMENT_WITH_RULES) {
-            throw new DomainException("error.StudentCurricularPlan.invalid.curricular.rule.level");
-        }
-
-        if (AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(getStudent()).stream()
-                .noneMatch(i -> i.isOpen() && i.getStudentCurricularPlan() == getStudentCurricularPlan()
-                        && i.getExecutionSemester() == getExecutionSemester())) {
-            throw new DomainException("message.out.curricular.course.enrolment.period.default");
-        }
     }
 
     private void checkCurriculumAggregatorParticipants() {

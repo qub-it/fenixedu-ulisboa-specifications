@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
+package org.fenixedu.academic.domain.curricularRules;
 
 import java.util.Collections;
 import java.util.Optional;
