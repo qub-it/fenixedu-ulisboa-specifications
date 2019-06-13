@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeInfo;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
+import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.services.AuditingServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;

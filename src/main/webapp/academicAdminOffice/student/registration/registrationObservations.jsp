@@ -1,6 +1,6 @@
 <%@ page isELIgnored="true"%>
 <%@page import="org.fenixedu.commons.i18n.I18N" %>
-<%@page import="org.fenixedu.ulisboa.specifications.domain.RegistrationObservations"%>
+<%@page import="org.fenixedu.academic.domain.student.RegistrationObservations"%>
 <%@page import="org.fenixedu.academic.domain.student.Registration"%>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>

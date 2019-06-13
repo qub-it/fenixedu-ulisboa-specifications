@@ -2,6 +2,7 @@ package org.fenixedu.ulisboa.specifications.domain;
 
 import java.util.Collection;
 
+import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;

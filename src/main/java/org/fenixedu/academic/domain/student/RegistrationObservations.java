@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain;
+package org.fenixedu.academic.domain.student;
 
 import java.util.Comparator;
 import java.util.List;

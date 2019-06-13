@@ -18,7 +18,7 @@ import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.qubdocs.util.DocsStringUtils;
-import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
+import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;

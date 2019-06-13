@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain;
+package org.fenixedu.academic.domain.degree;
 
 import java.util.Objects;
 
@@ -8,6 +8,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
+import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;

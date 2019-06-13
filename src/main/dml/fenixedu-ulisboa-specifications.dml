@@ -1019,64 +1019,6 @@ relation ServiceRequestRestrictionProgramConclusion {
 }
 
 
-// ====================== = ExtendeDegreeInfo = ========================
-
-class ExtendedDegreeInfo {
-	LocalizedString scientificAreas;
-	LocalizedString studyProgrammeDuration;
-	LocalizedString studyRegime;
-	LocalizedString studyProgrammeRequirements;
-	LocalizedString higherEducationAccess;
-	LocalizedString professionalStatus;
-	LocalizedString supplementExtraInformation;
-	LocalizedString supplementOtherSources;
-}
-
-relation BennuExtendedDegreeInfo {
-	ExtendedDegreeInfo playsRole extendedDegreeInfo {
-		multiplicity *;
-	}
-	protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
-        multiplicity 1..1;
-    }
-}
-
-relation DegreeInfoExtendedDegreeInfo {
-    .org.fenixedu.academic.domain.DegreeInfo playsRole degreeInfo;
-    ExtendedDegreeInfo playsRole extendedDegreeInfo;
-}
-
-class CourseGroupDegreeInfo {
-    LocalizedString degreeName;
-}
-
-relation BennuCourseGroupDegreeInfo {
-    CourseGroupDegreeInfo playsRole courseGroupDegreeInfos {
-        multiplicity *;
-    }
-    protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
-        multiplicity 1..1;
-    }
-}
-
-relation CourseGroupDegreeInfoExtendedDegreeInfo {
-    CourseGroupDegreeInfo playsRole courseGroupDegreeInfos {
-        multiplicity *;
-    }
-    ExtendedDegreeInfo playsRole extendedDegreeInfo {
-        multiplicity 0..1;
-    }
-}
-
-relation CourseGroupDegreeInfoCourseGroup {
-    CourseGroupDegreeInfo playsRole courseGroupDegreeInfos {
-        multiplicity *;
-    }
-    .org.fenixedu.academic.domain.degreeStructure.CourseGroup playsRole courseGroup {
-        multiplicity 0..1;
-    }
-}
-
 // ==================== BEGIN: Curriculum Aggregator ====================
 
     class studentCurriculum.CurriculumAggregator {
@@ -1155,23 +1097,6 @@ relation CourseGroupDegreeInfoCourseGroup {
 		}
 
 // ==================== END: Curriculum Aggregator ====================
-
-
-// ======================= Registration Observations =========================
-class RegistrationObservations{
-	String value;
-}
-
-relation RegistrationObservationRegistration{
-	protected .org.fenixedu.academic.domain.student.Registration playsRole registration {
-        multiplicity 1..1;
-    }
-    
-    RegistrationObservations playsRole registrationObservations{
-    	multiplicity *;
-    }
-}
-// ======================= Registration Observations end =========================
 
 
 /*

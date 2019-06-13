@@ -13,7 +13,7 @@ import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.Searc
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.treasury.domain.accesscontrol.TreasuryAccessControl;
 import org.fenixedu.treasury.services.accesscontrol.TreasuryAccessControlAPI;
-import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
+import org.fenixedu.academic.domain.student.RegistrationObservations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;

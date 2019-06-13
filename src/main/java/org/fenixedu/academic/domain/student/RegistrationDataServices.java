@@ -3,7 +3,7 @@ package org.fenixedu.academic.domain.student;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
-import org.fenixedu.ulisboa.specifications.domain.RegistrationObservations;
+import org.fenixedu.academic.domain.student.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.ui.administrativeOffice.studentEnrolment.ManageRegistrationDataByExecutionYearDA.RegistrationDataEditBean;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 

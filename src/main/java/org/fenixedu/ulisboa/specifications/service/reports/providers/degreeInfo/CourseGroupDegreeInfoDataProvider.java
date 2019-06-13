@@ -5,7 +5,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
-import org.fenixedu.ulisboa.specifications.domain.ExtendedDegreeInfo;
+import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.joda.time.YearMonthDay;
 
 import com.qubit.terra.docs.util.IDocumentFieldsData;
