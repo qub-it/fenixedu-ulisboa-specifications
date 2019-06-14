@@ -43,8 +43,8 @@ import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
-import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.CurriculumLayout;
 import org.joda.time.YearMonthDay;
 

@@ -5,7 +5,7 @@ import org.fenixedu.academic.domain.curricularRules.StudentStatuteCurricularRule
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
-import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
+import org.fenixedu.academic.domain.student.services.StatuteServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 public class StudentStatuteCurricularRuleExecutor extends CurricularRuleExecutor {
@@ -45,7 +45,8 @@ public class StudentStatuteCurricularRuleExecutor extends CurricularRuleExecutor
             return RuleResult.createFalseWithLiteralMessage(sourceDegreeModuleToEvaluate.getDegreeModule(),
                     ULisboaSpecificationsUtil.bundle(
                             "curricularRules.ruleExecutors.StudentStatuteCurricularRuleExecutor.statutes.is.required.to.enrol",
-                            sourceDegreeModuleToEvaluate.getName(), StatuteServices.getCodeAndName(rule.getStatuteType())));
+                            sourceDegreeModuleToEvaluate.getName(),
+                            rule.getStatuteType().getCode() + " - " + rule.getStatuteType().getName().getContent()));
         }
 
         return RuleResult.createTrue(sourceDegreeModuleToEvaluate.getDegreeModule());

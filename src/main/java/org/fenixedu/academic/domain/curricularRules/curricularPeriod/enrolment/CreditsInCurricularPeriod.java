@@ -13,7 +13,7 @@ import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
 
 import pt.ist.fenixframework.Atomic;
 

@@ -23,7 +23,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.fenixedu.ulisboa.specifications.domain;
+package org.fenixedu.academic.domain.degreeStructure;
 
 import java.util.Set;
 import java.util.concurrent.Callable;

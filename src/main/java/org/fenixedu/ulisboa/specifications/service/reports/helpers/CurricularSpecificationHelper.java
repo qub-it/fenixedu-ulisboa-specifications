@@ -2,7 +2,7 @@ package org.fenixedu.ulisboa.specifications.service.reports.helpers;
 
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
-import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
 
 import com.qubit.terra.docs.util.helpers.IDocumentHelper;
 

@@ -7,7 +7,7 @@ import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularP
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
 
 import pt.ist.fenixframework.Atomic;
 

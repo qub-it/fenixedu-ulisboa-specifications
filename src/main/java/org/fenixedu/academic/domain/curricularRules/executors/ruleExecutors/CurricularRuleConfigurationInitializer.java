@@ -44,7 +44,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.CompetenceCourseServices;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.slf4j.Logger;

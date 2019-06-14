@@ -20,7 +20,7 @@ import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.commons.i18n.LocalizedString.Builder;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import com.github.dandelion.core.utils.StringUtils;

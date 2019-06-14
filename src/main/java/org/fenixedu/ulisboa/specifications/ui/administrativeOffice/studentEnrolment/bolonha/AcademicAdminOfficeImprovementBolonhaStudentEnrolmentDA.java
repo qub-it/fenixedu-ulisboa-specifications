@@ -68,7 +68,7 @@ import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.AttendsServices;
-import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 
 import com.google.common.collect.Lists;
 

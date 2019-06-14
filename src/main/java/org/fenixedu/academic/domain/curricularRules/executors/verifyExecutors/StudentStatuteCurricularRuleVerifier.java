@@ -31,7 +31,7 @@ import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
-import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
+import org.fenixedu.academic.domain.student.services.StatuteServices;
 
 public class StudentStatuteCurricularRuleVerifier extends VerifyRuleExecutor {
 

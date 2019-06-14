@@ -36,8 +36,8 @@ import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.dto.student.RegistrationStateBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
-import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.student.curriculum.CurriculumGradeCalculator;
 import org.joda.time.LocalDate;
 

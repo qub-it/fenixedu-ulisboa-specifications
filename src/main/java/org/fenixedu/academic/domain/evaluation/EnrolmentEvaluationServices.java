@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.services.evaluation;
+package org.fenixedu.academic.domain.evaluation;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
@@ -6,7 +6,7 @@ import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationExtendedInform
 import org.fenixedu.academic.domain.evaluation.EvaluationServices;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
-import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
 

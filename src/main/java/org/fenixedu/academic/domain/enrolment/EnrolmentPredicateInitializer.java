@@ -38,7 +38,7 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

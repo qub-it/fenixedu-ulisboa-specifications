@@ -9,8 +9,8 @@ import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.services.StatuteServices;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 
 import pt.ist.fenixframework.Atomic;
 

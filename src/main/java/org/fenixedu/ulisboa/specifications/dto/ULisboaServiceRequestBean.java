@@ -62,7 +62,7 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaService
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ValidateImprovementEnrolmentProcessor;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ValidateSpecialSeasonEnrolmentProcessor;
-import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 

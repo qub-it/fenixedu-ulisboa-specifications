@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.services;
+package org.fenixedu.academic.domain.degreeStructure;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -20,11 +20,10 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularPeriodRule;
 import org.fenixedu.academic.domain.curricularRules.curricularPeriod.RuleEnrolment;
-import org.fenixedu.academic.domain.degreeStructure.Context;
-import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnroledEnrolmentWrapper;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;

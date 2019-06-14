@@ -1,4 +1,4 @@
-package org.fenixedu.ulisboa.specifications.domain.services.enrollment;
+package org.fenixedu.academic.domain.enrolment;
 
 import java.util.ArrayList;
 import java.util.HashSet;

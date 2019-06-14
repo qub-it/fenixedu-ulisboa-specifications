@@ -62,7 +62,7 @@ import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
-import org.fenixedu.ulisboa.specifications.domain.services.evaluation.EnrolmentEvaluationServices;
+import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.academic.dto.evaluation.markSheet.report.AbstractSeasonReport;
 import org.fenixedu.academic.services.evaluation.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;

@@ -18,7 +18,6 @@ import org.fenixedu.academic.domain.student.StatuteType;
 import org.fenixedu.academic.dto.GenericPair;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.services.statute.StatuteServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
 import com.google.common.collect.Lists;
@@ -73,7 +72,7 @@ public class StudentStatuteCurricularRule extends StudentStatuteCurricularRule_B
     public List<GenericPair<Object, Boolean>> getLabel() {
         final StringBuilder label = new StringBuilder();
         label.append(BundleUtil.getString(ULisboaConstants.BUNDLE, "label.StudentStatuteCurricularRule")).append(": ")
-                .append(StatuteServices.getCodeAndName(getStatuteType()));
+                .append(getStatuteType().getCode() + " - " + getStatuteType().getName().getContent());
         if (getContextCourseGroup() != null) {
             label.append(", ");
             label.append(BundleUtil.getString(Bundle.BOLONHA, "label.inGroup"));

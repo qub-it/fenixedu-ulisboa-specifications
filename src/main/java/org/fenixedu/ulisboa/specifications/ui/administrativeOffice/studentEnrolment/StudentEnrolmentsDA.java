@@ -47,8 +47,8 @@ import org.fenixedu.academic.ui.struts.action.exceptions.FenixActionException;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
-import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
-import org.fenixedu.ulisboa.specifications.domain.services.enrollment.EnrolmentServices;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.LocalDate;
 

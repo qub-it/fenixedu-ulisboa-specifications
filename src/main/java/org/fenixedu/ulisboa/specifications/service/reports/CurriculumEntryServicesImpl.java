@@ -12,8 +12,8 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.qubdocs.util.CurriculumEntryServices;
-import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
-import org.fenixedu.ulisboa.specifications.domain.services.CurriculumLineServices;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 public class CurriculumEntryServicesImpl implements CurriculumEntryServices {

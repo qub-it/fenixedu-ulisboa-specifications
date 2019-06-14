@@ -38,7 +38,7 @@ import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.Abst
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.domain.services.CurricularPeriodServices;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
