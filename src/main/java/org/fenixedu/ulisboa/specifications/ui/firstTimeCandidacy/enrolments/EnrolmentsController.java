@@ -16,7 +16,6 @@ import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
 import org.fenixedu.academic.domain.degreeStructure.Context;
-import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriod;
 import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriodType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -113,8 +112,9 @@ public class EnrolmentsController extends EnrolmentAbstractController {
 
     private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriods(final Model model,
             final FirstTimeCandidacy candidacy) {
-        return AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(getStudent(model), candidacy.getDegreeCurricularPlan())
-                .stream().filter(p -> p.isOpen() && p.isFirstTimeRegistration()).collect(Collectors.toList());
+        return AcademicEnrolmentPeriodBean
+                .getEnrolmentPeriodsOpenOrUpcoming(getStudent(model), candidacy.getDegreeCurricularPlan()).stream()
+                .filter(p -> p.isOpen() && p.isFirstTimeRegistration()).collect(Collectors.toList());
     }
 
     private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriodsEditable(

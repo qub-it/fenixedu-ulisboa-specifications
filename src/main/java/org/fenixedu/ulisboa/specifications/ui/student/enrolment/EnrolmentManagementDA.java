@@ -43,7 +43,6 @@ import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriod;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
@@ -96,7 +95,7 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
             final HttpServletResponse response) {
 
         final Student student = checkUser();
-        final List<AcademicEnrolmentPeriodBean> periods = AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student);
+        final List<AcademicEnrolmentPeriodBean> periods = AcademicEnrolmentPeriodBean.getEnrolmentPeriodsOpenOrUpcoming(student);
 
         request.setAttribute("enrolmentProcesses", EnrolmentProcess.buildProcesses(periods));
 

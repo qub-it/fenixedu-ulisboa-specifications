@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.dto.enrolmentperiod;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,7 +19,11 @@ import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriod;
 import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriodType;
 import org.fenixedu.academic.domain.enrolment.period.AutomaticEnrolment;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.academic.domain.student.StatuteType;
+import org.fenixedu.academic.domain.student.Student;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
+import org.fenixedu.academic.domain.student.services.StatuteServices;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -31,6 +36,7 @@ import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.Enrolmen
 import org.joda.time.DateTime;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class AcademicEnrolmentPeriodBean implements IBean {
 
@@ -416,7 +422,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         case CURRICULAR_COURSE:
             result = EnrolmentStep.prepareURL(null, CourseEnrolmentDA.getEntryPointURL(), argsStruts);
             break;
-            
+
         case SCHOOL_CLASS_PREFERENCE:
             result = EnrolmentStep.prepareURL(null, SchoolClassPreferenceStudentEnrollmentDA.getEntryPointURL(), argsStruts);
             break;
@@ -435,6 +441,83 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         }
 
         return result;
+    }
+
+    static public List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student) {
+        return getEnrolmentPeriodsOpenOrUpcoming(student, false,
+                student.getRegistrationsSet().stream().map(i -> i.getLastDegreeCurricularPlan()).collect(Collectors.toSet()));
+    }
+
+    static public List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student,
+            final boolean skipRegistrationState) {
+        return getEnrolmentPeriodsOpenOrUpcoming(student, skipRegistrationState,
+                student.getRegistrationsSet().stream().map(i -> i.getLastDegreeCurricularPlan()).collect(Collectors.toSet()));
+    }
+
+    /**
+     * Useful for checking open enrolment period of affinity cycles
+     */
+    static public List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student,
+            final DegreeCurricularPlan degreeCurricularPlan) {
+
+        return getEnrolmentPeriodsOpenOrUpcoming(student, false, Sets.newHashSet(degreeCurricularPlan));
+    }
+
+    static public List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student,
+            final boolean skipRegistrationState, final DegreeCurricularPlan degreeCurricularPlan) {
+
+        return getEnrolmentPeriodsOpenOrUpcoming(student, skipRegistrationState, Sets.newHashSet(degreeCurricularPlan));
+    }
+
+    static private List<AcademicEnrolmentPeriodBean> getEnrolmentPeriodsOpenOrUpcoming(final Student student,
+            final boolean skipRegistrationState, final Set<DegreeCurricularPlan> degreeCurricularPlans) {
+
+        final List<AcademicEnrolmentPeriodBean> result = Lists.newLinkedList();
+
+        for (final DegreeCurricularPlan degreeCurricularPlan : degreeCurricularPlans) {
+            for (final AcademicEnrolmentPeriod iter : degreeCurricularPlan.getAcademicEnrolmentPeriodsSet()) {
+                if (iter.isOpen() || iter.isUpcoming()) {
+                    result.addAll(collectFor(iter, degreeCurricularPlan, student, skipRegistrationState));
+                }
+            }
+        }
+
+        result.sort(Comparator.comparing(AcademicEnrolmentPeriodBean::getStartDate)
+                .thenComparing(AcademicEnrolmentPeriodBean::getEnrolmentPeriodType));
+        return result;
+    }
+
+    static private Set<AcademicEnrolmentPeriodBean> collectFor(final AcademicEnrolmentPeriod period,
+            final DegreeCurricularPlan degreeCurricularPlan, final Student input, final boolean skipRegistrationState) {
+        final Set<AcademicEnrolmentPeriodBean> result = Sets.newHashSet();
+
+        input.getRegistrationsFor(degreeCurricularPlan).stream()
+                .forEach(registration -> result.add(collectFor(period, registration, skipRegistrationState)));
+
+        return result;
+    }
+
+    static private AcademicEnrolmentPeriodBean collectFor(final AcademicEnrolmentPeriod period, final Registration input,
+            final boolean skipRegistrationState) {
+
+        if (period.isValidFor(input, skipRegistrationState)) {
+            final StudentCurricularPlan studentCurricularPlan = input.getLastStudentCurricularPlan();
+
+            final Set<StatuteType> studentStatutes =
+                    new HashSet<>(StatuteServices.findStatuteTypes(input, period.getExecutionSemester()));
+
+            final CurricularYearResult curricularYearResult =
+                    RegistrationServices.getCurricularYear(input, period.getExecutionYear());
+
+            final AcademicEnrolmentPeriodBean bean = new AcademicEnrolmentPeriodBean(period);
+            bean.setStudentCurricularPlan(studentCurricularPlan);
+            bean.setStudentStatuteTypes(studentStatutes);
+            bean.setStudentIngressionType(input.getIngressionType());
+            bean.setCurricularYear(curricularYearResult == null ? 0 : curricularYearResult.getResult());
+            return bean;
+        }
+
+        return null;
     }
 
 }

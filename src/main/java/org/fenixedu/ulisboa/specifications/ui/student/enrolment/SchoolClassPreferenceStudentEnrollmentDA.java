@@ -39,7 +39,6 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolClass;
-import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriod;
 import org.fenixedu.academic.domain.enrolment.schoolClass.SchoolClassEnrolmentPreference;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
@@ -88,7 +87,7 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
         final Student student = Authenticate.getUser().getPerson().getStudent();
         final List<SchoolClassStudentEnrollmentDTO> enrolmentBeans = new ArrayList<SchoolClassStudentEnrollmentDTO>();
 
-        for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student)) {
+        for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriodBean.getEnrolmentPeriodsOpenOrUpcoming(student)) {
             if (isValidPeriodForUser(iter)) {
 
                 final ExecutionSemester executionSemester = iter.getExecutionSemester();

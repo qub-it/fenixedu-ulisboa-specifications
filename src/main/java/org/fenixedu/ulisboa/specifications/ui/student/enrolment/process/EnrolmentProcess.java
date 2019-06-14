@@ -13,7 +13,6 @@ import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
-import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriod;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.IBean;
@@ -300,7 +299,7 @@ public class EnrolmentProcess implements IBean {
 
     static private List<EnrolmentProcess> buildProcesses(final Student student) {
         // find enrolment periods
-        final List<AcademicEnrolmentPeriodBean> periods = AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student);
+        final List<AcademicEnrolmentPeriodBean> periods = AcademicEnrolmentPeriodBean.getEnrolmentPeriodsOpenOrUpcoming(student);
 
         return buildProcesses(periods);
     }

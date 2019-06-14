@@ -86,7 +86,7 @@ public class InitialSchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         final List<SchoolClassStudentEnrollmentDTO> enrolmentBeans = new ArrayList<SchoolClassStudentEnrollmentDTO>();
 
         boolean schoolClassEmptyButSelectionMandatory = false;
-        for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student)) {
+        for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriodBean.getEnrolmentPeriodsOpenOrUpcoming(student)) {
             if (isValidPeriodForUser(iter)) {
 
                 final SchoolClassStudentEnrollmentDTO schoolClassStudentEnrollmentBean =

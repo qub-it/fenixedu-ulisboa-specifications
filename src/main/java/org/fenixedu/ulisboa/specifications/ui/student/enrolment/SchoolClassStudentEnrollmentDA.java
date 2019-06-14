@@ -115,7 +115,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
         Collection<ExecutionSemester> automaticEnrolmentSemesters = new HashSet<>();
         boolean schoolClassEmptyButSelectionMandatory = false;
-        for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student)) {
+        for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriodBean.getEnrolmentPeriodsOpenOrUpcoming(student)) {
             if (isValidPeriodForUser(iter)) {
 
                 if (iter.getEnrolmentPeriod().getAutomaticEnrolment() == AutomaticEnrolment.YES_UNEDITABLE) {

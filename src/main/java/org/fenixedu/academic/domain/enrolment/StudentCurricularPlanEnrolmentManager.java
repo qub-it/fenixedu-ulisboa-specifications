@@ -92,7 +92,7 @@ public class StudentCurricularPlanEnrolmentManager
         }
 
         if (AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(getStudent()).stream()
-                .noneMatch(i -> i.isOpen() && i.getStudentCurricularPlan() == getStudentCurricularPlan()
+                .noneMatch(i -> i.getDegreeCurricularPlansSet().contains(getStudentCurricularPlan())
                         && i.getExecutionSemester() == getExecutionSemester())) {
             throw new DomainException("message.out.curricular.course.enrolment.period.default");
         }

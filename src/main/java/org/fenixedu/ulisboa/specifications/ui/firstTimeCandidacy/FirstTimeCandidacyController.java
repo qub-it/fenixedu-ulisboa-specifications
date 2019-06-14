@@ -192,7 +192,7 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
             return false;
         }
         List<AcademicEnrolmentPeriodBean> enrolmentPeriodsOpen =
-                AcademicEnrolmentPeriod.getEnrolmentPeriodsOpenOrUpcoming(student, true, candidacy.getDegreeCurricularPlan())
+                AcademicEnrolmentPeriodBean.getEnrolmentPeriodsOpenOrUpcoming(student, true, candidacy.getDegreeCurricularPlan())
                         .stream().filter(isOnlyOpen.and(isFirstTime)).collect(Collectors.toList());
         return !enrolmentPeriodsOpen.isEmpty();
     }

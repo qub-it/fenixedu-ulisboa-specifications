@@ -161,7 +161,11 @@ public class AcademicEnrolmentPeriodController extends FenixeduUlisboaSpecificat
 
     @Atomic
     public AcademicEnrolmentPeriod createAcademicEnrolmentPeriod(final AcademicEnrolmentPeriodBean bean) {
-        return AcademicEnrolmentPeriod.create(bean);
+        return AcademicEnrolmentPeriod.create(bean.getStartDate(), bean.getEndDate(), bean.getFirstTimeRegistration(),
+                bean.getRestrictToSelectedStatutes(), bean.getRestrictToSelectedIngressionTypes(), bean.getMinStudentNumber(),
+                bean.getMaxStudentNumber(), bean.getCurricularYear(), bean.getSchoolClassSelectionMandatory(),
+                bean.getEnrolmentPeriodType(), bean.getAllowEnrolWithDebts(), bean.getAutomaticEnrolment(),
+                bean.getExecutionSemester());
     }
 
     private static final String _UPDATE_URI = "/update";
@@ -182,7 +186,12 @@ public class AcademicEnrolmentPeriodController extends FenixeduUlisboaSpecificat
             @RequestParam(value = "bean", required = true) AcademicEnrolmentPeriodBean bean, Model model,
             RedirectAttributes redirectAttributes) {
         try {
-            academicEnrolmentPeriod.edit(bean);
+            academicEnrolmentPeriod.edit(bean.getStartDate(), bean.getEndDate(), bean.getFirstTimeRegistration(),
+                    bean.getRestrictToSelectedStatutes(), bean.getRestrictToSelectedIngressionTypes(), bean.getMinStudentNumber(),
+                    bean.getMaxStudentNumber(), bean.getCurricularYear(), bean.getSchoolClassSelectionMandatory(),
+                    bean.getEnrolmentPeriodType(), bean.getAutomaticEnrolment(), bean.getAllowEnrolWithDebts(),
+                    bean.getExecutionSemester());
+
             return redirect(READ_URL + "/" + academicEnrolmentPeriod.getExternalId(), model, redirectAttributes);
         } catch (DomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
