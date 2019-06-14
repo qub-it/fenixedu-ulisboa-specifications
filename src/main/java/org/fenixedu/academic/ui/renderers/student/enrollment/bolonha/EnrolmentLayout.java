@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.FenixEduAcademicExtensionsConfiguration;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
@@ -49,12 +50,15 @@ import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.curricularRules.EnrolmentToBeApprovedByCoordinator;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumModuleServices;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
@@ -62,10 +66,6 @@ import org.fenixedu.academic.dto.student.enrollment.bolonha.StudentCurriculumGro
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumModuleServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorEntry;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
@@ -509,7 +509,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     private boolean filterByCompetenceCourse(final CurricularCourse curricularCourse) {
-        return ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()
+        return FenixEduAcademicExtensionsConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()
                 && CompetenceCourseServices.isCompetenceCourseApproved(getStudentCurricularPlan(), curricularCourse,
                         (ExecutionSemester) null);
     }

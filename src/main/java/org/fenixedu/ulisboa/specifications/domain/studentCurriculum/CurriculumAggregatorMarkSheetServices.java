@@ -62,8 +62,6 @@ public class CurriculumAggregatorMarkSheetServices {
 
         CompetenceCourseMarkSheet.setSupportsTeacherConfirmationExtensionPredicate(getAggregationSupportsTeacherConfirmation());
 
-        CompetenceCourseMarkSheet.setEnrolmentEvaluationChangeListener(
-                ee -> CurriculumAggregatorServices.updateAggregatorEvaluationTriggeredByEntry(ee));
     }
 
     /**

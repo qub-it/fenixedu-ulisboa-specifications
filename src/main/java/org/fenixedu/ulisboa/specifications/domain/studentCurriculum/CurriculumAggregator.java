@@ -34,6 +34,7 @@ import java.util.SortedSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.fenixedu.academic.FenixEduAcademicExtensionsConfiguration;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
@@ -46,7 +47,9 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.academic.domain.degreeStructure.Context;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -58,12 +61,9 @@ import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.AttendsServices;
-import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
 import org.slf4j.Logger;
@@ -610,7 +610,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
      */
     public boolean isAggregationConcluded(final StudentCurricularPlan plan) {
 
-        if (ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()) {
+        if (FenixEduAcademicExtensionsConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()) {
             // approval may be in previous plan
             if (CompetenceCourseServices.isCompetenceCourseApproved(plan, getCurricularCourse(), (ExecutionSemester) null)) {
                 return true;

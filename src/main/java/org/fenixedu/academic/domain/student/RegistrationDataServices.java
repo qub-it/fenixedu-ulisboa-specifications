@@ -3,17 +3,9 @@ package org.fenixedu.academic.domain.student;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
-import org.fenixedu.academic.domain.student.RegistrationObservations;
-import org.fenixedu.ulisboa.specifications.ui.administrativeOffice.studentEnrolment.ManageRegistrationDataByExecutionYearDA.RegistrationDataEditBean;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 public class RegistrationDataServices {
-
-    static public void edit(final RegistrationDataEditBean input) {
-        final RegistrationDataByExecutionYear data = input.getData();
-        data.edit(input.getEnrolmentDate());
-        setCurricularYear(data, input.getOverridenCurricularYear());
-    }
 
     static public void delete(final RegistrationDataByExecutionYear input) {
         if (input.getRegistration().hasAnyEnrolmentsIn(input.getExecutionYear())) {

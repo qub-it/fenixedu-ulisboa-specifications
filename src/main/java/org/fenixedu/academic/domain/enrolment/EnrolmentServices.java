@@ -24,7 +24,6 @@ import org.fenixedu.academic.domain.student.curriculum.ConclusionProcessVersion;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.NoCourseGroupCurriculumGroup;
-import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
 
 import pt.ist.fenixframework.dml.runtime.RelationAdapter;
 import pt.ist.fenixframework.dml.runtime.RelationListener;
@@ -76,7 +75,7 @@ public class EnrolmentServices extends org.fenixedu.academic.domain.student.serv
             final Registration registration = enrolment.getRegistration();
 
             throw new DomainException("error.conclusionProcess.revertion.required",
-                    "\"" + registration.getNumber() + " - " + PersonServices.getDisplayName(registration.getPerson()) + "\"",
+                    "\"" + registration.getNumber() + " - " + registration.getPerson().getPresentationName() + "\"",
                     "\"" + getPresentationName(enrolment) + "\"",
                     enrolment.getConclusionProcessVersionsSet().stream()
                             .map(i -> "\"" + i.getConclusionProcess().getName().getContent() + "\"").distinct()

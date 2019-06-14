@@ -8,7 +8,6 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
-import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
@@ -66,9 +65,6 @@ public class ExtendedDegreeInfo extends ExtendedDegreeInfo_Base {
     public void delete() {
         setDegreeInfo(null);
         setBennu(null);
-        for (CourseGroupDegreeInfo degreeDocumentInfo : getCourseGroupDegreeInfosSet()) {
-            degreeDocumentInfo.delete();
-        }
         deleteDomainObject();
     }
 

@@ -2,12 +2,9 @@ package org.fenixedu.academic.domain.evaluation;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
-import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationExtendedInformation;
-import org.fenixedu.academic.domain.evaluation.EvaluationServices;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
-import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
 
 import pt.ist.fenixframework.Atomic;
@@ -76,7 +73,6 @@ public class EnrolmentEvaluationServices extends org.fenixedu.academic.domain.ev
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.ANNULED_OBJ);
             EnrolmentEvaluationServices.onStateChange(evaluation);
             EnrolmentServices.updateState(enrolment);
-            CurriculumAggregatorServices.updateAggregatorEvaluationTriggeredByEntry(evaluation);
         }
     }
 
@@ -88,7 +84,6 @@ public class EnrolmentEvaluationServices extends org.fenixedu.academic.domain.ev
             evaluation.setEnrolmentEvaluationState(EnrolmentEvaluationState.TEMPORARY_OBJ);
             EnrolmentEvaluationServices.onStateChange(evaluation);
             EnrolmentServices.updateState(enrolment);
-            CurriculumAggregatorServices.updateAggregatorEvaluationTriggeredByEntry(evaluation);
         }
     }
 

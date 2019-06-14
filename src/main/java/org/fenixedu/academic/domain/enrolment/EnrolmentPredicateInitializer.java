@@ -25,6 +25,8 @@
  */
 package org.fenixedu.academic.domain.enrolment;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.function.Supplier;
 
 import org.fenixedu.academic.domain.Enrolment;
@@ -36,10 +38,6 @@ import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,19 +45,28 @@ abstract public class EnrolmentPredicateInitializer {
 
     static private final Logger logger = LoggerFactory.getLogger(EnrolmentPredicateInitializer.class);
 
+    protected static Collection<EnrolmentPredicate> EXTRA_NORMAL_PREDICATES = new HashSet<>();
+
+    static public void addExtraNormalPredicate(EnrolmentPredicate predicate) {
+        EXTRA_NORMAL_PREDICATES.add(predicate);
+    }
+
+    protected static Collection<EnrolmentPredicate> EXTRA_IMPROVEMENT_PREDICATES = new HashSet<>();
+
+    static public void addExtraImprovementPredicate(EnrolmentPredicate predicate) {
+        EXTRA_IMPROVEMENT_PREDICATES.add(predicate);
+    }
+
+    private static Collection<EnrolmentPredicate> EXTRA_SPECIAL_PREDICATES = new HashSet<>();
+
+    static public void addExtraSpecialPredicate(EnrolmentPredicate predicate) {
+        EXTRA_SPECIAL_PREDICATES.add(predicate);
+    }
+
     static public void init() {
-
-        if (ULisboaConfiguration.getConfiguration().getEnrolmentPredicateOverride()) {
-
-            Enrolment.setPredicateSeason(PREDICATE_SEASON);
-            Enrolment.setPredicateImprovement(PREDICATE_IMPROVEMENT);
-            Enrolment.setPredicateSpecialSeason(PREDICATE_SPECIAL_SEASON);
-            logger.info("Overriding default");
-
-        } else {
-
-            logger.info("Using default");
-        }
+        Enrolment.setPredicateSeason(PREDICATE_SEASON);
+        Enrolment.setPredicateImprovement(PREDICATE_IMPROVEMENT);
+        Enrolment.setPredicateSpecialSeason(PREDICATE_SPECIAL_SEASON);
     }
 
     static private Supplier<EnrolmentPredicate> PREDICATE_SEASON = () -> new EnrolmentPredicate() {
@@ -89,6 +96,10 @@ abstract public class EnrolmentPredicateInitializer {
                             && evaluation.isApproved())) {
                 throw new DomainException("error.EvaluationSeason.already.approved.in.this.season",
                         enrolment.getPresentationName().getContent(), getEvaluationSeason().getName().getContent());
+            }
+
+            if (EXTRA_NORMAL_PREDICATES.stream().anyMatch(p -> !p.test(enrolment))) {
+                throw new DomainException("error.EvaluationSeason.extra.normal.predicate.evaluation.failed");
             }
 
             return true;
@@ -127,9 +138,8 @@ abstract public class EnrolmentPredicateInitializer {
                         improvementSemester.getQualifiedName());
             }
 
-            // qubExtension
-            if (!CurriculumAggregatorServices.isCandidateForEvaluation(getEvaluationSeason(), enrolment)) {
-                throw new DomainException("error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation", name);
+            if (EXTRA_IMPROVEMENT_PREDICATES.stream().anyMatch(p -> !p.test(enrolment))) {
+                throw new DomainException("error.EvaluationSeason.extra.improvement.predicate.evaluation.failed");
             }
 
             PREDICATE_SEASON.get().fill(getEvaluationSeason(), improvementSemester, getContext()).test(enrolment);
@@ -156,10 +166,8 @@ abstract public class EnrolmentPredicateInitializer {
                         enrolment.getPresentationName().getContent());
             }
 
-            if (!CurriculumAggregatorServices.isCandidateForEvaluation(getEvaluationSeason(), enrolment)) {
-                throw new ULisboaSpecificationsDomainException(
-                        "error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation",
-                        enrolment.getPresentationName().getContent());
+            if (EXTRA_SPECIAL_PREDICATES.stream().anyMatch(p -> !p.test(enrolment))) {
+                throw new DomainException("error.EvaluationSeason.extra.special.predicate.evaluation.failed");
             }
 
             PREDICATE_SEASON.get().fill(getEvaluationSeason(), getExecutionSemester(), getContext()).test(enrolment);

@@ -35,13 +35,9 @@ import org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.exceptions.EnrollmentDomainException;
-import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.RegistrationRegime;
 import org.fenixedu.academic.domain.student.RegistrationRegime.RegistrationRegimeVerifier;
-import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.I18N;
-import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,16 +48,7 @@ abstract public class RegistrationRegimeVerifierInitializer {
     static private final Logger logger = LoggerFactory.getLogger(RegistrationRegimeVerifierInitializer.class);
 
     static public void init() {
-
-        if (ULisboaConfiguration.getConfiguration().getRegistrationRegimeVerifierOverride()) {
-
-            RegistrationRegime.setRegistrationRegimeVerifier(REGISTRATION_REGIME_VERIFIER);
-            logger.info("Overriding default");
-
-        } else {
-
-            logger.info("Using default");
-        }
+        RegistrationRegime.setRegistrationRegimeVerifier(REGISTRATION_REGIME_VERIFIER);
     }
 
     private static Supplier<RegistrationRegimeVerifier> REGISTRATION_REGIME_VERIFIER = () -> new RegistrationRegimeVerifier() {
@@ -80,7 +67,8 @@ abstract public class RegistrationRegimeVerifierInitializer {
                     plan.enrol(executionYear.getFirstExecutionPeriod(), CurricularRuleLevel.ENROLMENT_VERIFICATION_WITH_RULES);
                 } catch (final EnrollmentDomainException e) {
                     final RuleResult ruleResult = e.getFalseResult();
-                    final RuleResultMessage resultMessage = ruleResult == null ? null : ruleResult.getMessages().iterator().next();
+                    final RuleResultMessage resultMessage =
+                            ruleResult == null ? null : ruleResult.getMessages().iterator().next();
                     if (resultMessage != null) {
                         throw new DomainException(resultMessage.getMessage(), resultMessage.getArgs());
                     }
@@ -110,9 +98,8 @@ abstract public class RegistrationRegimeVerifierInitializer {
     }
 
     static private String translateRuleMessage(final RuleResultMessage message) {
-        return MessageFormat.format(BundleUtil
-                .getString("resources.ApplicationResources", I18N.getLocale(), message.getMessage()).replace("{0}", "'{0}'"),
-                (Object[]) message.getArgs());
+        return MessageFormat.format(BundleUtil.getString("resources.ApplicationResources", I18N.getLocale(), message.getMessage())
+                .replace("{0}", "'{0}'"), (Object[]) message.getArgs());
 
     }
 

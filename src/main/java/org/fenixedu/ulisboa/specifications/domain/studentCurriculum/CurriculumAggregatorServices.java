@@ -68,6 +68,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
 
+import pt.ist.fenixframework.FenixFramework;
+
 abstract public class CurriculumAggregatorServices {
 
     static final private Logger logger = LoggerFactory.getLogger(CurriculumAggregatorServices.class);
@@ -92,8 +94,10 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static public void updateAggregatorEvaluationTriggeredByEntry(final EnrolmentEvaluation entryEvaluation) {
-        final Enrolment entryLine = entryEvaluation.getEnrolment();
-        updateAggregatorEvaluationTriggeredByEntry(entryLine, entryEvaluation);
+//        if (FenixFramework.isDomainObjectValid(entryEvaluation)) {
+            final Enrolment entryLine = entryEvaluation.getEnrolment();
+            updateAggregatorEvaluationTriggeredByEntry(entryLine, entryEvaluation);
+//        }
     }
 
     static public void updateAggregatorEvaluationTriggeredByEntry(final CurriculumLine entryLine) {

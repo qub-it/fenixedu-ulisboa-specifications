@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.FenixEduAcademicExtensionsConfiguration;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
@@ -102,7 +103,7 @@ abstract public class CompetenceCourseServices {
     static private Set<StudentCurricularPlan> getScpsToCheck(final Registration registration) {
         final Set<StudentCurricularPlan> result = Sets.newHashSet();
 
-        if (ULisboaConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourseAtStudentScope()) {
+        if (FenixEduAcademicExtensionsConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourseAtStudentScope()) {
             registration.getStudent().getRegistrationsSet().stream().flatMap(r -> r.getStudentCurricularPlansSet().stream())
                     .sequential().collect(Collectors.toCollection(() -> result));
 

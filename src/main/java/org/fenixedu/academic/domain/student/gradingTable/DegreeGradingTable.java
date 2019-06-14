@@ -22,7 +22,6 @@ import org.fenixedu.academic.domain.student.curriculum.conclusion.RegistrationCo
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.ConclusionInformationDataProvider;
 
 import pt.ist.fenixframework.CallableWithoutException;
 
@@ -115,11 +114,6 @@ public class DegreeGradingTable extends DegreeGradingTable_Base {
             }
         }
         return "-";
-    }
-
-    public static void registerProvider() {
-        ConclusionInformationDataProvider
-                .setDegreeEctsGradeProviderProvider(conclusion -> DegreeGradingTable.getEctsGrade(conclusion));
     }
 
     public static Set<DegreeGradingTable> generate(final ExecutionYear executionYear) {

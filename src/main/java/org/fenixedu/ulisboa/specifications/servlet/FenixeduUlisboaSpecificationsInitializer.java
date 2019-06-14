@@ -35,6 +35,7 @@ import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.FenixEduAcademicExtensionsConfiguration;
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Enrolment;
@@ -50,6 +51,7 @@ import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseException
 import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
 import org.fenixedu.academic.domain.curricularRules.StudentScheduleListeners;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleConfigurationInitializer;
+import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
 import org.fenixedu.academic.domain.enrolment.EnrolmentManagerFactoryInitializer;
@@ -63,6 +65,7 @@ import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYearExtendedInformation;
 import org.fenixedu.academic.domain.student.RegistrationExtendedInformation;
+import org.fenixedu.academic.domain.student.RegistrationObservations;
 import org.fenixedu.academic.domain.student.RegistrationRegimeVerifierInitializer;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumLineExtendedInformation;
@@ -84,13 +87,13 @@ import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
 import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.cms.domain.Site;
+import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
 import org.fenixedu.treasury.domain.paymentcodes.PaymentReferenceCode;
 import org.fenixedu.treasury.domain.paymentcodes.pool.PaymentCodePool;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
-import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
+import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
-import org.fenixedu.academic.domain.student.RegistrationObservations;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
@@ -120,7 +123,9 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaService
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorMarkSheetServices;
+import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorRulesInitializer;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.ConclusionInformationDataProvider;
 import org.fenixedu.ulisboa.specifications.task.tmp.FixBugProcessorTypeTask;
 import org.fenixedu.ulisboa.specifications.task.tmp.UpdateServiceRequestType;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.authentication.BlueRecordRedirector;
@@ -169,13 +174,17 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ULisboaSpecificationsRoot.getInstance().getCurriculumAggregatorSet().stream().filter(i -> i.getSince() == null)
                 .forEach(i -> i.setSince(ExecutionYear.readExecutionYearByName("2016/2017")));
         AnyCurricularCourseExceptionsInitializer.init();
+
         CurricularRuleConfigurationInitializer.init();
+
+        CurriculumAggregatorRulesInitializer.init();
+
         RegistrationRegimeVerifierInitializer.init();
         EnrolmentPredicateInitializer.init();
         EnrolmentManagerFactoryInitializer.init();
         EvaluationSeasonServices.initialize();
-        EvaluationSeasonServices.setEnrolmentsInEvaluationsDependOnAcademicalActsBlocked(
-                ULisboaConfiguration.getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked());
+        EvaluationSeasonServices.setEnrolmentsInEvaluationsDependOnAcademicalActsBlocked(FenixEduAcademicExtensionsConfiguration
+                .getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked());
         ConclusionProcessListenersInitializer.init();
         StudentCurricularPlanLayout.register();
         CurriculumLayout.register();
@@ -215,11 +224,13 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
             e.printStackTrace();
         }
 
-        CourseGradingTable.registerProvider();
-        DegreeGradingTable.registerProvider();
+        CurriculumEntry.setCourseEctsGradeProviderProvider(entry -> CourseGradingTable.getEctsGrade(entry));
+        ConclusionInformationDataProvider
+                .setDegreeEctsGradeProviderProvider(conclusion -> DegreeGradingTable.getEctsGrade(conclusion));
 
         ExtendedDegreeInfo.setupDeleteListener();
         ExtendedDegreeInfo.setupCreationListener();
+        CourseGroupDegreeInfo.setupDeleteListener();
 
         RegistrationObservations.setupDeleteListener();
 
@@ -247,7 +258,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     private void migrateSpecificationsRootToBennuRoot() {
         ULisboaSpecificationsRoot.getInstance().getCurricularPeriodConfigurationSet()
                 .forEach(c -> c.setBennu(Bennu.getInstance()));
-        if (ULisboaSpecificationsRoot.getInstance().getAnyCurricularCourseExceptionsConfiguration() != null) {            
+        if (ULisboaSpecificationsRoot.getInstance().getAnyCurricularCourseExceptionsConfiguration() != null) {
             ULisboaSpecificationsRoot.getInstance().getAnyCurricularCourseExceptionsConfiguration().setBennu(Bennu.getInstance());
         }
     }

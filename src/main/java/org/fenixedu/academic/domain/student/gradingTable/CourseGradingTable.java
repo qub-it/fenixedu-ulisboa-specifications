@@ -20,7 +20,6 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
 import pt.ist.fenixframework.CallableWithoutException;
@@ -95,10 +94,6 @@ public class CourseGradingTable extends CourseGradingTable_Base {
             }
         }
         return ectsGrade != null ? ectsGrade : "-";
-    }
-
-    public static void registerProvider() {
-        CurriculumEntry.setCourseEctsGradeProviderProvider(entry -> CourseGradingTable.getEctsGrade(entry));
     }
 
     public static boolean isApplicable(final CurriculumLine line) {
@@ -177,11 +172,11 @@ public class CourseGradingTable extends CourseGradingTable_Base {
                     if (!enrolment.isApproved()) {
                         continue;
                     }
-                    
+
                     if (!GradeScale.TYPE20.equals(enrolment.getGrade().getGradeScale())) {
                         continue;
                     }
-                    
+
                     Integer finalGrade = isNumeric(enrolment.getGrade()) ? enrolment.getGrade().getNumericValue()
                             .setScale(0, RoundingMode.HALF_UP).intValue() : 0;
                     if (finalGrade == 0) {

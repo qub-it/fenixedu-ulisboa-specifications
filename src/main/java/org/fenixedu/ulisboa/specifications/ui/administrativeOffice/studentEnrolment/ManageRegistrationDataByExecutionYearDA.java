@@ -87,7 +87,9 @@ public class ManageRegistrationDataByExecutionYearDA extends
 
     @Atomic
     private void editService(final RegistrationDataEditBean bean) {
-        RegistrationDataServices.edit(bean);
+        final RegistrationDataByExecutionYear data = bean.getData();
+        data.edit(bean.getEnrolmentDate());
+        RegistrationDataServices.setCurricularYear(data, bean.getOverridenCurricularYear());
     }
 
     public ActionForward delete(final ActionMapping mapping, final ActionForm actionForm, final HttpServletRequest request,

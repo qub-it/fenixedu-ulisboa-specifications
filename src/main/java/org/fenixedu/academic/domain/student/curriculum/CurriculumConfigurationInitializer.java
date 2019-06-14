@@ -29,12 +29,14 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.function.Supplier;
 
+import org.fenixedu.academic.FenixEduAcademicExtensionsConfiguration;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularPeriodConfiguration;
 import org.fenixedu.academic.domain.curricularRules.curricularPeriod.CurricularPeriodRule;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataServices;
@@ -52,10 +54,6 @@ import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
-import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
@@ -67,25 +65,11 @@ abstract public class CurriculumConfigurationInitializer {
     static private final Logger logger = LoggerFactory.getLogger(CurriculumConfigurationInitializer.class);
 
     static public void init() {
-
-        if (ULisboaConfiguration.getConfiguration().getCurricularYearCalculatorOverride()) {
-            Curriculum.setCurricularYearCalculator(CURRICULAR_YEAR_CALCULATOR);
-            logger.info("CurricularYearCalculator: Overriding default");
-        } else {
-            logger.info("CurricularYearCalculator: Using default");
-        }
-
+        Curriculum.setCurricularYearCalculator(CURRICULAR_YEAR_CALCULATOR);
         Curriculum.setCurriculumGradeCalculator(CURRICULUM_GRADE_CALCULATOR);
-        logger.info("CurriculumGradeCalculator: Overriding default");
-
         Curriculum.setCurriculumEntryPredicate(CURRICULUM_ENTRY_PREDICATE);
-        logger.info("CurriculumEntryPredicate: Overriding default");
-
         CurriculumGroup.setCurriculumSupplier(GROUP_CURRICULUM_SUPPLIER);
-        logger.info("CurriculumSuppliers: Overriding default");
-
         CurriculumGroup.setConclusionProcessEnabler(GROUP_CONCLUSION_ENABLER);
-        logger.info("ConclusionProcessEnabler: Overriding default");
     }
 
     /* ======================================================================================================
@@ -324,7 +308,7 @@ abstract public class CurriculumConfigurationInitializer {
 
     static private Supplier<CurriculumGradeCalculator> CURRICULUM_GRADE_CALCULATOR =
             () -> FenixeduUlisboaSpecificationsInitializer.loadClass(null,
-                    ULisboaConfiguration.getConfiguration().getCurriculumGradeCalculator());
+                    FenixEduAcademicExtensionsConfiguration.getConfiguration().getCurriculumGradeCalculator());
 
     /* ======================================================================================================
      * 
@@ -342,10 +326,6 @@ abstract public class CurriculumConfigurationInitializer {
                 final CurriculumLine line = (CurriculumLine) input;
 
                 if (CurriculumLineServices.isExcludedFromCurriculum(line)) {
-                    return false;
-                }
-
-                if (CurriculumAggregatorServices.hasAnyCurriculumAggregatorEntryAtAnyTimeInAnyPlan(line)) {
                     return false;
                 }
             }

@@ -19,6 +19,13 @@ public class CourseGroupDegreeInfo extends CourseGroupDegreeInfo_Base {
                 courseGroupDegreeInfo.delete();
             }
         });
+
+        FenixFramework.getDomainModel().registerDeletionListener(ExtendedDegreeInfo.class, degreeInfo -> {
+            for (CourseGroupDegreeInfo degreeDocumentInfo : degreeInfo.getCourseGroupDegreeInfosSet()) {
+                degreeDocumentInfo.delete();
+            }
+        });
+
     }
 
     protected CourseGroupDegreeInfo() {

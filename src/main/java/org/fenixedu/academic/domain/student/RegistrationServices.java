@@ -17,6 +17,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.FenixEduAcademicExtensionsConfiguration;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
@@ -30,6 +31,7 @@ import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -37,6 +39,7 @@ import org.fenixedu.academic.domain.student.curriculum.CreditsReasonType;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer.CurricularYearResult;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
@@ -48,10 +51,6 @@ import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.EnrolmentWrapper;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.academic.dto.student.RegistrationStateBean;
-import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
-import org.fenixedu.ulisboa.specifications.dto.student.RegistrationDataBean;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.YearMonthDay;
@@ -139,7 +138,7 @@ public class RegistrationServices {
     }
 
     static final private int CACHE_CURRICULAR_YEAR_EXPIRE_MINUTES =
-            ULisboaConfiguration.getConfiguration().getCurricularYearCalculatorCached() ? 5 : 0;
+            FenixEduAcademicExtensionsConfiguration.getConfiguration().getCurricularYearCalculatorCached() ? 5 : 0;
 
     static final private Cache<String, CurricularYearResult> CACHE_CURRICULAR_YEAR = CacheBuilder.newBuilder().concurrencyLevel(4)
             .maximumSize(10 * 1000).expireAfterWrite(CACHE_CURRICULAR_YEAR_EXPIRE_MINUTES, TimeUnit.MINUTES).build();
@@ -212,30 +211,31 @@ public class RegistrationServices {
 
         return result;
     }
-    
-    public static List<RegistrationStateBean> getAllLastRegistrationStates(final Registration registration, final ExecutionYear year) {
+
+    public static List<RegistrationStateBean> getAllLastRegistrationStates(final Registration registration,
+            final ExecutionYear year) {
         final List<RegistrationStateBean> result = Lists.newArrayList();
 
         {
             RegistrationStateBean conclusionResult = null;
-            
+
             final RegistrationDataByExecutionYear data = RegistrationDataServices.getRegistrationData(registration, year);
             if (registration.isConcluded() /* && data == RegistrationDataServices.getLastRegistrationData(registration) */) {
-    
+
                 ExecutionYear conclusionYear = null;
                 YearMonthDay conclusionDate = null;
                 try {
-    
+
                     final ProgramConclusion conclusion =
                             ProgramConclusion.conclusionsFor(registration).filter(i -> i.isTerminal()).findFirst().get();
-    
+
                     final RegistrationConclusionBean bean = new RegistrationConclusionBean(registration, conclusion);
                     conclusionYear = bean.getConclusionYear();
                     conclusionDate = bean.getConclusionDate();
                 } catch (final Throwable t) {
                     logger.error("Error trying to determine ConclusionYear: {}#{}", data.toString(), t.getMessage());
                 }
-    
+
                 // ATTENTION: conclusion state year != conclusion year
                 if (conclusionYear != null && year.isAfterOrEquals(conclusionYear)) {
                     conclusionResult = new RegistrationStateBean(RegistrationStateType.CONCLUDED);
@@ -251,13 +251,13 @@ public class RegistrationServices {
             bean.setStateDateTime(s.getStateDate());
             bean.setRegistration(registration);
             bean.setExecutionInterval(s.getExecutionInterval());
-            
+
             return bean;
         }).collect(Collectors.toSet()));
-        
+
         return result;
     }
-    
+
     static public ExecutionYear getConclusionExecutionYear(final Registration registration) {
         try {
             final ProgramConclusion conclusion =
@@ -268,19 +268,19 @@ public class RegistrationServices {
         } catch (final Throwable t) {
             logger.error("Error trying to determine ConclusionYear: {}", t.getMessage());
         }
-        
+
         return null;
     }
 
     static public boolean isFlunkedUsingCurricularYear(final Registration registration, final ExecutionYear executionYear) {
 
         if (registration.getStartExecutionYear().isAfterOrEquals(executionYear)
-                || registration.getStudentCurricularPlan(executionYear) == null) {
+                || getStudentCurricularPlan(registration, executionYear) == null) {
             return false;
         }
 
         final RegistrationDataByExecutionYear previousData = registration.getRegistrationDataByExecutionYearSet().stream()
-                .filter(i -> i.getExecutionYear().isBefore(executionYear) && new RegistrationDataBean(i).getEnrolmentsCount() > 0)
+                .filter(i -> i.getExecutionYear().isBefore(executionYear) && getEnrolmentsCount(i) > 0)
                 .max((i, j) -> i.getExecutionYear().compareTo(j.getExecutionYear())).orElse(null);
         if (previousData == null) {
             return false;
@@ -292,6 +292,13 @@ public class RegistrationServices {
         final int previousYear = getCurricularYear(registration, previousExecutionYear).getResult();
 
         return previousYear == currentYear;
+    }
+
+    static private Integer getEnrolmentsCount(final RegistrationDataByExecutionYear data) {
+        final StudentCurricularPlan plan = getStudentCurricularPlan(data.getRegistration(), data.getExecutionYear());
+        return plan == null ? 0 : Long
+                .valueOf(plan.getEnrolmentsByExecutionYear(data.getExecutionYear()).stream().filter(i -> !i.isAnnulled()).count())
+                .intValue();
     }
 
     public static final String FULL_SCHOOL_CLASS_EXCEPTION_MSG = "label.schoolClassStudentEnrollment.fullSchoolClass";

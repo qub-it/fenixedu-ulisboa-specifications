@@ -33,19 +33,17 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.student.curriculum.Curriculum;
-import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
-import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.CurriculumLayout;
 import org.joda.time.YearMonthDay;
 
 import com.google.common.collect.Lists;
@@ -115,7 +113,7 @@ public class AverageEntry implements Comparable<AverageEntry> {
     public String getTargetCurriculumLinesInfo() {
         return targetCurriculumLinesInfo;
     }
-    
+
     public YearMonthDay getConclusionDateOnTarget() {
         return conclusionDateOnTarget;
     }
@@ -133,11 +131,21 @@ public class AverageEntry implements Comparable<AverageEntry> {
         }
 
         if (result == 0) {
-            result = CurriculumLayout.getPresentationNameFor(getEntry())
-                    .compareTo(CurriculumLayout.getPresentationNameFor(o.getEntry()));
+            result = getPresentationNameFor(getEntry()).compareTo(getPresentationNameFor(o.getEntry()));
         }
 
         return result;
+    }
+
+    static private String getPresentationNameFor(final ICurriculumEntry entry) {
+        final String code = !StringUtils.isEmpty(entry.getCode()) ? entry.getCode() + " - " : "";
+
+        if (entry instanceof OptionalEnrolment) {
+            final OptionalEnrolment optionalEnrolment = (OptionalEnrolment) entry;
+            return code + optionalEnrolment.getCurricularCourse().getNameI18N(entry.getExecutionPeriod()).getContent();
+        } else {
+            return code + entry.getName().getContent();
+        }
     }
 
     static public List<AverageEntry> getAverageEntries(final Curriculum curriculum) {
