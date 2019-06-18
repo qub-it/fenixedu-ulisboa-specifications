@@ -4,7 +4,7 @@
     <name>fenixedu-ulisboa-specifications</name>
     <ordering>
     	<after>
-    		<name>bennu-portal</name>
+			<name>fenixedu-academic-extensions</name>
    		</after>
     </ordering>
 

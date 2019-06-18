@@ -26,7 +26,11 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
+import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.student.Registration;
@@ -38,16 +42,13 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
 import org.fenixedu.commons.spreadsheet.SpreadsheetBuilderForXLSX;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
-import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
-import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
-import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.dto.report.registrationhistory.RegistrationHistoryReportParametersBean;
 import org.fenixedu.ulisboa.specifications.service.report.registrationhistory.RegistrationHistoryReport;
 import org.fenixedu.ulisboa.specifications.service.report.registrationhistory.RegistrationHistoryReportService;
@@ -188,9 +189,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         try {
             content = reportProcessor.apply(bean);
         } catch (Throwable e) {
-            content = createXLSWithError(
-                    e instanceof ULisboaSpecificationsDomainException ? ((ULisboaSpecificationsDomainException) e)
-                            .getLocalizedMessage() : ExceptionUtils.getFullStackTrace(e));
+            content = createXLSWithError(e instanceof DomainException ? ((DomainException) e)
+                    .getLocalizedMessage() : ExceptionUtils.getFullStackTrace(e));
         }
 
         ULisboaSpecificationsTemporaryFile.create(reportId, content, Authenticate.getUser());

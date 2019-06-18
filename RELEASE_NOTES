@@ -1,3 +1,5 @@
+- Refactor: Moved core domain entities to academic-extensions module
+
 3.0.1 (17-06-2019)
 - Bug Fix: fix enrolment period test in StudentCurricularPlanEnrolmentManager 
 

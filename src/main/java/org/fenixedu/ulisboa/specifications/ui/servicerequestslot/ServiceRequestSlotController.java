@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.exceptions.AcademicExtensionsDomainException;
 import org.fenixedu.academic.ui.spring.controller.AcademicAdministrationSpringApplication;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
@@ -110,7 +111,7 @@ public class ServiceRequestSlotController extends FenixeduUlisboaSpecificationsB
 
             addInfoMessage(BundleUtil.getString(BUNDLE, "message.ServiceRequestSlot.removed.with.success"), model);
             return redirect(SEARCH_URL, model, redirectAttributes);
-        } catch (ULisboaSpecificationsDomainException ex) {
+        } catch (ULisboaSpecificationsDomainException | AcademicExtensionsDomainException ex) {
             addErrorMessage(BundleUtil.getString(BUNDLE, ex.getKey()), model);
         }
         return read(serviceRequestSlot, model);
@@ -144,7 +145,7 @@ public class ServiceRequestSlotController extends FenixeduUlisboaSpecificationsB
             final ServiceRequestSlot serviceRequestSlot = createServiceRequestSlot(code, uiComponentType, label);
 
             return redirect(READ_URL + serviceRequestSlot.getExternalId(), model, redirectAttributes);
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (ULisboaSpecificationsDomainException | AcademicExtensionsDomainException de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, de.getKey()), model);
         }
 
@@ -186,7 +187,7 @@ public class ServiceRequestSlotController extends FenixeduUlisboaSpecificationsB
         try {
             updateServiceRequestSlot(serviceRequestSlot, code, uiComponentType, label);
             return redirect(READ_URL + serviceRequestSlot.getExternalId(), model, redirectAttributes);
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (ULisboaSpecificationsDomainException | AcademicExtensionsDomainException de) {
             addErrorMessage(BundleUtil.getString(BUNDLE, de.getKey()), model);
         }
         return update(serviceRequestSlot, model);

@@ -46,26 +46,26 @@ import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Shift;
-import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.commons.spreadsheet.SheetData;
-import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
-import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetSnapshot;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
-import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
-import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
-import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
 import org.fenixedu.academic.dto.evaluation.markSheet.report.CompetenceCourseSeasonReport;
 import org.fenixedu.academic.services.evaluation.MarkSheetDocumentPrintService;
-import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetImportExportService;
 import org.fenixedu.academic.services.evaluation.MarkSheetStatusReportService;
+import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.domain.exceptions.DomainException;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.bennu.spring.portal.SpringFunctionality;
+import org.fenixedu.commons.spreadsheet.SheetData;
+import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
+import org.fenixedu.commons.spreadsheet.WorkbookExportFormat;
+import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemporaryFile;
+import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
+import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetImportExportService;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
@@ -691,9 +691,8 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         try {
             content = reportProcessor.apply(bean);
         } catch (Throwable e) {
-            content = createXLSWithError(
-                    (e instanceof ULisboaSpecificationsDomainException) ? ((ULisboaSpecificationsDomainException) e)
-                            .getLocalizedMessage() : ExceptionUtils.getFullStackTrace(e));
+            content = createXLSWithError((e instanceof DomainException) ? ((DomainException) e)
+                    .getLocalizedMessage() : ExceptionUtils.getFullStackTrace(e));
         }
 
         ULisboaSpecificationsTemporaryFile.create(reportId, content, Authenticate.getUser());

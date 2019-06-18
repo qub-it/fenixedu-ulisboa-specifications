@@ -43,6 +43,7 @@ import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.exceptions.AcademicExtensionsDomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
@@ -176,7 +177,7 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
                 ULisboaServiceRequestGeneratedDocument downloadDocument = serviceRequest.downloadDocument();
 
                 request.setAttribute("enrolmentProofDocument", downloadDocument);
-            } catch (ULisboaSpecificationsDomainException ex) {
+            } catch (ULisboaSpecificationsDomainException | AcademicExtensionsDomainException ex) {
                 addErrorMessage(request, "error", ex.getLocalizedMessage());
             }
         }

@@ -34,54 +34,20 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.FenixEduAcademicExtensionsConfiguration;
-import org.fenixedu.academic.domain.Attends;
+import org.fenixedu.academic.FenixeduAcademicExtensionsInitializer;
 import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
-import org.fenixedu.academic.domain.Qualification;
-import org.fenixedu.academic.domain.SchoolClass;
-import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
-import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptionsInitializer;
-import org.fenixedu.academic.domain.curricularRules.EnrolmentPeriodRestrictionsInitializer;
-import org.fenixedu.academic.domain.curricularRules.StudentScheduleListeners;
-import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleConfigurationInitializer;
-import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
-import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
-import org.fenixedu.academic.domain.degreeStructure.OptionalCurricularCourse;
-import org.fenixedu.academic.domain.enrolment.EnrolmentManagerFactoryInitializer;
-import org.fenixedu.academic.domain.enrolment.EnrolmentPredicateInitializer;
-import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationExtendedInformation;
-import org.fenixedu.academic.domain.evaluation.EvaluationComparator;
-import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
-import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
-import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.RegistrationDataByExecutionYearExtendedInformation;
-import org.fenixedu.academic.domain.student.RegistrationExtendedInformation;
-import org.fenixedu.academic.domain.student.RegistrationObservations;
-import org.fenixedu.academic.domain.student.RegistrationRegimeVerifierInitializer;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumConfigurationInitializer;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumLineExtendedInformation;
-import org.fenixedu.academic.domain.student.curriculum.EctsAndWeightProviders;
-import org.fenixedu.academic.domain.student.curriculum.conclusion.ConclusionProcessListenersInitializer;
 import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
 import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
-import org.fenixedu.academic.domain.studentCurriculum.Credits;
-import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
-import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.servlet.ExceptionHandlerFilter;
-import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
@@ -97,8 +63,6 @@ import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrol
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
-import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20AbsoluteGradeScaleLogic;
-import org.fenixedu.ulisboa.specifications.domain.grade.common.StandardType20GradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.fa.FATypeQualitativeGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.fba.FBATypeQualitativeGradeScaleLogic;
 import org.fenixedu.ulisboa.specifications.domain.grade.fc.FCTypeQualitativeGradeScaleLogic;
@@ -139,7 +103,6 @@ import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
 import pt.ist.fenixframework.dml.DeletionListener;
-import pt.ist.fenixframework.dml.runtime.RelationAdapter;
 
 @WebListener
 public class FenixeduUlisboaSpecificationsInitializer implements ServletContextListener {
@@ -156,39 +119,22 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     @Override
     public void contextInitialized(final ServletContextEvent event) {
 
-        if (ULisboaSpecificationsRoot.getInstance().getCurricularPeriodConfigurationSet().stream().anyMatch(
-                c -> c.getBennu() == null) || Bennu.getInstance().getAnyCurricularCourseExceptionsConfiguration() == null) {
-            migrateSpecificationsRootToBennuRoot();
-        }
-
         ULisboaSpecificationsRoot.init();
-        MarkSheetSettings.init();
+
         configurePortal();
-        configureGradeScaleLogics();
+        configureTypeQualitativeGradeScaleLogic();
         configureMarkSheetSpecifications();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
-        EctsAndWeightProviders.init();
-        EnrolmentPeriodRestrictionsInitializer.init();
+
         EnrolmentProcess.init();
-        CurriculumConfigurationInitializer.init();
+
         ULisboaSpecificationsRoot.getInstance().getCurriculumAggregatorSet().stream().filter(i -> i.getSince() == null)
                 .forEach(i -> i.setSince(ExecutionYear.readExecutionYearByName("2016/2017")));
-        AnyCurricularCourseExceptionsInitializer.init();
-
-        CurricularRuleConfigurationInitializer.init();
 
         CurriculumAggregatorRulesInitializer.init();
 
-        RegistrationRegimeVerifierInitializer.init();
-        EnrolmentPredicateInitializer.init();
-        EnrolmentManagerFactoryInitializer.init();
-        EvaluationSeasonServices.initialize();
-        EvaluationSeasonServices.setEnrolmentsInEvaluationsDependOnAcademicalActsBlocked(FenixEduAcademicExtensionsConfiguration
-                .getConfiguration().getEnrolmentsInEvaluationsDependOnAcademicalActsBlocked());
-        ConclusionProcessListenersInitializer.init();
         StudentCurricularPlanLayout.register();
         CurriculumLayout.register();
-        configureEnrolmentEvaluationComparator();
 
         UsernameSequenceGenerator usernameSequenceGenerator =
                 ULisboaSpecificationsRoot.getInstance().getUsernameSequenceGenerator();
@@ -204,11 +150,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         setupCustomExceptionHandler(event);
         setupListenerForDegreeDelete();
-        setupListenerForCurricularPeriodDelete();
-        setupListenerForEnrolmentDelete();
-        setupListenerForSchoolClassDelete();
-        setupListenersForStudentSchedule();
-        setupListenerForInvalidEquivalences();
+
         ULisboaServiceRequest.setupListenerForPropertiesDeletion();
         ULisboaServiceRequest.setupListenerForServiceRequestTypeDeletion();
 
@@ -228,79 +170,11 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ConclusionInformationDataProvider
                 .setDegreeEctsGradeProviderProvider(conclusion -> DegreeGradingTable.getEctsGrade(conclusion));
 
-        ExtendedDegreeInfo.setupDeleteListener();
-        ExtendedDegreeInfo.setupCreationListener();
         CourseGroupDegreeInfo.setupDeleteListener();
-
-        RegistrationObservations.setupDeleteListener();
-
-        CurriculumLineExtendedInformation.setupDeleteListener();
-
-        EnrolmentEvaluationExtendedInformation.setupDeleteListener();
-
-        RegistrationExtendedInformation.setupDeleteListener();
-
-        RegistrationDataByExecutionYearExtendedInformation.setupDeleteListener();
 
         ULisboaAuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
 
         initTreasuryNextReferenceCode();
-
-        registerDeletionListenerOnCurriculumLineForCourseGradingTable();
-        registerDeletionListenerOnDegreeModuleForCurriculumLineLogs();
-
-        registerDeletionListenerOnQualification();
-        registerDeletionListenerOnUnit();
-
-    }
-
-    @Atomic
-    private void migrateSpecificationsRootToBennuRoot() {
-        ULisboaSpecificationsRoot.getInstance().getCurricularPeriodConfigurationSet()
-                .forEach(c -> c.setBennu(Bennu.getInstance()));
-        if (ULisboaSpecificationsRoot.getInstance().getAnyCurricularCourseExceptionsConfiguration() != null) {
-            ULisboaSpecificationsRoot.getInstance().getAnyCurricularCourseExceptionsConfiguration().setBennu(Bennu.getInstance());
-        }
-    }
-
-    private void registerDeletionListenerOnUnit() {
-        FenixFramework.getDomainModel().registerDeletionListener(Unit.class, u -> {
-            u.getAcademicAreasSet().clear();
-        });
-    }
-
-    private void registerDeletionListenerOnQualification() {
-        FenixFramework.getDomainModel().registerDeletionListener(Qualification.class, q -> {
-            q.getAcademicAreasSet().clear();
-            q.getQualificationTypesSet().clear();
-            q.setDegreeUnit(null);
-            q.setInstitutionUnit(null);
-            q.setLevel(null);
-        });
-    }
-
-    private void registerDeletionListenerOnCurriculumLineForCourseGradingTable() {
-        FenixFramework.getDomainModel().registerDeletionListener(CurriculumLine.class, new DeletionListener<CurriculumLine>() {
-
-            @Override
-            public void deleting(final CurriculumLine line) {
-                if (line.getCourseGradingTable() != null) {
-                    line.getCourseGradingTable().delete();
-                }
-            }
-        });
-    }
-
-    private void registerDeletionListenerOnDegreeModuleForCurriculumLineLogs() {
-        FenixFramework.getDomainModel().registerDeletionListener(DegreeModule.class, dm -> {
-
-            dm.getCurriculumLineLogsSet().forEach(log -> log.delete());
-
-            if (dm instanceof OptionalCurricularCourse) {
-                final OptionalCurricularCourse optionalCurricularCourse = (OptionalCurricularCourse) dm;
-                optionalCurricularCourse.getOptionalEnrolmentLogsSet().forEach(log -> log.delete());
-            }
-        });
 
     }
 
@@ -376,71 +250,12 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         });
     }
 
-    private void setupListenerForEnrolmentDelete() {
-        Attends.getRelationAttendsEnrolment().addListener(new RelationAdapter<Enrolment, Attends>() {
-            @Override
-            public void beforeRemove(final Enrolment enrolment, final Attends attends) {
-                final Registration registration = attends.getRegistration();
-                if (registration != null) {
-                    attends.getExecutionCourse().getAssociatedShifts().forEach(s -> s.removeStudents(registration));
-                }
-            }
-        });
-    }
-
-    private void setupListenerForSchoolClassDelete() {
-        FenixFramework.getDomainModel().registerDeletionListener(SchoolClass.class, new DeletionListener<SchoolClass>() {
-
-            @Override
-            public void deleting(final SchoolClass schoolClass) {
-                schoolClass.getRegistrationsSet().clear();
-                schoolClass.setNextSchoolClass(null);
-                schoolClass.getPreviousSchoolClassesSet().clear();
-            }
-        });
-    }
-
-    private void setupListenerForCurricularPeriodDelete() {
-        FenixFramework.getDomainModel().registerDeletionListener(CurricularPeriod.class,
-                (final CurricularPeriod curricularPeriod) -> {
-                    if (curricularPeriod.getConfiguration() != null) {
-                        curricularPeriod.getConfiguration().delete();
-                    }
-                });
-    }
-
-    private void setupListenerForInvalidEquivalences() {
-        Dismissal.getRelationCreditsDismissalEquivalence().addListener(new RelationAdapter<Dismissal, Credits>() {
-            @Override
-            public void beforeAdd(final Dismissal dismissal, final Credits credits) {
-                if (credits != null && dismissal != null && (dismissal.isCreditsDismissal() || dismissal.isOptional())
-                        && credits.isEquivalence()) {
-                    throw new DomainException("error.Equivalence.can.only.be.applied.to.curricular.courses");
-
-                }
-            }
-        });
-    }
-
-    private void setupListenersForStudentSchedule() {
-        Signal.register(Enrolment.SIGNAL_CREATED, StudentScheduleListeners.SHIFTS_ENROLLER);
-    }
-
-    static private void configureEnrolmentEvaluationComparator() {
-        EvaluationConfiguration.setEnrolmentEvaluationOrder(new EvaluationComparator());
-    }
-
     static private void configurePortal() {
         ULisboaPortalConfiguration ulisboaPortal = PortalConfiguration.getInstance().getUlisboaPortal();
         if (ulisboaPortal == null) {
             ulisboaPortal = new ULisboaPortalConfiguration();
             ulisboaPortal.setPortal(PortalConfiguration.getInstance());
         }
-    }
-
-    static private void configureGradeScaleLogics() {
-        configureType20GradeScaleLogic();
-        configureTypeQualitativeGradeScaleLogic();
     }
 
     static private void configureTypeQualitativeGradeScaleLogic() {
@@ -514,18 +329,13 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
             logger.warn("Grade Logic for institution '"
                     + (institutionUnit != null ? institutionUnit.getAcronym() : "unknown institution")
                     + "' not found. Attempting to load from configuration property.");
-            logic = loadClass("gradescale.typequalitative.logic.class",
+            logic = FenixeduAcademicExtensionsInitializer.loadClass("gradescale.typequalitative.logic.class",
                     ULisboaConfiguration.getConfiguration().typeQualitativeGradeScaleLogic());
         }
 
         if (logic != null) {
             GradeScale.TYPEQUALITATIVE.setLogic(logic);
         }
-    }
-
-    static private void configureType20GradeScaleLogic() {
-        GradeScale.TYPE20_ABSOLUTE.setLogic(new StandardType20AbsoluteGradeScaleLogic());
-        GradeScale.TYPE20.setLogic(new StandardType20GradeScaleLogic());
     }
 
     static private void configureMarkSheetSpecifications() {
@@ -539,35 +349,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         });
 
         CurriculumAggregatorMarkSheetServices.init();
-    }
-
-    @SuppressWarnings("unchecked")
-    static public <T> T loadClass(final String key, final String value) {
-        T result = null;
-
-        try {
-
-            if (StringUtils.isNotBlank(value)) {
-                result = (T) Class.forName(value).newInstance();
-            } else {
-
-                final String message = "Property [" + key + "] must be defined in configuration file";
-                if (CoreConfiguration.getConfiguration().developmentMode()) {
-                    logger.error("{}. Empty value may lead to wrong system behaviour", message);
-                } else {
-                    throw new RuntimeException(message);
-                }
-            }
-
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException("An error occured loading class: " + value, e);
-        }
-
-        if (result != null) {
-            logger.debug("Using " + result.getClass().getSimpleName());
-        }
-
-        return result;
     }
 
     static private void configureMaximumNumberOfCreditsForEnrolmentPeriod() {

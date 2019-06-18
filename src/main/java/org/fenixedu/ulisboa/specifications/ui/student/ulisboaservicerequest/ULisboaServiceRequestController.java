@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.fenixedu.academic.domain.exceptions.AcademicExtensionsDomainException;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
@@ -133,7 +134,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
             }
             ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(bean);
             return redirect(READ_SERVICE_REQUEST_URL + serviceRequest.getExternalId(), model, redirectAttributes);
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (ULisboaSpecificationsDomainException | AcademicExtensionsDomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (Exception e) {
             if (e instanceof RuntimeException) {
@@ -245,7 +246,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
             response.setContentType(document.getContentType());
             response.setHeader("Content-disposition", "attachment; filename=" + document.getFilename());
             response.getOutputStream().write(document.getContent());
-        } catch (ULisboaSpecificationsDomainException de) {
+        } catch (ULisboaSpecificationsDomainException | AcademicExtensionsDomainException de) {
             addErrorMessage(de.getLocalizedMessage(), model);
         } catch (IOException e) {
             throw new RuntimeException(e);

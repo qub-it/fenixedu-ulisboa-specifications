@@ -41,6 +41,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptionsConfiguration;
+import org.fenixedu.academic.domain.exceptions.AcademicExtensionsDomainException;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.spreadsheet.SheetData;
 import org.fenixedu.commons.spreadsheet.SpreadsheetBuilder;
@@ -78,8 +79,8 @@ public class AnyCurricularCourseExceptionsConfigurationController extends Fenixe
     }
 
     private AnyCurricularCourseExceptionsConfigurationBean getAnyCurricularCourseExceptionsConfigurationBean(Model model) {
-        return (AnyCurricularCourseExceptionsConfigurationBean) model.asMap().get(
-                "anyCurricularCourseExceptionsConfigurationBean");
+        return (AnyCurricularCourseExceptionsConfigurationBean) model.asMap()
+                .get("anyCurricularCourseExceptionsConfigurationBean");
     }
 
     private void setAnyCurricularCourseExceptionsConfigurationBean(AnyCurricularCourseExceptionsConfigurationBean bean,
@@ -101,8 +102,7 @@ public class AnyCurricularCourseExceptionsConfigurationController extends Fenixe
     public static final String READ_URL = CONTROLLER_URL + _READ_URI;
 
     @RequestMapping(value = _READ_URI + "{oid}")
-    public String read(
-            @PathVariable("oid") AnyCurricularCourseExceptionsConfiguration anyCurricularCourseExceptionsConfiguration,
+    public String read(@PathVariable("oid") AnyCurricularCourseExceptionsConfiguration anyCurricularCourseExceptionsConfiguration,
             Model model) {
         setAnyCurricularCourseExceptionsConfiguration(anyCurricularCourseExceptionsConfiguration, model);
         setAnyCurricularCourseExceptionsConfigurationBean(new AnyCurricularCourseExceptionsConfigurationBean(), model);
@@ -119,14 +119,13 @@ public class AnyCurricularCourseExceptionsConfigurationController extends Fenixe
         try {
             anyCurricularCourseExceptionsConfiguration.addCompetenceCourse(bean.getCompetenceCourse());
 
-            addInfoMessage(
-                    ULisboaSpecificationsUtil
-                            .bundle("label.event.curricularRules.manageAnyCurricularCourseExceptionsConfiguration.addCompetenceCourse.success"),
+            addInfoMessage(ULisboaSpecificationsUtil.bundle(
+                    "label.event.curricularRules.manageAnyCurricularCourseExceptionsConfiguration.addCompetenceCourse.success"),
                     model);
 
             return redirect(READ_URL + anyCurricularCourseExceptionsConfiguration.getExternalId(), model, redirectAttributes);
 
-        } catch (ULisboaSpecificationsDomainException e) {
+        } catch (ULisboaSpecificationsDomainException | AcademicExtensionsDomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
 
             return read(anyCurricularCourseExceptionsConfiguration, model);
@@ -143,14 +142,13 @@ public class AnyCurricularCourseExceptionsConfigurationController extends Fenixe
         try {
             anyCurricularCourseExceptionsConfiguration.removeCompetenceCourse(competenceCourse);
 
-            addInfoMessage(
-                    ULisboaSpecificationsUtil
-                            .bundle("label.event.curricularRules.manageAnyCurricularCourseExceptionsConfiguration.removeCompetenceCourse.success"),
+            addInfoMessage(ULisboaSpecificationsUtil.bundle(
+                    "label.event.curricularRules.manageAnyCurricularCourseExceptionsConfiguration.removeCompetenceCourse.success"),
                     model);
 
             return redirect(READ_URL + anyCurricularCourseExceptionsConfiguration.getExternalId(), model, redirectAttributes);
 
-        } catch (ULisboaSpecificationsDomainException e) {
+        } catch (ULisboaSpecificationsDomainException | AcademicExtensionsDomainException e) {
 
             addErrorMessage(e.getLocalizedMessage(), model);
             return read(anyCurricularCourseExceptionsConfiguration, model);
@@ -190,14 +188,13 @@ public class AnyCurricularCourseExceptionsConfigurationController extends Fenixe
         try {
             anyCurricularCourseExceptionsConfiguration.clearCompetenceCourses();
 
-            addInfoMessage(
-                    ULisboaSpecificationsUtil
-                            .bundle("label.event.curricularRules.manageAnyCurricularCourseExceptionsConfiguration.clearCompetenceCourses.success"),
+            addInfoMessage(ULisboaSpecificationsUtil.bundle(
+                    "label.event.curricularRules.manageAnyCurricularCourseExceptionsConfiguration.clearCompetenceCourses.success"),
                     model);
 
             return redirect(READ_URL + anyCurricularCourseExceptionsConfiguration.getExternalId(), model, redirectAttributes);
 
-        } catch (ULisboaSpecificationsDomainException e) {
+        } catch (ULisboaSpecificationsDomainException | AcademicExtensionsDomainException e) {
 
             addErrorMessage(e.getLocalizedMessage(), model);
             return read(anyCurricularCourseExceptionsConfiguration, model);
