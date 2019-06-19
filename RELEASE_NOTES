@@ -1,3 +1,5 @@
+- Bug Fix: avoided NPE when collecting open enrolment periods for student 
+
 4.0.0 (18-06-2019)
 - Refactor: Moved core domain entities to academic-extensions module
 

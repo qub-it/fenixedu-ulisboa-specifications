@@ -491,8 +491,12 @@ public class AcademicEnrolmentPeriodBean implements IBean {
             final DegreeCurricularPlan degreeCurricularPlan, final Student input, final boolean skipRegistrationState) {
         final Set<AcademicEnrolmentPeriodBean> result = Sets.newHashSet();
 
-        input.getRegistrationsFor(degreeCurricularPlan).stream()
-                .forEach(registration -> result.add(collectFor(period, registration, skipRegistrationState)));
+        input.getRegistrationsFor(degreeCurricularPlan).stream().forEach(registration -> {
+            final AcademicEnrolmentPeriodBean enrolmentBean = collectFor(period, registration, skipRegistrationState);
+            if (enrolmentBean != null) {
+                result.add(enrolmentBean);
+            }
+        });
 
         return result;
     }
