@@ -34,7 +34,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@page import="org.fenixedu.academic.domain.ExecutionYear"%>
 <%@page import="org.fenixedu.academic.domain.student.RegistrationDataByExecutionYear"%>
-<%@page import="org.fenixedu.ulisboa.specifications.dto.student.RegistrationDataBean"%>
+<%@page import="org.fenixedu.academic.dto.student.RegistrationDataBean"%>
 <%@page import="org.fenixedu.commons.i18n.I18N" %>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.ulisboaservicerequest.ULisboaServiceRequestManagementController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest"%>

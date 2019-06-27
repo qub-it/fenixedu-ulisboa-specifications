@@ -14,7 +14,7 @@ import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.Searc
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
-import org.fenixedu.ulisboa.specifications.dto.student.RegistrationDataBean;
+import org.fenixedu.academic.dto.student.RegistrationDataBean;
 
 import pt.ist.fenixframework.Atomic;
 
