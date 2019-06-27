@@ -609,8 +609,10 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                     private String getRegimeDescription(final ICurriculumEntry curriculumEntry) {
                         if (curriculumEntry instanceof CurriculumLine) {
                             final CurriculumLine curriculumLine = (CurriculumLine) curriculumEntry;
-                            return curriculumLine.getCurricularCourse() != null ? curriculumLine.getCurricularCourse()
-                                    .getRegime(curriculumEntry.getExecutionYear()).getLocalizedName() : null;
+                            return curriculumLine.getCurricularCourse() != null
+                                    && curriculumLine.getCurricularCourse().getCompetenceCourse() != null ? curriculumLine
+                                            .getCurricularCourse().getRegime(curriculumEntry.getExecutionYear())
+                                            .getLocalizedName() : null;
                         }
 
                         return null;
