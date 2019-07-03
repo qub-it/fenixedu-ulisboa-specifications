@@ -1,3 +1,5 @@
+- Refactor: moved registration history report services to academic-extensions
+
 4.0.5 (27-06-2019)
 - Refactor: moved RegistrationDataBean to academic-extensions
 
