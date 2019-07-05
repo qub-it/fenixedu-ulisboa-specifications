@@ -1,3 +1,5 @@
+- Bug Fix: added missing label
+
 4.0.6 (03-07-2019)
 - Refactor: moved registration history report services to academic-extensions
 
