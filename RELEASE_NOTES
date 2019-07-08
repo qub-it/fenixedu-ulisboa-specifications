@@ -1,4 +1,5 @@
 - Bug Fix: added missing label
+- Improvement: Added new column at registration history report: Enrolment Years Including Precedent Registrations (#UL-FA-473)
 
 4.0.6 (03-07-2019)
 - Refactor: moved registration history report services to academic-extensions
