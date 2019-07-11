@@ -23,7 +23,7 @@
 <% if(TreasuryBridgeAPIFactory.implementation().isPersonAccountTreasuryManagementAvailable(registration.getStudent().getPerson())) { %>
 	<span class="dblock pbottom03">	
 		<img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
-		<html:link target="_blank" href="<%= request.getContextPath() + TreasuryBridgeAPIFactory.implementation().getRegistrationAccountTreasuryManagementURL(registration) %>" >
+		<%= pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter.NO_CHECKSUM_PREFIX %><html:link target="_blank" href="<%= request.getContextPath() + TreasuryBridgeAPIFactory.implementation().getRegistrationAccountTreasuryManagementURL(registration) %>" >
 			<bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.payments.management" />
 		</html:link>
 	</span>
