@@ -65,10 +65,7 @@ public class FiliationFormController extends FormAbstractController {
         if (!model.containsAttribute(getFormVariableName())) {
             FiliationForm form = new FiliationForm();
             Person person = AccessControl.getPerson();
-            PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
-            if (personUl != null) {
-                form.setSecondNationality(personUl.getSecondNationality());
-            }
+            form.setSecondNationality(person.getSecondNationality());
 
             form.setFirstNationality(person.getCountry());
             form.setCountryOfBirth(person.getCountryOfBirth());
@@ -134,8 +131,7 @@ public class FiliationFormController extends FormAbstractController {
     @Atomic
     private void writeData(FiliationForm form) {
         Person person = AccessControl.getPerson();
-        PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(person);
-        personUl.setSecondNationality(form.getSecondNationality());
+        person.setSecondNationality(form.getSecondNationality());
 
         person.setCountry(form.getFirstNationality());
 

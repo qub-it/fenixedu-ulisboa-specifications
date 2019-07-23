@@ -28,6 +28,7 @@ package org.fenixedu.ulisboa.specifications.servlet;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -40,6 +41,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
+import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
 import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
@@ -175,6 +177,32 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ULisboaAuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
 
         initTreasuryNextReferenceCode();
+
+        migrateSecondNationalityDataToPerson();
+
+    }
+
+    @Atomic(mode = TxMode.WRITE)
+    private void migrateSecondNationalityDataToPerson() {
+
+        if (Bennu.getInstance().getPartysSet().stream().filter(p -> p.isPerson()).map(Person.class::cast)
+                .anyMatch(p -> p.getSecondNationality() != null)) {
+            //already performed migration
+            logger.info("######## Skipping second nationality data migration ########");
+            return;
+        }
+
+        logger.info("######## Migrating second nationality data ########");
+        final AtomicInteger counter = new AtomicInteger();
+
+        Bennu.getInstance().getPartysSet().stream().filter(p -> p.isPerson()).map(Person.class::cast)
+                .map(p -> p.getPersonUlisboaSpecifications())
+                .filter(pu -> pu != null && pu.getSecondNationalityForMigration() != null).forEach(pu -> {
+                    counter.incrementAndGet();
+                    pu.getPerson().setSecondNationality(pu.getSecondNationalityForMigration());
+                });
+
+        logger.info("######### Finished migrating second nationality data: " + counter.get() + " ###########");
 
     }
 

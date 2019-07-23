@@ -714,11 +714,12 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             }
 
         }
+        if (person.getSecondNationality() != null) {
+            secondNationality = person.getSecondNationality().getCountryNationality().getContent();
+        }
+
         PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
         if (personUl != null) {
-            if (personUl.getSecondNationality() != null) {
-                secondNationality = personUl.getSecondNationality().getCountryNationality().getContent();
-            }
 
             for (PersonalIngressionData checkDislocatedPersonalIngressionData : personalIngressionDataCollection) {
                 if (checkDislocatedPersonalIngressionData.getDislocatedFromPermanentResidence() != null) {

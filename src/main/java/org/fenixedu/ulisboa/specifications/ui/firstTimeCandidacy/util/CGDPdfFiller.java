@@ -151,9 +151,8 @@ public class CGDPdfFiller {
             setField("Nacionalidade", person.getCountryOfBirth().getCountryNationality().getContent());
         }
 
-        PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
-        if (personUl != null && personUl.getSecondNationality() != null) {
-            setField("Sim qualais", personUl.getSecondNationality().getCountryNationality().getContent());
+        if (person.getSecondNationality() != null) {
+            setField("Sim qualais", person.getSecondNationality().getCountryNationality().getContent());
             setField("outra_nacionalidade2", "Yes");
         } else {
             setField("outra_nacionalidade1", "Yes");

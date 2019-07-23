@@ -28,6 +28,7 @@ package org.fenixedu.ulisboa.specifications.domain;
 
 import java.util.Objects;
 
+import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -60,8 +61,7 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
         setDisabilityType(null);
         setDislocatedResidenceType(null);
         setFirstOptionInstitution(null);
-        setSecondNationality(null);
-        
+
         deleteDomainObject();
     }
 
@@ -106,6 +106,31 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
             final ExecutionYear executionYear) {
         return getPersonUlExecutionYearsSet().stream().filter(pul -> pul.getExecutionYear() == executionYear).findAny()
                 .orElse(null);
+    }
+
+    
+    /**
+     * @deprecated use {@link Person#setSecondNationality(Country)}
+     */
+    @Deprecated
+    @Override
+    public void setSecondNationality(Country secondNationality) {
+        throw new UnsupportedOperationException("Use person.setSecondNationality");
+    }
+    
+    /**
+     * @deprecated use {@link Person#getSecondNationality()}
+     */
+    @Deprecated
+    @Override
+    public Country getSecondNationality() {
+        return super.getPerson().getSecondNationality();
+    }
+    
+    //TO REMOVE after migration
+    @Deprecated
+    public Country getSecondNationalityForMigration() {
+        return super.getSecondNationality();
     }
 
 }
