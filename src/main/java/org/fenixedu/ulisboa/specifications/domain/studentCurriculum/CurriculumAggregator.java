@@ -27,7 +27,6 @@ package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Set;
 import java.util.SortedSet;
@@ -262,28 +261,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
     }
 
     public boolean isValid(final ExecutionYear year) {
-        if (year != null) {
-
-            if (getSince().isBeforeOrEquals(year)) {
-
-                final CurriculumAggregator nextConfig = getNextConfig();
-                if (nextConfig == null || nextConfig.getSince().isAfter(year)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public CurriculumAggregator getPreviousConfig() {
-        return getContext().getCurriculumAggregatorSet().stream().filter(i -> i.getSince().isBefore(getSince()))
-                .max(Comparator.comparing(CurriculumAggregator::getSince)).orElse(null);
-    }
-
-    public CurriculumAggregator getNextConfig() {
-        return getContext().getCurriculumAggregatorSet().stream().filter(i -> i.getSince().isAfter(getSince()))
-                .min(Comparator.comparing(CurriculumAggregator::getSince)).orElse(null);
+        return getSince() == year;
     }
 
     /**

@@ -1,3 +1,5 @@
+- Refactor: Curriculum aggregators now must have an explicit version for each semester   
+
 4.1.0 (23-07-2019)
 - Refactor: Migrated second nationality to Person
 - Refactor: Update dependencies

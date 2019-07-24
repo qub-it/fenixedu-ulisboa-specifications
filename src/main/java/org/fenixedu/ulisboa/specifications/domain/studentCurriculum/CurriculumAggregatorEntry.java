@@ -148,11 +148,10 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         final String description = getAggregator().getCurricularCourse().getCode();
         final String since = getAggregator().getSince().getQualifiedName();
 
-        final String gradeFactor =
-                ", " + (getGradeFactor() == null || BigDecimal.ZERO.compareTo(getGradeFactor()) == 0 ? BundleUtil
-                        .getLocalizedString(Bundle.ENUMERATION, GradeScale.TYPEQUALITATIVE.name())
-                        .getContent() : getGradeFactor().multiply(BigDecimal.valueOf(100d)).stripTrailingZeros().toPlainString()
-                                + "%");
+        final String gradeFactor = ", "
+                + (getGradeFactor() == null || BigDecimal.ZERO.compareTo(getGradeFactor()) == 0 ? BundleUtil
+                        .getLocalizedString(Bundle.ENUMERATION, GradeScale.TYPEQUALITATIVE.name()).getContent() : getGradeFactor()
+                                .multiply(BigDecimal.valueOf(100d)).stripTrailingZeros().toPlainString() + "%");
 
         final GradeScale gradeScale = getGradeScale();
         String gradeScaleDescription = "";
@@ -184,14 +183,6 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
     public boolean isValid(final ExecutionYear year) {
         return getAggregator().isValid(year);
-    }
-
-    public CurriculumAggregator getAggregatorPreviousConfig() {
-        return getAggregator().getPreviousConfig();
-    }
-
-    public CurriculumAggregator getAggregatorNextConfig() {
-        return getAggregator().getNextConfig();
     }
 
     public CurricularCourse getCurricularCourse() {
@@ -320,15 +311,14 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
      * 
      * A.isAggregatorOfOthers => CANNOT APPLY to A because is never an entry
      * B.isAggregatorOfOthers => false
-     * C.isAggregatorOfOthers  => true
-     * D.isAggregatorOfOthers  => false
+     * C.isAggregatorOfOthers => true
+     * D.isAggregatorOfOthers => false
      * 
      */
     boolean isAggregatorOfOthers() {
         return getAggregatorOfOthers() != null;
     }
 
-    
     /**
      * Returns the other entries aggregation configuration
      * 
@@ -341,11 +331,11 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
      *     - D
      *     - E
      * </code>
-     *     
+     * 
      * A.getAggregatorOfOthers => CANNOT APPLY to A because is never an entry
      * B.getAggregatorOfOthers => null
-     * C.isAggregatorOfOthers  => Aggregator associated to C (has D and E as children)
-     * D.isAggregatorOfOthers  => null
+     * C.isAggregatorOfOthers => Aggregator associated to C (has D and E as children)
+     * D.isAggregatorOfOthers => null
      * 
      */
     CurriculumAggregator getAggregatorOfOthers() {
@@ -366,7 +356,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
      *     - E
      * </code>
      * 
-     * A.getAggregationRoot => CANNOT APPLY to A because is never an entry 
+     * A.getAggregationRoot => CANNOT APPLY to A because is never an entry
      * B.getAggregationRoot => A
      * C.getAggregationRoot => A
      * D.getAggregationRoot => A
