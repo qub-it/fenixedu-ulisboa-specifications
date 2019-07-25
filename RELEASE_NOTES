@@ -1,4 +1,5 @@
-- Refactor: Curriculum aggregators now must have an explicit version for each semester   
+- Refactor: Curriculum aggregators now must have an explicit version for each semester
+- Refactor: Replaced usages of ExecutionSemester by ExecutionInterval   
 
 4.1.0 (23-07-2019)
 - Refactor: Migrated second nationality to Person

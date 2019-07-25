@@ -511,7 +511,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     private boolean filterByCompetenceCourse(final CurricularCourse curricularCourse) {
         return FenixEduAcademicExtensionsConfiguration.getConfiguration().getCurricularRulesApprovalsAwareOfCompetenceCourse()
                 && CompetenceCourseServices.isCompetenceCourseApproved(getStudentCurricularPlan(), curricularCourse,
-                        (ExecutionSemester) null);
+                        (ExecutionInterval) null);
     }
 
     private boolean filterByAggregationApproval(final CurricularCourse input) {

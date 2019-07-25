@@ -43,23 +43,24 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.treasury.services.integration.FenixEDUTreasuryPlatformDependentServices;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,8 +68,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Sets;
-
-import pt.ist.fenixframework.FenixFramework;
 
 abstract public class CurriculumAggregatorServices {
 
@@ -95,8 +94,8 @@ abstract public class CurriculumAggregatorServices {
 
     static public void updateAggregatorEvaluationTriggeredByEntry(final EnrolmentEvaluation entryEvaluation) {
 //        if (FenixFramework.isDomainObjectValid(entryEvaluation)) {
-            final Enrolment entryLine = entryEvaluation.getEnrolment();
-            updateAggregatorEvaluationTriggeredByEntry(entryLine, entryEvaluation);
+        final Enrolment entryLine = entryEvaluation.getEnrolment();
+        updateAggregatorEvaluationTriggeredByEntry(entryLine, entryEvaluation);
 //        }
     }
 
@@ -361,12 +360,12 @@ abstract public class CurriculumAggregatorServices {
      * 
      * ExecutionSemester should be as close as possible to the business logic being addressed
      */
-    static public Context getContext(final DegreeModule input, final ExecutionSemester semester, final CourseGroup group) {
+    static public Context getContext(final DegreeModule input, final ExecutionInterval interval, final CourseGroup group) {
         if (input == null) {
             return null;
         }
 
-        final String key = String.format("%s#%s#%s", input.getExternalId(), semester == null ? "null" : semester.getExternalId(),
+        final String key = String.format("%s#%s#%s", input.getExternalId(), interval == null ? "null" : interval.getExternalId(),
                 group == null ? "null" : group.getExternalId());
 
         try {
@@ -379,7 +378,7 @@ abstract public class CurriculumAggregatorServices {
                     if (input != null && isAggregationsActive(null)) {
 
                         final Set<Context> candidates = input.getParentContextsSet().stream()
-                                .filter(i -> semester == null || i.isValid(semester))
+                                .filter(i -> interval == null || i.isValid(interval))
                                 .filter(i -> group == null || i.getParentCourseGroup() == group).collect(Collectors.toSet());
 
                         if (candidates.size() == 1) {
@@ -486,35 +485,35 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static public boolean isAggregationEnroled(final Context context, final StudentCurricularPlan plan,
-            final ExecutionSemester semester) {
+            final ExecutionInterval interval) {
 
-        final ExecutionYear year = semester == null ? null : semester.getExecutionYear();
+        final ExecutionYear year = interval == null ? null : interval.getExecutionYear();
         if (getAggregationRoot(context, year) == null) {
             return false;
         }
 
         final DegreeModule module = context.getChildDegreeModule();
-        return module.isLeaf() ? isAggregationEnroled((CurricularCourse) module, plan, semester) : false;
+        return module.isLeaf() ? isAggregationEnroled((CurricularCourse) module, plan, interval) : false;
     }
 
     static private boolean isAggregationEnroled(final CurricularCourse curricularCourse, final StudentCurricularPlan plan,
-            final ExecutionSemester semester) {
+            final ExecutionInterval interval) {
 
         // WARNING! at this level this CAN NOT be competence course approval aware, since this method is used for evaluating if a given CurricularCourse is candidate for enrolment on THIS scp
-        return plan.isApproved(curricularCourse) || (semester == null ? !plan.getEnrolments(curricularCourse).isEmpty() : plan
-                .isEnroledInExecutionPeriod(curricularCourse, semester));
+        return plan.isApproved(curricularCourse) || (interval == null ? !plan.getEnrolments(curricularCourse).isEmpty() : plan
+                .isEnroledInExecutionPeriod(curricularCourse, interval));
     }
 
     static public Set<IDegreeModuleToEvaluate> getAggregationParticipantsToEnrol(final Context context,
-            final StudentCurricularPlan plan, final ExecutionSemester semester, final Set<Context> aboutToEnrol) {
+            final StudentCurricularPlan plan, final ExecutionInterval interval, final Set<Context> aboutToEnrol) {
 
         final Set<IDegreeModuleToEvaluate> result = Sets.newHashSet();
 
-        for (final Context iter : collectEnrolmentSlaveContexts(context, semester.getExecutionYear())) {
+        for (final Context iter : collectEnrolmentSlaveContexts(context, interval.getExecutionYear())) {
 
-            if (isCandidateForEnrolmentAutomatically(iter, plan, semester, aboutToEnrol)) {
+            if (isCandidateForEnrolmentAutomatically(iter, plan, interval, aboutToEnrol)) {
 
-                toEnrol(iter, plan, semester, aboutToEnrol, result);
+                toEnrol(iter, plan, interval, aboutToEnrol, result);
             }
         }
 
@@ -522,11 +521,11 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static public Set<CurriculumModule> getAggregationParticipantsToRemove(final Context context,
-            final StudentCurricularPlan plan, final ExecutionSemester semester) {
+            final StudentCurricularPlan plan, final ExecutionInterval interval) {
 
         final Set<CurriculumModule> result = Sets.newHashSet();
 
-        final ExecutionYear year = semester.getExecutionYear();
+        final ExecutionYear year = interval.getExecutionYear();
         for (final Context iter : collectEnrolmentSlaveContexts(context, year)) {
 
             // must check if is already evaluated (by grade or dismissal), since we don't want to delete those
@@ -534,7 +533,7 @@ abstract public class CurriculumAggregatorServices {
                 continue;
             }
 
-            toRemove(iter, result, plan, semester);
+            toRemove(iter, result, plan, interval);
         }
 
         return result;
@@ -545,14 +544,14 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static private DegreeModuleToEnrol toEnrol(final Context context, final StudentCurricularPlan plan,
-            final ExecutionSemester semester, final Set<Context> aboutToEnrol, final Set<IDegreeModuleToEvaluate> collection) {
+            final ExecutionInterval interval, final Set<Context> aboutToEnrol, final Set<IDegreeModuleToEvaluate> collection) {
 
         DegreeModuleToEnrol result = null;
 
         final CurriculumGroup curriculumGroup = findCurriculumGroupFor(context, plan);
         if (curriculumGroup != null) {
 
-            result = new DegreeModuleToEnrol(curriculumGroup, context, semester);
+            result = new DegreeModuleToEnrol(curriculumGroup, context, interval);
             collection.add(result);
             aboutToEnrol.add(context);
         }
@@ -561,7 +560,7 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static private CurriculumModule toRemove(final Context context, final Set<CurriculumModule> collection,
-            final StudentCurricularPlan plan, final ExecutionSemester semester) {
+            final StudentCurricularPlan plan, final ExecutionInterval interval) {
 
         CurriculumModule result = null;
 
@@ -570,7 +569,7 @@ abstract public class CurriculumAggregatorServices {
 
             result = curriculumGroup.getCurriculumModulesSet().stream()
                     .filter(i -> i.getDegreeModule() == context.getChildDegreeModule() && i.isLeaf()
-                            && ((CurriculumLine) i).getExecutionPeriod() == semester)
+                            && ((CurriculumLine) i).getExecutionPeriod() == interval)
                     .findAny().orElse(null);
 
             if (result == null) {
@@ -601,12 +600,12 @@ abstract public class CurriculumAggregatorServices {
     }
 
     static private boolean isCandidateForEnrolmentAutomatically(final Context context, final StudentCurricularPlan plan,
-            final ExecutionSemester semester, final Set<Context> aboutToEnrol) {
+            final ExecutionInterval interval, final Set<Context> aboutToEnrol) {
 
-        final ExecutionYear year = semester.getExecutionYear();
+        final ExecutionYear year = interval.getExecutionYear();
 
         // must check if was enroled in other interaction
-        if (isAggregationEnroled(context, plan, semester)) {
+        if (isAggregationEnroled(context, plan, interval)) {
             return false;
         }
 
@@ -617,7 +616,7 @@ abstract public class CurriculumAggregatorServices {
 
         // decision: if enrolment UI is by semester (even if we are in a year-enrolment-configured institution), then we'll just automatically enrol in units of the same semester 
         final Integer candidateSemester = context.getCurricularPeriod().getChildOrder();
-        if (candidateSemester.intValue() != semester.getSemester().intValue()) {
+        if (candidateSemester.intValue() != interval.getChildOrder().intValue()) {
             return false;
         }
 
@@ -639,7 +638,7 @@ abstract public class CurriculumAggregatorServices {
             for (final Context iter : aggregator.getEnrolmentMasterContexts()) {
                 final boolean optionalEntryRelated = isOptionalEntryRelated(iter, year);
 
-                if (isAggregationEnroled(iter, plan, semester) || CompetenceCourseServices.isCompetenceCourseApproved(plan,
+                if (isAggregationEnroled(iter, plan, interval) || CompetenceCourseServices.isCompetenceCourseApproved(plan,
                         (CurricularCourse) iter.getChildDegreeModule(), (ExecutionSemester) null)) {
 
                     if (optionalEntryRelated) {

@@ -25,6 +25,7 @@
  */
 package org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.verifyExecutors;
 
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -82,8 +83,8 @@ public class CurriculumAggregatorApprovalVerifier extends VerifyRuleExecutor {
     static private CurriculumAggregator collectAggregatorConcluded(final EnrolmentContext enrolmentContext,
             final Context context) {
 
-        final ExecutionSemester semester = enrolmentContext.getExecutionPeriod();
-        final ExecutionYear year = semester.getExecutionYear();
+        final ExecutionInterval interval = enrolmentContext.getExecutionPeriod();
+        final ExecutionYear year = interval.getExecutionYear();
 
         if (!CurriculumAggregatorServices.isAggregationsActive(year)) {
             return null;

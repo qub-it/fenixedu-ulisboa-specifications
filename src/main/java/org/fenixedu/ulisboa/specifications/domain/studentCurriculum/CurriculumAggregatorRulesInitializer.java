@@ -28,7 +28,7 @@ package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.Enrolment.EnrolmentPredicate;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleConfigurationInitializer;
@@ -73,7 +73,7 @@ abstract public class CurriculumAggregatorRulesInitializer {
 
         CurricularRuleConfigurationInitializer
                 .addPreviousYearsEnrolmentCoursesSkipPredicate((cg, ctx) -> skipByCurriculumAggregatorApproval(cg, ctx));
-        
+
         EnrolmentEvaluationServices
                 .registerStateChangeListener(ee -> CurriculumAggregatorServices.updateAggregatorEvaluationTriggeredByEntry(ee));
     }
@@ -85,8 +85,8 @@ abstract public class CurriculumAggregatorRulesInitializer {
     static private boolean skipByCurriculumAggregatorApproval(final CourseGroup courseGroup,
             final EnrolmentContext enrolmentContext) {
 
-        final ExecutionSemester semester = enrolmentContext.getExecutionPeriod();
-        final ExecutionYear year = semester.getExecutionYear();
+        final ExecutionInterval interval = enrolmentContext.getExecutionPeriod();
+        final ExecutionYear year = interval.getExecutionYear();
 
         if (!CurriculumAggregatorServices.isAggregationsActive(year)) {
             return false;
@@ -94,7 +94,7 @@ abstract public class CurriculumAggregatorRulesInitializer {
 
         for (final Context iter : courseGroup.getChildContexts(CurricularCourse.class)) {
 
-            if (enrolmentContext.isToEvaluateRulesByYear() ? !iter.isValid(year) : !iter.isValid(semester)) {
+            if (enrolmentContext.isToEvaluateRulesByYear() ? !iter.isValid(year) : !iter.isValid(interval)) {
                 continue;
             }
 

@@ -28,6 +28,7 @@ package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -61,7 +62,7 @@ public class StudentCurricularPlanEnrolmentWithAggregatorManager extends Student
         final Set<IDegreeModuleToEvaluate> toChange = Sets.newHashSet();
 
         final StudentCurricularPlan plan = enrolmentContext.getStudentCurricularPlan();
-        final ExecutionSemester semester = enrolmentContext.getExecutionPeriod();
+        final ExecutionInterval semester = enrolmentContext.getExecutionPeriod();
         final Set<Context> allChosen =
                 enrolmentContext.getDegreeModulesToEvaluate().stream().map(i -> i.getContext()).collect(Collectors.toSet());
 
@@ -83,13 +84,13 @@ public class StudentCurricularPlanEnrolmentWithAggregatorManager extends Student
         final Set<CurriculumModule> toChange = Sets.newHashSet();
 
         final StudentCurricularPlan plan = enrolmentContext.getStudentCurricularPlan();
-        final ExecutionSemester semester = enrolmentContext.getExecutionPeriod();
+        final ExecutionInterval interval = enrolmentContext.getExecutionPeriod();
 
         for (final CurriculumModule chosen : enrolmentContext.getToRemove()) {
             if (chosen instanceof CurriculumLine) {
 
                 for (final CurriculumModule iter : CurriculumAggregatorServices.getAggregationParticipantsToRemove(
-                        CurriculumAggregatorServices.getContext((CurriculumLine) chosen), plan, semester)) {
+                        CurriculumAggregatorServices.getContext((CurriculumLine) chosen), plan, interval)) {
 
                     toChange.add(iter);
                 }
