@@ -164,10 +164,12 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
 				<div class="col-sm-10">
 					<input id="residenceInformationForm_address" class="form-control"
-						type="text" ng-model="object.address" name="address"
+						type="text" ng-model="object.address" name="address" ng-required="true"
 						value='<c:out value='${not empty param.address ? param.address : residenceInformationForm.address }'/>' />
 				</div>
 			</div>
+
+			<%-- 
 			<div class="form-group row">
 				<div class="col-sm-2 control-label" id="labelArea">
 					<spring:message code="label.ResidenceInformationForm.area" />
@@ -179,13 +181,16 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 						value='<c:out value='${not empty param.area ? param.area : residenceInformationForm.area }'/>' />
 				</div>
 			</div>
-			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry">
-				<div class="col-sm-2 control-label required-field" id="labelAreaCode">
+			--%>
+			
+			<div class="form-group row" >
+				<div class="col-sm-2 control-label" id="labelAreaCode" ng-class="object.countryOfResidence === defaultCountry ? 'required-field' : ''" >
 					<spring:message code="label.ResidenceInformationForm.areaCode" />
 				</div>
 
 				<div class="col-sm-10">
-                    <ui-select  id="residenceInformationForm_areaCode" name="areaCode" ng-model="$parent.object.areaCode" on-select="onAreaCodeChange($item,$model)" theme="bootstrap">
+                    <ui-select  id="residenceInformationForm_areaCode" name="areaCode" ng-model="$parent.object.areaCode" on-select="onAreaCodeChange($item,$model)" 
+                    	theme="bootstrap" ng-show="object.countryOfResidence === defaultCountry" >
                         <ui-select-match placeholder="">{{$select.selected.text}}</ui-select-match> 
                         <ui-select-choices  repeat="areaCode.id as areaCode in object.areaCodeValues"
                                             refresh="onAreaCodeRefresh($item, $select.search, $model)"
@@ -193,12 +198,18 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                             <span ng-bind-html="areaCode.text | highlight: $select.search"></span>
                         </ui-select-choices> 
                     </ui-select>    
+
+					<input id="residenceInformationForm_areaCodeText"
+						ng-show="object.countryOfResidence !== defaultCountry"
+						class="form-control" ng-model="object.areaCode" type="text" name="areaCode"
+						value='<c:out value='${not empty param.areaCode ? param.areaCode : residenceInformationForm.areaCode }'/>' />
+
 				</div>
 			</div>
+			
 			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
 				<div class="col-sm-2 control-label required-field" id="labelDistrictOfResidence">
-					<spring:message
-						code="label.ResidenceInformationForm.districtOfResidence" />
+					<spring:message code="label.ResidenceInformationForm.districtOfResidence" />
 				</div>
 
 				<div class="col-sm-10">
@@ -207,24 +218,37 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 			</div>
 			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
 				<div class="col-sm-2 control-label required-field" id="labelDistrictSubdivisionOfResidence">
-					<spring:message
-						code="label.ResidenceInformationForm.districtSubdivisionOfResidence" />
+					<spring:message code="label.ResidenceInformationForm.districtSubdivisionOfResidence" />
 				</div>
 
 				<div class="col-sm-10">
                     <div class="form-control-static">{{ object.districtSubdivisionOfResidenceName }}</div>
 				</div>
 			</div>
+			
+			<div class="form-group row" ng-show="object.countryOfResidence !== defaultCountry">
+				<div class="col-sm-2 control-label required-field" id="labelDistrictSubdivisionOfResidence">
+					<spring:message code="label.ResidenceInformationForm.districtSubdivisionOfResidence.city" />
+				</div>
+
+				<div class="col-sm-10">
+					<input id="residenceInformationForm_districtSubdivisionOfResidence"
+						ng-show="object.countryOfResidence !== defaultCountry"
+						class="form-control" ng-model="object.districtSubdivisionOfResidenceName" type="text" name="districtSubdivisionOfResidenceName"
+						value='<c:out value='${not empty param.districtSubdivisionOfResidenceName ? param.districtSubdivisionOfResidenceName : residenceInformationForm.districtSubdivisionOfResidenceName }'/>' />
+				</div>
+			</div>
+			
 			<div class="form-group row" ng-show="object.countryOfResidence === defaultCountry && object.areaCode.length > 3">
 				<div class="col-sm-2 control-label required-field" id="labelParishOfResidence">
-					<spring:message
-						code="label.ResidenceInformationForm.parishOfResidence" />
+					<spring:message code="label.ResidenceInformationForm.parishOfResidence" />
 				</div>
 
 				<div class="col-sm-10">
                     <div class="form-control-static">{{ object.parishOfResidenceName }}</div>
 				</div>
 			</div>
+
 			<div class="form-group row">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message
@@ -244,6 +268,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                     </ui-select>
 				</div>
 			</div>
+
 			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message
@@ -256,6 +281,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 						value='<c:out value='${not empty param.schooltimeaddress ? param.schooltimeaddress : residenceInformationForm.schoolTimeAddress }'/>' />
 				</div>
 			</div>
+			
+			<%-- 
 			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
 				<div class="col-sm-2 control-label">
 					<spring:message
@@ -268,6 +295,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 						value='<c:out value='${not empty param.schooltimearea ? param.schooltimearea : residenceInformationForm.schoolTimeArea }'/>' />
 				</div>
 			</div>
+			--%>
+			
 			<div class="form-group row" ng-show="object.dislocatedFromPermanentResidence">
 				<div class="col-sm-2 control-label required-field">
 					<spring:message

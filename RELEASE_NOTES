@@ -1,3 +1,6 @@
+- Refactor: Changes in 1A1V student registration to accomodate fiscal address edition. Also improve addresses edition.
+- Refactor: Remove fiscal information from personal data edition. Fiscal information edition is in own page.
+
 4.2.0 (25-07-2019)
 - Refactor: Curriculum aggregators now must have an explicit version for each semester
 - Refactor: Replaced usages of ExecutionSemester by ExecutionInterval   

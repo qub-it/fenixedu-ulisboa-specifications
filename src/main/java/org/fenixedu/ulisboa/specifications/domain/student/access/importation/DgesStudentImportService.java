@@ -24,6 +24,7 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StandByCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.contacts.PhysicalAddress;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
@@ -345,9 +346,17 @@ public class DgesStudentImportService {
         }
 
         if (StringUtils.isBlank(person.getSocialSecurityNumber())) {
-            person.editSocialSecurityNumber(Country.readDefault(),
-                    FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber());
-            addToReport(formatMessageWithLineNumber(entry, "[INFO]O contribuinte não está preenchido."));
+            // Find one address for default country and set it as default fiscal address
+            Optional<PhysicalAddress> fiscalAddress = person.getAllPartyContacts(PhysicalAddress.class).stream()
+                    .map(PhysicalAddress.class::cast)
+                    .filter(pa -> Boolean.TRUE.equals(pa.getActive()))
+                    .filter(pa -> pa.getCountryOfResidence() == Country.readDefault())
+                    .findFirst();
+            
+            if(fiscalAddress.isPresent()) {
+                person.editSocialSecurityNumber(FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber(), fiscalAddress.get());
+                addToReport(formatMessageWithLineNumber(entry, "[INFO]O contribuinte não está preenchido."));
+            }
         }
 
         addToReport(formatMessageWithLineNumber(entry, "[INFO]Pessoa já existe no sistema(Pessoa Encontrada)."));

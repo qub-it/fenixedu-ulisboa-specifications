@@ -12,10 +12,12 @@ import org.fenixedu.academic.domain.District;
 import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academictreasury.domain.exceptions.AcademicTreasuryDomainException;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.treasury.domain.exceptions.TreasuryDomainException;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.slf4j.LoggerFactory;
@@ -114,6 +116,12 @@ public abstract class FormAbstractController extends FirstTimeCandidacyAbstractC
                     .addFormsAnswered(this.getClass().getSimpleName());
             model.addAttribute("form", candidancyForm);
             return nextScreen(executionYear, model, redirectAttributes);
+        } catch(TreasuryDomainException | AcademicTreasuryDomainException e) {
+            LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
+            e.printStackTrace();
+            addErrorMessage(e.getLocalizedMessage(), model);
+
+            return fillGetScreen(executionYear, model, redirectAttributes);
         } catch (DomainException domainEx) {
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
             domainEx.printStackTrace();

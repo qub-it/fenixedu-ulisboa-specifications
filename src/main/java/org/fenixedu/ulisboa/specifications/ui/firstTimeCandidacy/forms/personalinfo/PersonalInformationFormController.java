@@ -54,8 +54,6 @@ public class PersonalInformationFormController extends FormAbstractController {
 
     public static final String FILL_URL = CONTROLLER_URL + _FILL_URI;
 
-    private static final String SOCIAL_SECURITY_NUMBER_FORMAT = "\\d{9}";
-
     @Override
     protected String getControllerURL() {
         return CONTROLLER_URL;
@@ -125,8 +123,6 @@ public class PersonalInformationFormController extends FormAbstractController {
         form.setDocumentIdExpirationDate(expirationDateOfDocumentIdYearMonthDay != null ? new LocalDate(
                 expirationDateOfDocumentIdYearMonthDay.toDateMidnight()) : null);
 
-        form.setFiscalCountry(person.getFiscalCountry());
-        form.setSocialSecurityNumber(person.getSocialSecurityNumber());
         YearMonthDay dateOfBirthYearMonthDay = person.getDateOfBirthYearMonthDay();
         form.setDateOfBirth(dateOfBirthYearMonthDay != null ? dateOfBirthYearMonthDay.toLocalDate() : null);
 
@@ -226,19 +222,6 @@ public class PersonalInformationFormController extends FormAbstractController {
                 }
             }
 
-            if (form.getFiscalCountry() != null && form.getFiscalCountry() == Country.readDefault()) {
-                if (StringUtils.isBlank(form.getSocialSecurityNumber())
-                        || !form.getSocialSecurityNumber().matches(SOCIAL_SECURITY_NUMBER_FORMAT)) {
-                    result.add(BundleUtil.getString(BUNDLE,
-                            "error.candidacy.workflow.PersonalInformationForm.incorrect.socialSecurityNumber"));
-                }
-            } else {
-                if (StringUtils.isBlank(form.getSocialSecurityNumber())) {
-                    result.add(BundleUtil.getString(BUNDLE,
-                            "error.candidacy.workflow.PersonalInformationForm.incorrect.foreign.socialSecurityNumber"));
-                }
-            }
-
             if (form.getDocumentIdExpirationDate() == null) {
                 result.add(BundleUtil.getString(BUNDLE, "error.expirationDate.required"));
             }
@@ -248,22 +231,6 @@ public class PersonalInformationFormController extends FormAbstractController {
                 result.add(BundleUtil.getString(BUNDLE, "error.expirationDate.is.after.emissionDate"));
             }
 
-            final ITreasuryBridgeAPI treasuryBridge = TreasuryBridgeAPIFactory.implementation();
-            if (!StringUtils.isBlank(form.getSocialSecurityNumber()) && !treasuryBridge.isValidFiscalNumber(
-                    form.getFiscalCountry() != null ? form.getFiscalCountry().getCode() : null, form.getSocialSecurityNumber())) {
-                result.add(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.invalid"));
-            }
-
-            String defaultSocialSecurityNumber =
-                    FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
-            if (defaultSocialSecurityNumber == null || !defaultSocialSecurityNumber.equals(form.getSocialSecurityNumber())) {
-                Party party = PartySocialSecurityNumber.readPartyBySocialSecurityNumber(form.getSocialSecurityNumber());
-                if (party != null && party != person) {
-                    result.add(BundleUtil.getString(BUNDLE,
-                            "error.candidacy.workflow.PersonalInformationForm.socialSecurityNumber.already.exists"));
-                }
-            }
         }
 
         if (form.getCountryHighSchool() == null) {
@@ -319,15 +286,6 @@ public class PersonalInformationFormController extends FormAbstractController {
                     documentIdEmissionDate != null ? new YearMonthDay(documentIdEmissionDate.toDate()) : null);
             person.setExpirationDateOfDocumentIdYearMonthDay(
                     documentIdExpirationDate != null ? new YearMonthDay(documentIdExpirationDate.toDate()) : null);
-
-            Country fiscalCountry = form.getFiscalCountry();
-            String socialSecurityNumber = form.getSocialSecurityNumber();
-            if ((fiscalCountry == null || fiscalCountry == Country.readDefault()) && StringUtils.isEmpty(socialSecurityNumber)) {
-                fiscalCountry = Country.readDefault();
-                socialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
-            }
-
-            person.editSocialSecurityNumber(fiscalCountry, socialSecurityNumber);
         }
 
         FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();

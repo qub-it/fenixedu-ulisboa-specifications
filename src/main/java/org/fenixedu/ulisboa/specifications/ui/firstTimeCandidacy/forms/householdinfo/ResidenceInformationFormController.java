@@ -32,6 +32,7 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.Candidanc
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.contacts.ContactsFormController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.filiation.FiliationFormController;
+import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.personalinfo.FiscalInformationFormController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -110,6 +111,10 @@ public class ResidenceInformationFormController extends FormAbstractController {
             form.setParishOfResidence(
                     Parish.findByName(districtSubdivisionOfResidence, person.getDefaultPhysicalAddress().getParishOfResidence())
                             .orElse(null));
+
+            if (!form.getCountryOfResidence().isDefaultCountry()) {
+                form.setDistrictSubdivisionOfResidenceName(defaultPhysicalAddress.getDistrictSubdivisionOfResidence());
+            }
         }
 
         form.setDislocatedFromPermanentResidence(personalData.getDislocatedFromPermanentResidence());
@@ -184,9 +189,9 @@ public class ResidenceInformationFormController extends FormAbstractController {
             result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
                     "error.candidacy.workflow.ResidenceInformationForm.non.nacional.students.should.select.dislocated.option.and.fill.address"));
         }
-        if (form.getCountryOfResidence().isDefaultCountry() && !form.isResidenceInformationFilled()) {
+        if (!form.isResidenceInformationFilled()) {
             result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE,
-                    "error.candidacy.workflow.ResidenceInformationForm.address.national.students.should.supply.complete.address.information"));
+                    "error.candidacy.workflow.ResidenceInformationForm.address.incomplete"));
         }
         if (form.getCountryOfResidence().isDefaultCountry() && StringUtils.isEmpty(form.getAreaCode())) {
             result.add(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.incorrect.areaCode"));
@@ -236,10 +241,19 @@ public class ResidenceInformationFormController extends FormAbstractController {
             personalData.setSchoolTimeDistrictSubDivisionOfResidence(form.getSchoolTimeDistrictSubdivisionOfResidence());
         }
 
-        String district = form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence()
-                .getDistrict().getName() : null;
+        String district = "";
+        if (form.getCountryOfResidence().isDefaultCountry()) {
+            district = form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence().getDistrict()
+                    .getName() : null;
+        }
+
         String subdivision =
                 form.getDistrictSubdivisionOfResidence() != null ? form.getDistrictSubdivisionOfResidence().getName() : null;
+
+        if (!form.getCountryOfResidence().isDefaultCountry()) {
+            subdivision = form.getDistrictSubdivisionOfResidenceName();
+        }
+
         PhysicalAddressData physicalAddressData;
         if (person.getDefaultPhysicalAddress() == null
                 || !StringUtils.equals(form.getAddress(), person.getDefaultPhysicalAddress().getAddress())
@@ -251,16 +265,29 @@ public class ResidenceInformationFormController extends FormAbstractController {
                 || !StringUtils.equals(district, person.getDefaultPhysicalAddress().getDistrictOfResidence())
                 || form.getCountryOfResidence() != person.getDefaultPhysicalAddress().getCountryOfResidence()) {
             Planet.getEarth().getPlace("PRT").getPostalCode(form.getAreaCode());
-            String areaCode = "";
+            String areaCode = form.getAreaCode();
             String areaOfAreaCode = "";
-            if (form.getAreaCode() != null) {
+            if (form.getCountryOfResidence().isDefaultCountry() && form.getAreaCode() != null) {
                 areaCode = form.getAreaCode().substring(0, 8);
                 areaOfAreaCode = form.getAreaCode().substring(9);
             }
-            Parish parishOfResidence = form.getParishOfResidence();
+
+            String parishOfResidence = "";
+            if (form.getCountryOfResidence().isDefaultCountry() && form.getParishOfResidence() != null) {
+                parishOfResidence = form.getParishOfResidence().getName();
+            }
+
             physicalAddressData = new PhysicalAddressData(form.getAddress(), areaCode, areaOfAreaCode, form.getArea(),
-                    parishOfResidence != null ? parishOfResidence.getName() : "", subdivision, district,
-                    form.getCountryOfResidence());
+                    parishOfResidence, subdivision, district, form.getCountryOfResidence());
+
+            boolean defaultAddressIsFiscalAddress =
+                    person.getDefaultPhysicalAddress() != null && person.getDefaultPhysicalAddress().isFiscalAddress();
+            boolean updateCountryOfResidence = person.getDefaultPhysicalAddress() != null
+                    && person.getDefaultPhysicalAddress().getCountryOfResidence() != form.getCountryOfResidence();
+            if (defaultAddressIsFiscalAddress && updateCountryOfResidence) {
+                // Mark the default address as not default address
+                person.getDefaultPhysicalAddress().setDefaultContact(false);
+            }
 
             person.setDefaultPhysicalAddressData(physicalAddressData, true);
         }
@@ -317,7 +344,8 @@ public class ResidenceInformationFormController extends FormAbstractController {
     @Override
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        return redirect(urlWithExecutionYear(ContactsFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
+        return redirect(urlWithExecutionYear(FiscalInformationFormController.CONTROLLER_URL, executionYear), model,
+                redirectAttributes);
     }
 
     @Override

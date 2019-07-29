@@ -42,9 +42,6 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dateOfBirth;
 
-    private Country fiscalCountry;
-    private String socialSecurityNumber;
-
     private Unit firstOptionInstitution;
     private DegreeDesignation firstOptionDegreeDesignation;
     private String documentIdNumber;
@@ -188,24 +185,6 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
 
     public void setDocumentIdExpirationDate(final LocalDate documentIdExpirationDate) {
         this.documentIdExpirationDate = documentIdExpirationDate;
-    }
-
-    public Country getFiscalCountry() {
-        return fiscalCountry;
-    }
-
-    public void setFiscalCountry(final Country fiscalCountry) {
-        this.fiscalCountry = fiscalCountry;
-    }
-
-    public String getSocialSecurityNumber() {
-        return socialSecurityNumber;
-    }
-
-    public void setSocialSecurityNumber(final String notDefaultSocialSecurityNumber) {
-        if (!notDefaultSocialSecurityNumber.equals(FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber())) {
-            this.socialSecurityNumber = notDefaultSocialSecurityNumber;
-        }
     }
 
     public static long getSerialversionuid() {
