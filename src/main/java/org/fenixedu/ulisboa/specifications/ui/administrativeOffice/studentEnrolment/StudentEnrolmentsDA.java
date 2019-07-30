@@ -37,18 +37,19 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.academic.dto.administrativeOffice.studentEnrolment.StudentEnrolmentBean;
 import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.SearchForStudentsDA;
 import org.fenixedu.academic.ui.struts.action.exceptions.FenixActionException;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
-import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.LocalDate;
 
@@ -166,17 +167,17 @@ public class StudentEnrolmentsDA
         if (studentEnrolmentBean.getExecutionPeriod() != null) {
             // qubExtension, sort
             final StudentCurricularPlan scp = studentEnrolmentBean.getStudentCurricularPlan();
-            final ExecutionSemester semester = studentEnrolmentBean.getExecutionPeriod();
+            final ExecutionInterval interval = studentEnrolmentBean.getExecutionPeriod();
 
-            final List<Enrolment> enrolments = scp.getEnrolmentsByExecutionPeriod(semester);
+            final List<Enrolment> enrolments = scp.getEnrolmentsByExecutionPeriod(interval);
             enrolments.sort(CurriculumLineServices.COMPARATOR);
             request.setAttribute("studentEnrolments", enrolments);
 
-            final List<EnrolmentEvaluation> improvements = Lists.newArrayList(scp.getEnroledImprovements(semester));
+            final List<EnrolmentEvaluation> improvements = Lists.newArrayList(scp.getEnroledImprovements(interval));
             improvements.sort((o1, o2) -> CurriculumLineServices.COMPARATOR.compare(o1.getEnrolment(), o2.getEnrolment()));
             request.setAttribute("studentImprovementEnrolments", improvements);
 
-            final List<EnrolmentEvaluation> specialSeasons = Lists.newArrayList(scp.getEnroledSpecialSeasons(semester));
+            final List<EnrolmentEvaluation> specialSeasons = Lists.newArrayList(scp.getEnroledSpecialSeasons(interval));
             specialSeasons.sort((o1, o2) -> CurriculumLineServices.COMPARATOR.compare(o1.getEnrolment(), o2.getEnrolment()));
             request.setAttribute("studentSpecialSeasonEnrolments", specialSeasons);
         }

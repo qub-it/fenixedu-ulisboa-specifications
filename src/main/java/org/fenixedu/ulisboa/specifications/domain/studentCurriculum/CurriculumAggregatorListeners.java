@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.fenixedu.academic.domain.CurricularCourse;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResultMessage;
@@ -128,12 +128,12 @@ abstract public class CurriculumAggregatorListeners {
         final Set<IDegreeModuleToEvaluate> toChange = Sets.newHashSet();
 
         final StudentCurricularPlan plan = input.getStudentCurricularPlan();
-        final ExecutionSemester semester = input.getExecutionPeriod();
+        final ExecutionInterval interval = input.getExecutionInterval();
         final Context chosen = CurriculumAggregatorServices.getContext(input);
         final Set<Context> allChosen = Sets.newHashSet(chosen);
 
         for (final IDegreeModuleToEvaluate iter : CurriculumAggregatorServices.getAggregationParticipantsToEnrol(chosen, plan,
-                semester, allChosen)) {
+                interval, allChosen)) {
 
             if (iter.getContext().getChildDegreeModule().isLeaf()) {
                 final CurricularCourse curricularCourse = ((CurricularCourse) iter.getContext().getChildDegreeModule());
@@ -147,7 +147,7 @@ abstract public class CurriculumAggregatorListeners {
             toChange.add(iter);
         }
 
-        enrolmentManage(toChange, Lists.newArrayList(), plan, semester);
+        enrolmentManage(toChange, Lists.newArrayList(), plan, interval);
     }
 
     /**
@@ -157,26 +157,26 @@ abstract public class CurriculumAggregatorListeners {
         final Set<CurriculumModule> toChange = Sets.newHashSet();
 
         final StudentCurricularPlan plan = input.getStudentCurricularPlan();
-        final ExecutionSemester semester = input.getExecutionPeriod();
+        final ExecutionInterval interval = input.getExecutionInterval();
 
         for (final CurriculumModule iter : CurriculumAggregatorServices
-                .getAggregationParticipantsToRemove(CurriculumAggregatorServices.getContext(input), plan, semester)) {
+                .getAggregationParticipantsToRemove(CurriculumAggregatorServices.getContext(input), plan, interval)) {
 
             toChange.add(iter);
         }
 
-        enrolmentManage(Sets.newHashSet(), Lists.newArrayList(toChange), plan, semester);
+        enrolmentManage(Sets.newHashSet(), Lists.newArrayList(toChange), plan, interval);
     }
 
     static private void enrolmentManage(final Set<IDegreeModuleToEvaluate> toEnrol, List<CurriculumModule> toRemove,
-            final StudentCurricularPlan plan, final ExecutionSemester semester) {
+            final StudentCurricularPlan plan, final ExecutionInterval interval) {
 
         if (!toEnrol.isEmpty() || !toRemove.isEmpty()) {
 
             RuleResult ruleResult;
             try {
                 ruleResult = new StudentCurricularPlanEnrolmentManager(
-                        new EnrolmentContext(plan, semester, toEnrol, toRemove, CurricularRuleLevel.ENROLMENT_WITH_RULES))
+                        new EnrolmentContext(plan, interval, toEnrol, toRemove, CurricularRuleLevel.ENROLMENT_WITH_RULES))
                                 .manage();
             } catch (final EnrollmentDomainException e) {
                 ruleResult = e.getFalseResult();

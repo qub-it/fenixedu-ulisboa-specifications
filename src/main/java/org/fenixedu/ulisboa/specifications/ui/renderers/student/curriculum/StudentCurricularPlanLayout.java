@@ -53,6 +53,7 @@ import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
@@ -286,13 +287,13 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateRowsForExecutionYearsOrganization(HtmlTable mainTable) {
-        final Map<ExecutionSemester, Set<CurriculumLine>> collected =
-                Maps.newTreeMap(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR.reversed());
+        final Map<ExecutionInterval, Set<CurriculumLine>> collected =
+                Maps.newTreeMap(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE.reversed());
 
         for (final CurriculumLine iter : getPlan().getAllCurriculumLines()) {
             if (isToShow(iter)) {
 
-                final ExecutionSemester key = iter.getExecutionPeriod();
+                final ExecutionInterval key = iter.getExecutionInterval();
                 if (key != null) {
 
                     Set<CurriculumLine> set = collected.get(key);
@@ -309,12 +310,12 @@ public class StudentCurricularPlanLayout extends Layout {
         final int level = 1;
         generateGroupRowWithText(mainTable, getPresentationNameFor(getPlan().getRoot()), false, 0, (CurriculumGroup) null);
 
-        for (final Entry<ExecutionSemester, Set<CurriculumLine>> entry : collected.entrySet()) {
+        for (final Entry<ExecutionInterval, Set<CurriculumLine>> entry : collected.entrySet()) {
             if (!entry.getValue().isEmpty()) {
 
-                final ExecutionSemester semester = entry.getKey();
-                generateGroupRowWithText(mainTable, semester.getYear() + ", " + semester.getName(), true, level,
-                        (CurriculumGroup) null);
+                final ExecutionInterval interval = entry.getKey();
+                generateGroupRowWithText(mainTable, interval.getExecutionYear().getYear() + ", " + interval.getName(), true,
+                        level, (CurriculumGroup) null);
 
                 for (final CurriculumLine iter : entry.getValue()) {
                     if (iter instanceof Enrolment) {
@@ -989,8 +990,8 @@ public class StudentCurricularPlanLayout extends Layout {
      * qubExtension, show shifts
      */
     private void generateEnrolmentShiftsCell(final HtmlTableRow enrolmentRow, final Enrolment enrolment) {
-        final ExecutionSemester executionSemester = enrolment.getExecutionPeriod();
-        final Collection<Shift> shifts = EnrolmentServices.getShiftsFor(enrolment, executionSemester);
+        final ExecutionInterval executionInterval = enrolment.getExecutionInterval();
+        final Collection<Shift> shifts = EnrolmentServices.getShiftsFor(enrolment, executionInterval);
 
         final String text;
         if (!shifts.isEmpty()) {
@@ -1075,7 +1076,7 @@ public class StudentCurricularPlanLayout extends Layout {
         generateExternalId(row, externalIdText);
         row.setClasses(renderer.getEnrolmentRowClass());
 
-        final ExecutionSemester semester = evaluation.getExecutionPeriod();
+        final ExecutionInterval semester = evaluation.getExecutionInterval();
         generateCellWithText(row, season.getName().getContent(), renderer.getLabelCellClass(),
                 MAX_COL_SPAN_FOR_TEXT_ON_CURRICULUM_LINES - level);
 
@@ -1111,7 +1112,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         if (semester != null && EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(season)) {
             generateCellWithText(row, semester.getExecutionYear().getYear(), renderer.getEnrolmentExecutionYearCellClass());
-            generateCellWithText(row, semester.getSemester().toString() + " " + i18n(Bundle.APPLICATION, "label.semester.short"),
+            generateCellWithText(row, semester.getChildOrder().toString() + " " + i18n(Bundle.APPLICATION, "label.semester.short"),
                     renderer.getEnrolmentSemesterCellClass());
         } else {
             generateCellWithText(row, EMPTY_SPACE, renderer.getEnrolmentSemesterCellClass(), 2);
@@ -1330,7 +1331,7 @@ public class StudentCurricularPlanLayout extends Layout {
             return CurricularPeriodServices.getCurricularSemester(line);
 
         } else {
-            return entry.getExecutionPeriod().getSemester();
+            return entry.getExecutionInterval().getChildOrder();
         }
     }
 
@@ -1448,13 +1449,13 @@ public class StudentCurricularPlanLayout extends Layout {
             cell.setClasses(renderer.getDegreeCurricularPlanCellClass());
             // qubExtension, show degree code
             final String text = plan.getDegree().getCode();
-            cell.setBody(createDegreeCurricularPlanNameLink(plan, enrolment.getExecutionPeriod(), text, false));
+            cell.setBody(createDegreeCurricularPlanNameLink(plan, enrolment.getExecutionInterval(), text, false));
         }
 
     }
 
     protected HtmlComponent createDegreeCurricularPlanNameLink(final DegreeCurricularPlan degreeCurricularPlan,
-            ExecutionSemester executionSemester, final String text, final boolean bold) {
+            ExecutionInterval executionInterval, final String text, final boolean bold) {
 
         HtmlComponent result = new HtmlText(text);
 

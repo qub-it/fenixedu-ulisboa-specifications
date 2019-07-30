@@ -21,6 +21,7 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionDegree;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
@@ -46,8 +47,8 @@ import org.fenixedu.commons.spreadsheet.StyledExcelSpreadsheet;
 @Mapping(path = "/studentsListByCurricularCourse", module = "academicAdministration")
 @Forwards({ @Forward(name = "chooseCurricularCourse", path = "/academicAdminOffice/lists/chooseCurricularCourses.jsp"),
         @Forward(name = "studentByCurricularCourse", path = "/academicAdminOffice/lists/studentsByCurricularCourses.jsp") })
-public class StudentsListByCurricularCourseDA extends
-        org.fenixedu.academic.ui.struts.action.administrativeOffice.lists.StudentsListByCurricularCourseDA {
+public class StudentsListByCurricularCourseDA
+        extends org.fenixedu.academic.ui.struts.action.administrativeOffice.lists.StudentsListByCurricularCourseDA {
 
     @Override
     public ActionForward showActiveCurricularCourseScope(ActionMapping mapping, ActionForm form, HttpServletRequest request,
@@ -76,9 +77,8 @@ public class StudentsListByCurricularCourseDA extends
         final String year = (String) getFromRequest(request, "year");
 
         try {
-            String filename =
-                    getResourceMessage("label.students") + "_" + curricularCourse.getName() + "_("
-                            + curricularCourse.getDegreeCurricularPlan().getName() + ")_" + executionYear.getYear();
+            String filename = getResourceMessage("label.students") + "_" + curricularCourse.getName() + "_("
+                    + curricularCourse.getDegreeCurricularPlan().getName() + ")_" + executionYear.getYear();
 
             response.setContentType("application/vnd.ms-excel");
             response.setHeader("Content-disposition", "attachment; filename=" + filename.replace(" ", "_") + ".xls");
@@ -142,15 +142,15 @@ public class StudentsListByCurricularCourseDA extends
             spreadsheet.addCell(registration.getPerson().getName());
             spreadsheet.addCell(registration.getRegistrationProtocol().getCode());
             Degree degree = registration.getDegree();
-            spreadsheet.addCell(!(StringUtils.isEmpty(degree.getSigla())) ? degree.getSigla() : degree.getNameFor(executionYear)
-                    .toString());
+            spreadsheet.addCell(
+                    !(StringUtils.isEmpty(degree.getSigla())) ? degree.getSigla() : degree.getNameFor(executionYear).toString());
             spreadsheet.addCell(enrolment.getEnrollmentState().getDescription());
             spreadsheet.addCell(enrolment.getEvaluationSeason().getName().getContent());
 
-            final ExecutionSemester executionSemester = enrolment.getExecutionPeriod();
-            Optional<SchoolClass> schoolClassOptional = RegistrationServices.getSchoolClassBy(registration, executionSemester);
+            final ExecutionInterval executionInterval = enrolment.getExecutionInterval();
+            Optional<SchoolClass> schoolClassOptional = RegistrationServices.getSchoolClassBy(registration, executionInterval);
             spreadsheet.addCell(schoolClassOptional.isPresent() ? schoolClassOptional.get().getEditablePartOfName() : "");
-            List<Shift> shifts = registration.getShiftsFor(enrolment.getExecutionCourseFor(executionSemester));
+            List<Shift> shifts = registration.getShiftsFor(enrolment.getExecutionCourseFor(executionInterval));
             spreadsheet.addCell(shifts.stream().map(s -> s.getNome() + " (" + s.getShiftTypesPrettyPrint() + ")")
                     .collect(Collectors.joining(", ")));
 

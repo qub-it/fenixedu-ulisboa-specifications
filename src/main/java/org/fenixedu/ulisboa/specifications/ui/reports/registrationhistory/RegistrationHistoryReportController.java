@@ -21,6 +21,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Shift;
@@ -676,13 +677,13 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         final Multimap<RegistrationHistoryReport, Enrolment> toExportEnrolments = HashMultimap.create();
         reports.stream().forEach(r -> toExportEnrolments.putAll(r, r.getEnrolments()));
 
-        final Map<Enrolment, ExecutionSemester> improvementsOnly = Maps.newHashMap();
+        final Map<Enrolment, ExecutionInterval> improvementsOnly = Maps.newHashMap();
         reports.stream().forEach(r -> {
             r.getImprovementEvaluations().forEach(ev -> {
                 toExportEnrolments.put(r, ev.getEnrolment());
 
-                if (ev.getExecutionPeriod() != ev.getEnrolment().getExecutionPeriod()) {
-                    improvementsOnly.put(ev.getEnrolment(), ev.getExecutionPeriod());
+                if (ev.getExecutionInterval() != ev.getEnrolment().getExecutionInterval()) {
+                    improvementsOnly.put(ev.getEnrolment(), ev.getExecutionInterval());
                 }
             });
         });
@@ -697,8 +698,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         final Enrolment enrolment = entry.getValue();
 
                         final boolean improvementOnly = improvementsOnly.containsKey(enrolment);
-                        final ExecutionSemester enrolmentPeriod =
-                                improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionPeriod();
+                        final ExecutionInterval enrolmentPeriod =
+                                improvementOnly ? improvementsOnly.get(enrolment) : enrolment.getExecutionInterval();
 
                         final EnrolmentEvaluation finalEvaluation = enrolment.getFinalEnrolmentEvaluation();
 
@@ -746,8 +747,8 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addContactsData(bean, report);
                     }
 
-                    private void addShiftsData(Enrolment enrolment, ExecutionSemester enrolmentPeriod) {
-                        Collection<Shift> shifts = EnrolmentServices.getShiftsFor(enrolment, enrolmentPeriod);
+                    private void addShiftsData(Enrolment enrolment, ExecutionInterval enrolmentInterval) {
+                        Collection<Shift> shifts = EnrolmentServices.getShiftsFor(enrolment, enrolmentInterval);
                         for (ShiftType shiftType : ShiftType.values()) {
                             if (!isShiftTypeToBeIgnored(shiftType)) {
                                 Collection<Shift> shiftsOfType =

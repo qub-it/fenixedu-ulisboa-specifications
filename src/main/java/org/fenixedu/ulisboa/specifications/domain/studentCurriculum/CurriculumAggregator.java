@@ -42,7 +42,6 @@ import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
@@ -391,7 +390,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             }
 
             if (result != null && season.isImprovement()) {
-                final ExecutionSemester semesterImprovement = entryEvaluation.getExecutionPeriod();
+                final ExecutionInterval semesterImprovement = entryEvaluation.getExecutionInterval();
                 result.setExecutionPeriod(semesterImprovement);
 
                 // attends are necessary to be candidate for mark sheet
@@ -513,7 +512,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
         if (plan != null) {
 
-            final ExecutionSemester entriesLastSemester = getEntriesLastExecutionSemester(plan);
+            final ExecutionInterval entriesLastSemester = getEntriesLastExecutionSemester(plan);
 
             result = getContext().getChildDegreeModule().getCurriculumModulesSet().stream().filter(i -> {
 
@@ -524,10 +523,10 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
                         && enrolment.getExecutionYear().isAfterOrEquals(getSince())
 
                 // must assert same semester, when searching for contexts or curriculum lines
-                        && getContext().isValid(enrolment.getExecutionPeriod())
+                        && getContext().isValid(enrolment.getExecutionInterval())
 
                 // if entriesLastSemester is not null, may be redudant
-                        && (entriesLastSemester == null || enrolment.getExecutionPeriod().isAfterOrEquals(entriesLastSemester));
+                        && (entriesLastSemester == null || enrolment.getExecutionInterval().isAfterOrEquals(entriesLastSemester));
 
             }).map(Enrolment.class::cast).max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
 
@@ -541,8 +540,8 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return result;
     }
 
-    private ExecutionSemester getEntriesLastExecutionSemester(final StudentCurricularPlan plan) {
-        ExecutionSemester result = null;
+    private ExecutionInterval getEntriesLastExecutionSemester(final StudentCurricularPlan plan) {
+        ExecutionInterval result = null;
 
         if (plan != null) {
 
@@ -555,7 +554,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             }
 
             if (!lines.isEmpty()) {
-                result = lines.last().getExecutionPeriod();
+                result = lines.last().getExecutionInterval();
             }
         }
 

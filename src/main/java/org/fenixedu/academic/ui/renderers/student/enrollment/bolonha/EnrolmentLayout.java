@@ -764,8 +764,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         if (root != null) {
 
             final StudentCurricularPlan plan = line.getStudentCurricularPlan();
-            final ExecutionSemester semester = line.getExecutionPeriod();
-            return generateAggregationInfo(CurriculumAggregatorServices.getContext(line), plan, semester);
+            final ExecutionInterval interval = line.getExecutionInterval();
+            return generateAggregationInfo(CurriculumAggregatorServices.getContext(line), plan, interval);
         }
 
         return new HtmlInlineContainer();
@@ -775,12 +775,12 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
      * qubExtension, Aggregation Info
      */
     static public HtmlInlineContainer generateAggregationInfo(final Context context, final StudentCurricularPlan scp,
-            final ExecutionSemester semester) {
+            final ExecutionInterval interval) {
 
         final HtmlInlineContainer result = new HtmlInlineContainer();
         if (context != null) {
 
-            final ExecutionYear year = semester.getExecutionYear();
+            final ExecutionYear year = interval.getExecutionYear();
 
             final CurriculumAggregatorEntry entry = CurriculumAggregatorServices.getAggregatorEntry(context, year);
             if (entry != null) {
@@ -791,7 +791,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
                 final HtmlInlineContainer span = new HtmlInlineContainer();
                 span.addChild(new HtmlText(entry.getDescriptionFull()));
-                span.setClasses(getAggregatorEntryStyle(entry, scp, semester));
+                span.setClasses(getAggregatorEntryStyle(entry, scp, interval));
                 result.addChild(span);
             }
 
@@ -803,7 +803,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
                 final HtmlInlineContainer span = new HtmlInlineContainer();
                 span.addChild(new HtmlText(aggregator.getDescriptionFull()));
-                span.setClasses(getAggregatorStyle(aggregator, scp, semester));
+                span.setClasses(getAggregatorStyle(aggregator, scp, interval));
                 result.addChild(span);
             }
         }
@@ -812,21 +812,21 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     static private String getAggregatorEntryStyle(final CurriculumAggregatorEntry entry, final StudentCurricularPlan scp,
-            final ExecutionSemester semester) {
+            final ExecutionInterval interval) {
 
         String result = "label label-";
 
         // we test for aggregator enrolment in order to avoid counting optionals on a UI method
         final CurriculumAggregator aggregator = entry.getAggregator();
         if (aggregator.isEnrolmentMaster()
-                || CurriculumAggregatorServices.isAggregationEnroled(aggregator.getContext(), scp, semester)) {
+                || CurriculumAggregatorServices.isAggregationEnroled(aggregator.getContext(), scp, interval)) {
 
             result += "default";
 
         } else if (aggregator.isEnrolmentSlave()) {
 
             if (aggregator.getEnrolmentMasterContexts().stream()
-                    .anyMatch(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, semester))) {
+                    .anyMatch(i -> CurriculumAggregatorServices.isAggregationEnroled(i, scp, interval))) {
 
                 result += "warning";
 
@@ -839,7 +839,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     static private String getAggregatorStyle(final CurriculumAggregator aggregator, final StudentCurricularPlan scp,
-            final ExecutionSemester semester) {
+            final ExecutionInterval semester) {
 
         String result = "label label-";
 
