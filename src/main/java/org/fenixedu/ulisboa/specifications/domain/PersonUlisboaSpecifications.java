@@ -108,29 +108,12 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
                 .orElse(null);
     }
 
-    
-    /**
-     * @deprecated use {@link Person#setSecondNationality(Country)}
-     */
-    @Deprecated
-    @Override
-    public void setSecondNationality(Country secondNationality) {
-        throw new UnsupportedOperationException("Use person.setSecondNationality");
-    }
-    
     /**
      * @deprecated use {@link Person#getSecondNationality()}
      */
     @Deprecated
-    @Override
     public Country getSecondNationality() {
         return super.getPerson().getSecondNationality();
-    }
-    
-    //TO REMOVE after migration
-    @Deprecated
-    public Country getSecondNationalityForMigration() {
-        return super.getSecondNationality();
     }
 
 }
