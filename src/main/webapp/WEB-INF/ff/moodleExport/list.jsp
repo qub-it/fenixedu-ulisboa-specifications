@@ -79,6 +79,7 @@ ${portal.toolkit()}
 					 <th>firstname</th>
 					 <th>lastname</th>
 					 <th>email</th>
+					 <th>code</th>
 
 					 <c:forEach var="i" begin="0" end="${numberOfCourseColumns}">
 						<th>course${i}</th>					
@@ -115,6 +116,7 @@ ${portal.toolkit()}
  					"firstname"	: "<c:out value='${searchResult.firstname}'/>",
  					"lastname" 	: "<c:out value='${searchResult.lastname}'/>",
  					"email"		: "<c:out value='${searchResult.email}'/>",
+ 					"degreeMinistryCode" : "<c:out value='${searchResult.degreeMinistryCode}'/>",
  					"auth"		: "<c:out value='${searchResult.auth}'/>",
 					<!-- Iterate courses-->
 					<c:set var="count" value="0" scope="page" />
@@ -149,6 +151,7 @@ ${portal.toolkit()}
 			{ data: 'firstname' },
 			{ data: 'lastname' },
 			{ data: 'email' },
+			{ data: 'degreeMinistryCode' },
 			<c:forEach var="i" begin="0" end="${numberOfCourseColumns}">
 				{ data: 'course${i}' },					
          	</c:forEach>
