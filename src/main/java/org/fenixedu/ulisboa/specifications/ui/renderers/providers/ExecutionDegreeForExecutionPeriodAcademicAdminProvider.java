@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 import org.fenixedu.academic.domain.ExecutionDegree;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.interfaces.HasExecutionSemester;
 import org.fenixedu.academic.predicate.AcademicPredicates;
@@ -22,7 +22,7 @@ public class ExecutionDegreeForExecutionPeriodAcademicAdminProvider implements D
         final List<ExecutionDegree> executionDegrees = new ArrayList<ExecutionDegree>();
 
         final HasExecutionSemester hasExecutionSemester = (HasExecutionSemester) source;
-        final ExecutionSemester executionPeriod = hasExecutionSemester.getExecutionPeriod();
+        final ExecutionInterval executionPeriod = hasExecutionSemester.getExecutionPeriod();
         if (executionPeriod != null) {
             final ExecutionYear executionYear = executionPeriod.getExecutionYear();
             executionDegrees.addAll(executionYear.getExecutionDegreesSet());

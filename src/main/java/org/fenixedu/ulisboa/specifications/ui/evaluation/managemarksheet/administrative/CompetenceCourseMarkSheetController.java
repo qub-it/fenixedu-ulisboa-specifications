@@ -44,6 +44,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
@@ -167,19 +168,19 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
     }
 
-    private Stream<CompetenceCourseMarkSheet> getSearchUniverseSearchDataSet(final ExecutionSemester semester,
+    private Stream<CompetenceCourseMarkSheet> getSearchUniverseSearchDataSet(final ExecutionInterval interval,
             final CompetenceCourse competence, final CompetenceCourseMarkSheetStateEnum markSheetState,
             final EvaluationSeason season, CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
 
-        return CompetenceCourseMarkSheet.findBy(semester, competence, (ExecutionCourse) null, season, (DateTime) null,
+        return CompetenceCourseMarkSheet.findBy(interval, competence, (ExecutionCourse) null, season, (DateTime) null,
                 (Set<Shift>) null, markSheetState, changeRequestState);
     }
 
-    private List<CompetenceCourseMarkSheet> filterSearch(final ExecutionSemester executionSemester,
+    private List<CompetenceCourseMarkSheet> filterSearch(final ExecutionInterval executionInterval,
             final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
             final EvaluationSeason evaluationSeason, final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
 
-        return getSearchUniverseSearchDataSet(executionSemester, competenceCourse, markSheetState, evaluationSeason,
+        return getSearchUniverseSearchDataSet(executionInterval, competenceCourse, markSheetState, evaluationSeason,
                 changeRequestState).collect(Collectors.toList());
     }
 

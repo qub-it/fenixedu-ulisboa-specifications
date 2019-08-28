@@ -39,17 +39,14 @@ import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
-import org.fenixedu.bennu.IBean;
-import org.fenixedu.bennu.TupleDataSourceBean;
-import org.fenixedu.bennu.core.domain.Bennu;
-import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.academic.domain.evaluation.EvaluationServices;
 import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
@@ -59,12 +56,16 @@ import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonShiftType;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
+import org.fenixedu.academic.dto.evaluation.markSheet.report.AbstractSeasonReport;
+import org.fenixedu.academic.services.evaluation.MarkSheetStatusReportService;
+import org.fenixedu.bennu.IBean;
+import org.fenixedu.bennu.TupleDataSourceBean;
+import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
+import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
-import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
-import org.fenixedu.academic.dto.evaluation.markSheet.report.AbstractSeasonReport;
-import org.fenixedu.academic.services.evaluation.MarkSheetStatusReportService;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -83,7 +84,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     private LocalDate evaluationDate;
 
-    private ExecutionSemester executionSemester;
+    private ExecutionInterval executionInterval;
     private List<TupleDataSourceBean> executionSemesterDataSource;
 
     private CompetenceCourse competenceCourse;
@@ -225,16 +226,26 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         this.evaluationDate = evaluationDate;
     }
 
-    public ExecutionSemester getExecutionSemester() {
-        return executionSemester;
+    @Deprecated
+    public ExecutionInterval getExecutionSemester() {
+        return executionInterval;
+    }
+
+    public ExecutionInterval getExecutionInterval() {
+        return executionInterval;
     }
 
     public List<TupleDataSourceBean> getExecutionSemesterDataSource() {
         return executionSemesterDataSource;
     }
 
-    public void setExecutionSemester(ExecutionSemester executionSemester) {
-        this.executionSemester = executionSemester;
+    @Deprecated
+    public void setExecutionSemester(ExecutionInterval executionInterval) {
+        this.executionInterval = executionInterval;
+    }
+
+    public void setExecutionInterval(ExecutionInterval executionInterval) {
+        this.executionInterval = executionInterval;
     }
 
     public void setExecutionSemesterDataSource(final Set<ExecutionSemester> value) {
