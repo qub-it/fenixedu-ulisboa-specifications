@@ -125,7 +125,7 @@ public abstract class FormAbstractController extends FirstTimeCandidacyAbstractC
         } catch (DomainException domainEx) {
             LoggerFactory.getLogger(this.getClass()).error("Exception for user " + AccessControl.getPerson().getUsername());
             domainEx.printStackTrace();
-            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, domainEx.getKey()),
+            addErrorMessage(BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, domainEx.getKey(), domainEx.getArgs()),
                     model);
             return fillGetScreen(executionYear, model, redirectAttributes);
         } catch (Exception de) {
