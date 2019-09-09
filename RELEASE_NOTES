@@ -1,3 +1,4 @@
+5.3.4 (09-09-2019)
 - Bug Fix: In 1A1V importation, for students already registered in the system check if default country address exists. If not create the default fiscal address before fiscal data edition in registered person.
 
 5.3.3 (04-09-2019)
