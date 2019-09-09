@@ -24,7 +24,9 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StandByCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
+import org.fenixedu.academic.domain.contacts.PartyContactType;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
+import org.fenixedu.academic.domain.contacts.PhysicalAddressData;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
@@ -33,6 +35,7 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.spaces.domain.Space;
@@ -345,19 +348,28 @@ public class DgesStudentImportService {
                     "[ERROR]O nome da pessoa já existente no sistema não é igual ao nome dado pela DGES"));
         }
 
-        if (StringUtils.isBlank(person.getSocialSecurityNumber())) {
-            // Find one address for default country and set it as default fiscal address
-            Optional<PhysicalAddress> fiscalAddress = person.getAllPartyContacts(PhysicalAddress.class).stream()
-                    .map(PhysicalAddress.class::cast)
-                    .filter(pa -> Boolean.TRUE.equals(pa.getActive()))
-                    .filter(pa -> pa.getCountryOfResidence() == Country.readDefault())
-                    .findFirst();
-            
-            if(fiscalAddress.isPresent()) {
-                person.editSocialSecurityNumber(FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber(), fiscalAddress.get());
-                addToReport(formatMessageWithLineNumber(entry, "[INFO]O contribuinte não está preenchido."));
-            }
+        // Find one address for default country and set it as default fiscal address
+        Optional<PhysicalAddress> fiscalAddress = person.getAllPartyContacts(PhysicalAddress.class).stream()
+                .map(PhysicalAddress.class::cast).filter(pa -> pa.getCountryOfResidence() == Country.readDefault()).findFirst();
+
+        if (!fiscalAddress.isPresent()) {
+            final PhysicalAddress createPhysicalAddress = PhysicalAddress.createPhysicalAddress(person,
+                    new PhysicalAddressData(entry.getAddress(), entry.getAreaCode(), entry.getAreaOfAreaCode(), null, null, null,
+                            null, Country.readDefault()),
+                    PartyContactType.PERSONAL, true);
+            createPhysicalAddress.setValid();
+
+            fiscalAddress = Optional.of(createPhysicalAddress);
+            addToReport(formatMessageWithLineNumber(entry, "[INFO]Foi adicionada a morada do ficheiro."));
         }
+
+        String socialSecurityNumber = person.getSocialSecurityNumber();
+        if (StringUtils.isBlank(socialSecurityNumber)) {
+            socialSecurityNumber = FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber();
+            addToReport(formatMessageWithLineNumber(entry, "[INFO]O contribuinte não está preenchido."));
+        }
+
+        person.editSocialSecurityNumber(socialSecurityNumber, fiscalAddress.get());
 
         addToReport(formatMessageWithLineNumber(entry, "[INFO]Pessoa já existe no sistema(Pessoa Encontrada)."));
 
