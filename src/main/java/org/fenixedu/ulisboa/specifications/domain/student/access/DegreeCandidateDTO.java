@@ -240,8 +240,8 @@ public class DegreeCandidateDTO {
         person.setGender(getGender());
         Country nationality = getNationality();
         person.setCountry(nationality);
-        //TODO: check all the codes for issue place of the id card
-        if (nationality != null && nationality.isDefaultCountry() && !getDocumentIdIssuePlaceCode().equals("91")) {
+
+        if (getDocumentIdIssuePlaceCode().equals("01")) {
             person.setIdentification(getDocumentIdNumber(), IDDocumentType.IDENTITY_CARD);
         } else {
             person.setIdentification(DGES_TMP_ID_CODE_PREFIX + getDocumentIdNumber(), IDDocumentType.OTHER);
@@ -251,8 +251,9 @@ public class DegreeCandidateDTO {
         person.setMaritalStatus(MaritalStatus.SINGLE);
         person.setDateOfBirthYearMonthDay(YearMonthDay.fromDateFields(getDateOfBirth().toDate()));
 
-        final PhysicalAddress createPhysicalAddress = PhysicalAddress.createPhysicalAddress(person,
-                new PhysicalAddressData(getAddress(), getAreaCode(), getAreaOfAreaCode(), null, null, null, null, Country.readDefault()), PartyContactType.PERSONAL, true);
+        final PhysicalAddress createPhysicalAddress =
+                PhysicalAddress.createPhysicalAddress(person, new PhysicalAddressData(getAddress(), getAreaCode(),
+                        getAreaOfAreaCode(), null, null, null, null, Country.readDefault()), PartyContactType.PERSONAL, true);
         createPhysicalAddress.setValid();
 
         if (PhoneUtil.isMobileNumber(getPhoneNumber())) {
@@ -264,7 +265,8 @@ public class DegreeCandidateDTO {
             createPhone.setValid();
         }
 
-        person.editSocialSecurityNumber(FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber(), createPhysicalAddress);
+        person.editSocialSecurityNumber(FenixEduAcademicConfiguration.getConfiguration().getDefaultSocialSecurityNumber(),
+                createPhysicalAddress);
 
         return person;
     }

@@ -319,6 +319,10 @@ public class DgesStudentImportService {
 
         this.personsCreated++;
         addToReport(formatMessageWithLineNumber(entry, "[INFO]Criada nova pessoa"));
+        if (!entry.getDocumentIdIssuePlaceCode().equals("91") && !entry.getDocumentIdIssuePlaceCode().equals("01")) {
+            addToReport(formatMessageWithLineNumber(entry,
+                    "[WARN]Código de emissão do BI/CC não conhecido: " + entry.getDocumentIdIssuePlaceCode()));
+        }
         return entry.createPerson();
     }
 
