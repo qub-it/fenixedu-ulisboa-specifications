@@ -1,3 +1,5 @@
+- Improvement: Changed servlets to have async support needed by websockets
+
 5.3.4 (09-09-2019)
 - Bug Fix: In 1A1V importation, for students already registered in the system check if default country address exists. If not create the default fiscal address before fiscal data edition in registered person.
 
