@@ -35,7 +35,6 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.spaces.domain.Space;
@@ -157,7 +156,6 @@ public class DgesStudentImportService {
         }
 
         return transformReport();
-
     }
 
     protected List<DegreeCandidateDTO> parseFile(final byte[] content) throws IOException {

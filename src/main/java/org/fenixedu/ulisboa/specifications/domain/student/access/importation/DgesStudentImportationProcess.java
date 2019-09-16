@@ -19,9 +19,7 @@
  **/
 package org.fenixedu.ulisboa.specifications.domain.student.access.importation;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -90,14 +88,16 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         setDgesStudentImportationFile(dgesStudentImportationFile);
     }
 
-    private transient PrintWriter LOG_WRITER = null;
+    private transient StringBuilder sb = null;
 
     @Override
     public QueueJobResult execute() throws Exception {
-        ByteArrayOutputStream stream = null;
         try {
-            stream = new ByteArrayOutputStream();
-            LOG_WRITER = new PrintWriter(new BufferedOutputStream(stream));
+            if (sb != null) {
+                sb.append("\n").append("------------Starting new run after this point (maybe a rollback)---------\n");
+            } else {
+                sb = new StringBuilder();
+            }
 
             importCandidates();
         } catch (WriteOnReadError e) {
@@ -107,17 +107,10 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
             throw new RuntimeException(t);
         }
 
-        finally {
-            LOG_WRITER.close();
-            stream.close();
-        }
-
         final QueueJobResult queueJobResult = new QueueJobResult();
         queueJobResult.setContentType("text/plain");
+        queueJobResult.setContent(sb.toString().getBytes(StandardCharsets.UTF_8));
 
-        queueJobResult.setContent(stream.toByteArray());
-
-        stream.close();
         return queueJobResult;
     }
 
@@ -126,7 +119,7 @@ public class DgesStudentImportationProcess extends DgesStudentImportationProcess
         try {
             final DgesStudentImportService service =
                     new DgesStudentImportService(getExecutionYear(), getSpace(), getEntryPhase());
-            LOG_WRITER.write(service.importStudents(getDgesStudentImportationFile().getContent()));
+            sb.append(service.importStudents(getDgesStudentImportationFile().getContent()));
         } finally {
             Authenticate.unmock();
         }
