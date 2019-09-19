@@ -219,14 +219,14 @@ public class ULisboaConstants {
     }
 
     public static final List<CurriculumLine> getNotApprovedEnrolments(final Registration registration) {
-        return registration.getLastStudentCurricularPlan().getEnrolmentsSet().stream().filter(e -> e.isActive() && e.isFlunked())
-                .collect(Collectors.toList());
+        return registration.getLastStudentCurricularPlan().getEnrolmentsSet().stream().filter(e -> !e.isAnnulled())
+                .filter(e -> e.isFlunked()).collect(Collectors.toList());
 
     }
 
     public static final Locale DEFAULT_LOCALE = new Locale("PT");
 
-    public static final TupleDataSourceBean SELECT_OPTION =
-            new TupleDataSourceBean("", AcademicTreasuryConstants.academicTreasuryBundle("label.TupleDataSourceBean.select.description"));
+    public static final TupleDataSourceBean SELECT_OPTION = new TupleDataSourceBean("",
+            AcademicTreasuryConstants.academicTreasuryBundle("label.TupleDataSourceBean.select.description"));
 
 }

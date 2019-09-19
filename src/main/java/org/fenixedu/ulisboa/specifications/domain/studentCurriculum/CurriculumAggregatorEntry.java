@@ -148,10 +148,11 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         final String description = getAggregator().getCurricularCourse().getCode();
         final String since = getAggregator().getSince().getQualifiedName();
 
-        final String gradeFactor = ", "
-                + (getGradeFactor() == null || BigDecimal.ZERO.compareTo(getGradeFactor()) == 0 ? BundleUtil
-                        .getLocalizedString(Bundle.ENUMERATION, GradeScale.TYPEQUALITATIVE.name()).getContent() : getGradeFactor()
-                                .multiply(BigDecimal.valueOf(100d)).stripTrailingZeros().toPlainString() + "%");
+        final String gradeFactor =
+                ", " + (getGradeFactor() == null || BigDecimal.ZERO.compareTo(getGradeFactor()) == 0 ? BundleUtil
+                        .getLocalizedString(Bundle.ENUMERATION, GradeScale.TYPEQUALITATIVE.name())
+                        .getContent() : getGradeFactor().multiply(BigDecimal.valueOf(100d)).stripTrailingZeros().toPlainString()
+                                + "%");
 
         final GradeScale gradeScale = getGradeScale();
         String gradeScaleDescription = "";

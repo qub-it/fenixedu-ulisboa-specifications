@@ -27,7 +27,7 @@ package org.fenixedu.ulisboa.specifications.domain.curricularRules;
 
 import java.util.List;
 
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
@@ -50,7 +50,7 @@ public class CurriculumAggregatorApproval extends CurriculumAggregatorApproval_B
     }
 
     public CurriculumAggregatorApproval(final DegreeModule toApplyRule, final CourseGroup contextCourseGroup,
-            final ExecutionSemester begin, final ExecutionSemester end) {
+            final ExecutionInterval begin, final ExecutionInterval end) {
 
         this();
         init(toApplyRule, contextCourseGroup, begin, end, CurricularRuleType.CUSTOM);

@@ -41,6 +41,7 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
+import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
 import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
@@ -175,6 +176,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ULisboaAuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
 
         initTreasuryNextReferenceCode();
+
+        setupDeleteListenerForPrecedentDegreeInformation();
 
     }
 
@@ -366,6 +369,17 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
                 CoreConfiguration.getConfiguration().developmentMode() == Boolean.TRUE ? new PortalDevModeExceptionHandler(
                         servletContext) : new FenixEduUlisboaExceptionHandler(servletContext);
         ExceptionHandlerFilter.setExceptionHandler(exceptionHandler);
+    }
+
+    private void setupDeleteListenerForPrecedentDegreeInformation() {
+        FenixFramework.getDomainModel().registerDeletionListener(PrecedentDegreeInformation.class,
+                new DeletionListener<PrecedentDegreeInformation>() {
+                    @Override
+                    public void deleting(PrecedentDegreeInformation precedentDegreeInformation) {
+                        precedentDegreeInformation.setDistrictSubdivision(null);
+                        precedentDegreeInformation.setDistrict(null);
+                    }
+                });
     }
 
 }
