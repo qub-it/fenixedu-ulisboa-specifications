@@ -146,7 +146,7 @@ ${portal.angularToolkit()}
 
 				$scope.report  = function() {
 
-				    if ($scope.object.executionSemester.length != 0) {
+				    if ($scope.object.executionInterval.length != 0) {
 						$scope.exportReport(
 							'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportreport', 
 							'${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController.CONTROLLER_URL%>/exportstatus/', 
@@ -234,7 +234,7 @@ action="${pageContext.request.contextPath}<%=CompetenceCourseMarkSheetController
 					</div>
 	
 					<div class="col-sm-6">
-						<ui-select	id="executionSemesterSelect" name="executionSemester" ng-model="$parent.object.executionSemester" theme="bootstrap" on-select="onBeanChange($model)" on-remove="onBeanChange($model)">
+						<ui-select	id="executionSemesterSelect" name="executionSemester" ng-model="$parent.object.executionInterval" theme="bootstrap" on-select="onBeanChange($model)" on-remove="onBeanChange($model)">
 							<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
 							<ui-select-choices	repeat="executionSemester.id as executionSemester in object.executionSemesterDataSource | filter: $select.search">
 								<span ng-bind-html="executionSemester.text | highlight: $select.search"></span>

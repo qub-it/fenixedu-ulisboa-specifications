@@ -172,7 +172,7 @@ ${portal.angularToolkit()}
 				</div>
 
 				<div class="col-sm-6">
-					<ui-select	id="executionSemesterSelect" name="executionSemester" ng-model="$parent.object.executionSemester" theme="bootstrap" on-select="onExecutionSemesterChange($model)" on-remove="onExecutionSemesterChange($model)">
+					<ui-select	id="executionSemesterSelect" name="executionSemester" ng-model="$parent.object.executionInterval" theme="bootstrap" on-select="onExecutionSemesterChange($model)" on-remove="onExecutionSemesterChange($model)">
 						<ui-select-match allow-clear="true">{{$select.selected.text}}</ui-select-match> 
 						<ui-select-choices	repeat="executionSemester.id as executionSemester in object.executionSemesterDataSource | filter: $select.search">
 							<span ng-bind-html="executionSemester.text | highlight: $select.search"></span>
