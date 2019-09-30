@@ -45,7 +45,7 @@ import org.joda.time.YearMonthDay;
 
 public class DegreeCandidateDTO {
 
-    private static final String DGES_TMP_ID_CODE_PREFIX = "DGES CODE:";
+    private static final String DGES_TMP_ID_CODE_PREFIX = "DGESCODE:";
 
     private final int lineNumber;
 
