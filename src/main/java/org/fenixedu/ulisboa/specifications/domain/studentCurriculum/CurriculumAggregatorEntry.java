@@ -27,6 +27,7 @@ package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.function.Predicate;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
@@ -234,7 +235,10 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 
             } else {
 
-                result = plan.getAllCurriculumLines().stream().filter(i -> i.getDegreeModule() == getCurricularCourse()
+                final Predicate<? super CurriculumLine> activeCurriculumLines =
+                        i -> !(i instanceof Enrolment) || !((Enrolment) i).isAnnulled();
+                result = plan.getAllCurriculumLines().stream().filter(activeCurriculumLines)
+                        .filter(i -> i.getDegreeModule() == getCurricularCourse()
 
 // legidio, the following comments are based in the following assumption: we simply just want the last curriculum line,
 // we are not interested in checking these line against the aggregation configuration
@@ -247,7 +251,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
 // Dismissals may be in different semester
 //                        && (i.isDismissal() || getContext().isValid(i.getExecutionPeriod()))
 
-                ).max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
+                        ).max(CurriculumAggregatorServices.LINE_COMPARATOR).orElse(null);
             }
 
         } else {
