@@ -38,6 +38,21 @@
 
 <link href="<%= request.getContextPath() %>/CSS/print.css" rel="stylesheet" media="print" type="text/css" />
 
+<style type="text/css">
+
+@media print {
+    
+    div#accordion {
+    	display: none;
+    }    
+     	
+  	div.v-menubar {
+  		display: none;
+  	}
+}
+
+</style>
+
 <html:xhtml />
 
 <fmt:setLocale value='<%= I18N.getLocale().getLanguage() %>'/>
