@@ -7,14 +7,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Country;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolPeriodDuration;
-import org.fenixedu.bennu.TupleDataSourceBean;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.academic.domain.student.mobility.MobilityActivityType;
 import org.fenixedu.academic.domain.student.mobility.MobilityProgramType;
 import org.fenixedu.academic.domain.student.mobility.MobilityProgrammeLevel;
 import org.fenixedu.academic.domain.student.mobility.MobilityScientificArea;
+import org.fenixedu.bennu.TupleDataSourceBean;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
@@ -35,8 +36,8 @@ public class MobilityForm implements CandidancyForm {
         }
     };
 
-    protected ExecutionSemester begin;
-    protected ExecutionSemester end;
+    protected ExecutionInterval begin;
+    protected ExecutionInterval end;
     protected LocalDate beginDate;
     protected LocalDate endDate;
 
@@ -160,19 +161,19 @@ public class MobilityForm implements CandidancyForm {
         countryDataSource = result;
     }
 
-    public ExecutionSemester getBegin() {
+    public ExecutionInterval getBegin() {
         return begin;
     }
 
-    public void setBegin(ExecutionSemester begin) {
+    public void setBegin(ExecutionInterval begin) {
         this.begin = begin;
     }
 
-    public ExecutionSemester getEnd() {
+    public ExecutionInterval getEnd() {
         return end;
     }
 
-    public void setEnd(ExecutionSemester end) {
+    public void setEnd(ExecutionInterval end) {
         this.end = end;
     }
 

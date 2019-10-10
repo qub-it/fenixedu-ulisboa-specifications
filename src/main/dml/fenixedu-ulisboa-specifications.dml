@@ -46,7 +46,6 @@ external class .org.fenixedu.academic.domain.EnrolmentEvaluation;
 external class .org.fenixedu.academic.domain.Evaluation;
 external class .org.fenixedu.academic.domain.EvaluationSeason;
 external class .org.fenixedu.academic.domain.ExecutionInterval;
-external class .org.fenixedu.academic.domain.ExecutionSemester;
 external class .org.fenixedu.academic.domain.ExecutionYear;
 external class .org.fenixedu.academic.domain.OccupationPeriod;
 external class .org.fenixedu.academic.domain.SchoolClass;
@@ -1167,22 +1166,22 @@ relation MobilityRegistatrionUlisboaInformationRegistration {
     }
 }
 
-relation MobilityRegistatrionUlisboaInformationBeginExecutionSemester {
+relation MobilityRegistatrionUlisboaInformationBeginExecutionInterval {
     
     MobilityRegistatrionUlisboaInformation playsRole mobilityRegistatrionUlisboaInformationsForBegin {
         multiplicity *;
     }
     
-    .org.fenixedu.academic.domain.ExecutionSemester playsRole begin;
+    .org.fenixedu.academic.domain.ExecutionInterval playsRole begin;
 }
 
-relation MobilityRegistatrionUlisboaInformationEndExecutionSemester {
+relation MobilityRegistatrionUlisboaInformationEndExecutionInterval {
     
     MobilityRegistatrionUlisboaInformation playsRole mobilityRegistatrionUlisboaInformationsForEnd {
         multiplicity *;
     }
 
-    .org.fenixedu.academic.domain.ExecutionSemester playsRole end;
+    .org.fenixedu.academic.domain.ExecutionInterval playsRole end;
 }
    
 relation MobilityRegistatrionUlisboaInformationMobilityScientificArea {
