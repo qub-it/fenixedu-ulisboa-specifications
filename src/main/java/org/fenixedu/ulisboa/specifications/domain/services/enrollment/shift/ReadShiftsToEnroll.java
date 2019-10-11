@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.fenixedu.academic.domain.Attends;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.student.Registration;
@@ -16,13 +16,13 @@ import org.joda.time.LocalDate;
 public class ReadShiftsToEnroll {
 
     public static List<ShiftToEnrol> readWithStudentRestrictionsForShiftsEnrolments(Registration registration,
-            ExecutionSemester executionSemester) throws FenixServiceException {
+            ExecutionInterval executionSemester) throws FenixServiceException {
 
         checkStudentRestrictionsForShiftsEnrolments(registration, executionSemester);
         return read(registration, executionSemester);
     }
 
-    public static List<ShiftToEnrol> read(Registration registration, ExecutionSemester executionSemester)
+    public static List<ShiftToEnrol> read(Registration registration, ExecutionInterval executionSemester)
             throws FenixServiceException {
 
 //        ClassEnrollmentAuthorizationFilter.instance.execute(registration, executionSemester);
@@ -35,12 +35,12 @@ public class ReadShiftsToEnroll {
     }
 
     private static void checkStudentRestrictionsForShiftsEnrolments(Registration registration,
-            ExecutionSemester executionSemester) throws FenixServiceException {
+            ExecutionInterval executionSemester) throws FenixServiceException {
         if (registration == null) {
             throw new FenixServiceException("errors.impossible.operation");
         }
 
-        if (executionSemester.isFirstOfYear()
+        if (executionSemester.getExecutionYear().getFirstExecutionPeriod() == executionSemester
                 && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(registration.getPerson(), new LocalDate())) {
             if (!registration.getInterruptedStudies()) {
                 throw new FenixServiceException("error.exception.notAuthorized.student.warningTuition");

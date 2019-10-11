@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.apache.struts.Globals;
 import org.apache.struts.action.ActionMapping;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -223,8 +223,8 @@ public class EnrolmentStep implements IBean {
         return url;
     }
 
-    static public String buildArgsStruts(final ExecutionSemester executionSemester, final StudentCurricularPlan scp) {
-        return "executionSemesterOID=" + executionSemester.getExternalId() + "&studentCurricularPlanOID=" + scp.getExternalId();
+    static public String buildArgsStruts(final ExecutionInterval executionInterval, final StudentCurricularPlan scp) {
+        return "executionSemesterOID=" + executionInterval.getExternalId() + "&studentCurricularPlanOID=" + scp.getExternalId();
     }
 
 }

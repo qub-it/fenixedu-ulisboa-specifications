@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.enrolment.schoolClass.SchoolClassEnrolmentPreference;
@@ -90,7 +91,7 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
         for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriodBean.getEnrolmentPeriodsOpenOrUpcoming(student)) {
             if (isValidPeriodForUser(iter)) {
 
-                final ExecutionSemester executionSemester = iter.getExecutionSemester();
+                final ExecutionInterval executionSemester = iter.getExecutionSemester();
                 final Registration registration = iter.getRegistration();
 
                 // if no enrolments for period, student cannot choose preferences
@@ -135,7 +136,7 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
 
                 // we'll put previous school class just to display its name to the student
                 if (schoolClassStudentEnrollmentBean.isCanSkipEnrolmentPreferences()) {
-                    final ExecutionSemester previousSemester = executionSemester.getPreviousExecutionPeriod();
+                    final ExecutionInterval previousSemester = executionSemester.getPrevious();
                     request.setAttribute("previousSchoolClass",
                             RegistrationServices.getSchoolClassBy(registration, previousSemester).orElse(null));
                 }
@@ -223,9 +224,9 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
     }
 
     private void enrollInSchoolClassWithSameNameAsPrevious(final Registration registration,
-            final ExecutionSemester executionSemester) {
+            final ExecutionInterval executionSemester) {
         final SchoolClass previousSchoolClass =
-                RegistrationServices.getSchoolClassBy(registration, executionSemester.getPreviousExecutionPeriod()).orElse(null);
+                RegistrationServices.getSchoolClassBy(registration, executionSemester.getPrevious()).orElse(null);
 
         final SchoolClass schoolClass = previousSchoolClass != null ? getSchoolClassesOptions(registration, executionSemester)
                 .stream().filter(sc -> sc.getName().equals(previousSchoolClass.getName())).findFirst().orElse(null) : null;
@@ -233,7 +234,7 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
     }
 
     private List<SchoolClass> getSchoolClassesOptions(final Registration registration,
-            final ExecutionSemester executionSemester) {
+            final ExecutionInterval executionSemester) {
         return RegistrationServices.getInitialSchoolClassesToEnrolBy(registration, executionSemester).stream()
                 .sorted((s1, s2) -> s1.getNome().compareTo(s2.getNome())).collect(Collectors.toList());
     }

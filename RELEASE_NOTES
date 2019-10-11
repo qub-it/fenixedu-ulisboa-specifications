@@ -1,6 +1,6 @@
 - Improvement: added export options to service requests search screen
 - Refactor: changed MobilityRegistatrionUlisboaInformation domain relations from ExecutionSemester to ExecutionInterval
-
+- Refactor: Upgrade dependency of fenixedu-academic-extensions (changed domain relations from ExecutionSemester to ExecutionInterval)
 
 5.5.4 (07-10-2019)
 - Fix: Print program conclusion - hide left menu ( #UL-ISA-1056 )

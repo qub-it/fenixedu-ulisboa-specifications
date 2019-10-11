@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
@@ -28,7 +28,7 @@ import com.google.common.collect.Sets;
 
 public class EnrolmentProcess implements IBean {
 
-    private ExecutionSemester executionSemester;
+    private ExecutionInterval executionSemester;
     private StudentCurricularPlan curricularPlan;
     private List<AcademicEnrolmentPeriodBean> enrolmentPeriods = Lists.newArrayList();
 
@@ -42,7 +42,7 @@ public class EnrolmentProcess implements IBean {
     static final private List<EnrolmentStepTemplate> beginSteps = Lists.newArrayList();
     static final private List<EnrolmentStepTemplate> endSteps = Lists.newArrayList();
 
-    private EnrolmentProcess(final ExecutionSemester executionSemester, final StudentCurricularPlan curricularPlan) {
+    private EnrolmentProcess(final ExecutionInterval executionSemester, final StudentCurricularPlan curricularPlan) {
         setExecutionSemester(executionSemester);
         setStudentCurricularPlan(curricularPlan);
     }
@@ -86,11 +86,11 @@ public class EnrolmentProcess implements IBean {
         return getExecutionSemester().getExecutionYear();
     }
 
-    public ExecutionSemester getExecutionSemester() {
+    public ExecutionInterval getExecutionSemester() {
         return executionSemester;
     }
 
-    private void setExecutionSemester(final ExecutionSemester input) {
+    private void setExecutionSemester(final ExecutionInterval input) {
         this.executionSemester = input;
     }
 
@@ -280,12 +280,12 @@ public class EnrolmentProcess implements IBean {
         this.lastStep = input;
     }
 
-    static public EnrolmentProcess find(final ExecutionSemester semester, final StudentCurricularPlan scp) {
+    static public EnrolmentProcess find(final ExecutionInterval interval, final StudentCurricularPlan scp) {
         EnrolmentProcess result = null;
 
-        if (semester != null && scp != null) {
+        if (interval != null && scp != null) {
 
-            final EnrolmentProcess indexer = new EnrolmentProcess(semester, scp);
+            final EnrolmentProcess indexer = new EnrolmentProcess(interval, scp);
             for (final EnrolmentProcess iter : buildProcesses(scp.getRegistration().getStudent())) {
                 if (iter.equals(indexer)) {
                     result = iter;

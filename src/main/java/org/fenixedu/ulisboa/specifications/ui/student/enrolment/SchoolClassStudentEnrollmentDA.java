@@ -46,7 +46,7 @@ import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionDegree;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
@@ -106,14 +106,14 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         final SchoolClass selectedSchoolClass = (SchoolClass) request.getAttribute("selectedSchoolClass");
         final AcademicEnrolmentPeriod selectedEnrolmentPeriod =
                 (AcademicEnrolmentPeriod) request.getAttribute("selectedEnrolmentPeriod");
-        final ExecutionSemester executionSemester = selectedEnrolmentPeriod == null ? getDomainObject(request,
+        final ExecutionInterval executionInterval = selectedEnrolmentPeriod == null ? getDomainObject(request,
                 "executionSemesterOID") : selectedEnrolmentPeriod.getExecutionSemester();
         final StudentCurricularPlan scp = getDomainObject(request, "studentCurricularPlanOID");
 
         final Student student = Authenticate.getUser().getPerson().getStudent();
         final List<SchoolClassStudentEnrollmentDTO> enrolmentBeans = new ArrayList<SchoolClassStudentEnrollmentDTO>();
 
-        Collection<ExecutionSemester> automaticEnrolmentSemesters = new HashSet<>();
+        Collection<ExecutionInterval> automaticEnrolmentSemesters = new HashSet<>();
         boolean schoolClassEmptyButSelectionMandatory = false;
         for (final AcademicEnrolmentPeriodBean iter : AcademicEnrolmentPeriodBean.getEnrolmentPeriodsOpenOrUpcoming(student)) {
             if (isValidPeriodForUser(iter)) {
@@ -126,7 +126,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                 }
 
                 final SchoolClassStudentEnrollmentDTO schoolClassStudentEnrollmentBean = new SchoolClassStudentEnrollmentDTO(iter,
-                        executionSemester == iter.getExecutionSemester() ? selectedSchoolClass : null);
+                        executionInterval == iter.getExecutionSemester() ? selectedSchoolClass : null);
                 enrolmentBeans.add(schoolClassStudentEnrollmentBean);
 
                 if (iter.getSchoolClassSelectionMandatory() && schoolClassStudentEnrollmentBean.getCurrentSchoolClass() == null
@@ -144,8 +144,8 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
         request.setAttribute("enrolmentBeans", enrolmentBeans);
         request.setAttribute("action", getAction());
-        if (executionSemester != null && scp != null) {
-            final EnrolmentProcess enrolmentProcess = EnrolmentProcess.find(executionSemester, scp);
+        if (executionInterval != null && scp != null) {
+            final EnrolmentProcess enrolmentProcess = EnrolmentProcess.find(executionInterval, scp);
             request.setAttribute("enrolmentProcess", enrolmentProcess);
 
             if (!automaticEnrolmentSemesters.isEmpty() && enrolmentProcess != null) {
@@ -153,9 +153,9 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
                 SchoolClass firstEnrolledSchoolClass = null;
 
-                final List<ExecutionSemester> sortedSemesters =
+                final List<ExecutionInterval> sortedSemesters =
                         automaticEnrolmentSemesters.stream().sorted().collect(Collectors.toList());
-                for (ExecutionSemester executionSemesterToEnrol : sortedSemesters) {
+                for (ExecutionInterval executionSemesterToEnrol : sortedSemesters) {
                     SchoolClass schoolClass = null;
                     if (firstEnrolledSchoolClass != null) {
                         schoolClass = findUnfilledClassByName(registration, executionSemesterToEnrol,
@@ -194,15 +194,15 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         RegistrationServices.replaceSchoolClass(registration, schoolClass, schoolClass.getExecutionPeriod());
     }
 
-    private Optional<SchoolClass> findUnfilledClassByName(Registration registration, final ExecutionSemester executionSemester,
+    private Optional<SchoolClass> findUnfilledClassByName(Registration registration, final ExecutionInterval executionInterval,
             final String schoolClassName) {
         final DegreeCurricularPlan degreeCurricularPlan = registration.getLastDegreeCurricularPlan();
         if (degreeCurricularPlan != null) {
             final ExecutionDegree executionDegree =
-                    degreeCurricularPlan.getExecutionDegreeByYear(executionSemester.getExecutionYear());
+                    degreeCurricularPlan.getExecutionDegreeByYear(executionInterval.getExecutionYear());
             if (executionDegree != null) {
                 final Optional<SchoolClass> schoolClassOpt = executionDegree
-                        .findSchoolClassesByAcademicIntervalAndCurricularYear(executionSemester.getAcademicInterval(), 1).stream()
+                        .findSchoolClassesByAcademicIntervalAndCurricularYear(executionInterval.getAcademicInterval(), 1).stream()
                         .filter(sc -> sc.getName().equals(schoolClassName)).findFirst();
                 if (schoolClassOpt.isPresent() && getFreeVacancies(schoolClassOpt.get()) > 0) {
                     return schoolClassOpt;
@@ -212,16 +212,16 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         return Optional.empty();
     }
 
-    private Optional<SchoolClass> findUnfilledClass(Registration registration, final ExecutionSemester executionSemester) {
+    private Optional<SchoolClass> findUnfilledClass(Registration registration, final ExecutionInterval executionInterval) {
         final DegreeCurricularPlan degreeCurricularPlan = registration.getLastDegreeCurricularPlan();
         if (degreeCurricularPlan != null) {
             final ExecutionDegree executionDegree =
-                    degreeCurricularPlan.getExecutionDegreeByYear(executionSemester.getExecutionYear());
+                    degreeCurricularPlan.getExecutionDegreeByYear(executionInterval.getExecutionYear());
             if (executionDegree != null) {
 
                 final Stream<SchoolClass> schoolClasses =
                         executionDegree.getSchoolClassesSet().stream().filter(sc -> sc.getAnoCurricular().equals(1)
-                                && executionSemester == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0);
+                                && executionInterval == sc.getExecutionPeriod() && getFreeVacancies(sc) > 0);
 
                 final AutomaticSchoolClassEnrolmentMethod method = AutomaticSchoolClassEnrolmentMethod
                         .valueOf(ULisboaConfiguration.getConfiguration().getAutomaticSchoolClassEnrolmentMethod());
@@ -372,7 +372,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
             return enrolmentPeriod.getEnrolmentPeriod();
         }
 
-        public ExecutionSemester getExecutionSemester() {
+        public ExecutionInterval getExecutionSemester() {
             return enrolmentPeriod.getExecutionSemester();
         }
 
@@ -466,7 +466,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         }
 
         private List<SchoolClass> filterSchoolClassesByPrecedence(final List<SchoolClass> schoolClasses) {
-            final ExecutionSemester previousExecutionSemester = getExecutionSemester().getPreviousExecutionPeriod();
+            final ExecutionInterval previousExecutionSemester = getExecutionSemester().getPrevious();
             if (previousExecutionSemester != null) {
                 final SchoolClass previousSchoolClass =
                         RegistrationServices.getSchoolClassBy(getRegistration(), previousExecutionSemester).orElse(null);
@@ -476,7 +476,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
                 }
             }
 
-            final ExecutionSemester nextExecutionSemester = getExecutionSemester().getNextExecutionPeriod();
+            final ExecutionInterval nextExecutionSemester = getExecutionSemester().getNext();
             if (nextExecutionSemester != null) {
                 final SchoolClass nextSchoolClass =
                         RegistrationServices.getSchoolClassBy(getRegistration(), nextExecutionSemester).orElse(null);
@@ -491,7 +491,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         }
 
         public int getCurricularYear() {
-            final ExecutionSemester executionSemester = getExecutionSemester();
+            final ExecutionInterval executionSemester = getExecutionSemester();
             return RegistrationServices.getCurricularYear(getRegistration(), executionSemester.getExecutionYear()).getResult();
         }
 
@@ -504,8 +504,8 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         // not the first execution semester, so we give the possibility of mantain last year schoolClass and skip preference choice
         public boolean isCanSkipEnrolmentPreferences() {
 
-            final ExecutionSemester executionSemester = getExecutionSemester();
-            final ExecutionSemester previousSemester = executionSemester.getPreviousExecutionPeriod();
+            final ExecutionInterval executionSemester = getExecutionSemester();
+            final ExecutionInterval previousSemester = executionSemester.getPrevious();
             final Registration registration = getRegistration();
 
             // no previous semester or previous semester from different year

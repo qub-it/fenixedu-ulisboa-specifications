@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DomainObjectUtil;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -57,7 +58,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
     private List<TupleDataSourceBean> enrolmentPeriodTypeDataSource;
     private AutomaticEnrolment automaticEnrolment;
     private List<TupleDataSourceBean> automaticEnrolmentDataSource;
-    private ExecutionSemester executionSemester;
+    private ExecutionInterval executionSemester;
     private List<TupleDataSourceBean> executionSemesterDataSource;
     private List<DegreeCurricularPlan> degreeCurricularPlans;
     private List<TupleDataSourceBean> degreeCurricularPlanDataSource;
@@ -202,11 +203,11 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         return getExecutionSemester().getExecutionYear();
     }
 
-    public ExecutionSemester getExecutionSemester() {
+    public ExecutionInterval getExecutionSemester() {
         return executionSemester;
     }
 
-    public void setExecutionSemester(ExecutionSemester executionSemester) {
+    public void setExecutionSemester(ExecutionInterval executionSemester) {
         this.executionSemester = executionSemester;
     }
 

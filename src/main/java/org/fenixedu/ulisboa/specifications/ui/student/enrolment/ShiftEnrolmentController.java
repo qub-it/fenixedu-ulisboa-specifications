@@ -42,6 +42,7 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentType;
 import org.fenixedu.academic.domain.ExecutionCourse;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Lesson;
@@ -136,7 +137,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
                 selectedEnrolmentPeriod = selectedEnrolmentBean.getEnrolmentPeriod();
             }
 
-            final ExecutionSemester executionSemester = selectedEnrolmentPeriod.getExecutionSemester();
+            final ExecutionInterval executionSemester = selectedEnrolmentPeriod.getExecutionInterval();
 
             try {
                 final List<ShiftToEnrol> shiftsToEnrol = ReadShiftsToEnroll
@@ -202,7 +203,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
     private void checkIfMandatoryShiftsAreEnrolled(final List<EnrolmentPeriodDTO> enrolmentBeans, Model model) {
         for (final EnrolmentPeriodDTO enrolmentBean : enrolmentBeans) {
-            final ExecutionSemester executionSemester = enrolmentBean.getExecutionSemester();
+            final ExecutionInterval executionSemester = enrolmentBean.getExecutionSemester();
             final Registration registration = enrolmentBean.getRegistration();
             for (Enrolment enrolment : registration.getEnrolments(executionSemester)) {
                 boolean allAvailableShiftsMustBeEnrolled = enrolment.getCurricularRules(executionSemester).stream()
@@ -410,7 +411,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
             return enrolmentPeriod.getEnrolmentPeriod();
         }
 
-        public ExecutionSemester getExecutionSemester() {
+        public ExecutionInterval getExecutionSemester() {
             return enrolmentPeriod.getExecutionSemester();
         }
 
