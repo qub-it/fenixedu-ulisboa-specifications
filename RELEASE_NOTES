@@ -1,4 +1,5 @@
 - Improvement: added export options to service requests search screen
+- Improvement: display emergency contact in student personal details and export in registration history report
 - Refactor: changed MobilityRegistatrionUlisboaInformation domain relations from ExecutionSemester to ExecutionInterval
 - Refactor: Upgrade dependency of fenixedu-academic-extensions (changed domain relations from ExecutionSemester to ExecutionInterval)
 

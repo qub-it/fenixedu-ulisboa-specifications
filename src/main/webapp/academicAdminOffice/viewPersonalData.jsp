@@ -222,6 +222,17 @@
     </p>
 </logic:empty>
 
+<br/>
+<h4>
+	<bean:message key="label.person.emergencyContact" bundle="APPLICATION_RESOURCES" />
+	<logic:notEmpty name="person" property="profile">
+		<logic:notEmpty name="person" property="profile.emergencyContact">
+			<bean:write name="person" property="profile.emergencyContact.contact"/>
+		</logic:notEmpty>
+	</logic:notEmpty>
+</h4>
+<br/>
+
 <jsp:include page="viewPersonalData-ulisboa-specifications.jsp"/>
     
 <p class="mtop2">

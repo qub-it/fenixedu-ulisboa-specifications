@@ -280,6 +280,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 addData("Person.otherEmailAddresses", report.getOtherEmailAddresses());
                 addData("Person.defaultPhone", report.getDefaultPhoneNumber());
                 addData("Person.defaultMobilePhone", report.getDefaultMobilePhoneNumber());
+                addData("Person.emergencyContact", report.getEmergencyContact());
 
                 if (report.hasDefaultPhysicalAddress()) {
                     addData("PhysicalAddress.address", report.getDefaultPhysicalAddress());
