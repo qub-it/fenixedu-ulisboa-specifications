@@ -2,10 +2,10 @@
  /**
  * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
  * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
- * software development project between Quorum Born IT and Serviços Partilhados da
+ * software development project between Quorum Born IT and Serviï¿½os Partilhados da
  * Universidade de Lisboa:
- *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
- *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
+ *  - Copyright ï¿½ 2015 Quorum Born IT (until any Go-Live phase)
+ *  - Copyright ï¿½ 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  * Contributors: diogo.simoe@qub-it.com 
  *
@@ -105,19 +105,19 @@ ${portal.toolkit()}
 			<div class="form-group row">
 				<div class="col-sm-2 control-label"><spring:message code="label.gradingTables.settings.minSampleSize"/></div>
 				<div class="col-sm-10">
-					<input id="gradingTableSettings_minSampleSize" class="form-control" type="number" min="0" step="1" name="minSampleSize"  value='<c:out value='${not empty param.minSampleSize ? param.minSampleSize : gradingTableSettings.minSampleSize }'/>'  required />
+					<input id="gradingTableSettings_minSampleSize" class="form-control" type="number" placeholder="Min: 30" min="30" step="1" name="minSampleSize"  value='<c:out value='${not empty param.minSampleSize ? param.minSampleSize : gradingTableSettings.minSampleSize }'/>'  required />
 				</div>	
 			</div>		
 			<div class="form-group row">
 				<div class="col-sm-2 control-label"><spring:message code="label.gradingTables.settings.minPastYears"/></div>
 				<div class="col-sm-10">
-					<input id="gradingTableSettings_minPastYears" class="form-control" type="number" min="0" step="1" name="minPastYears" value='<c:out value="${not empty param.minPastYears ? param.minPastYears : gradingTableSettings.minPastYears }"/>' required /> 
+					<input id="gradingTableSettings_minPastYears" class="form-control" type="number" placeholder="Min: 3" min="3" max="5" step="1" name="minPastYears" value='<c:out value="${not empty param.minPastYears ? param.minPastYears : gradingTableSettings.minPastYears }"/>' required /> 
 				</div>
 			</div>
 			<div class="form-group row">
 				<div class="col-sm-2 control-label"><spring:message code="label.gradingTables.settings.maxPastYears"/></div>
 				<div class="col-sm-10">
-					<input id="gradingTableSettings_maxPastYears" class="form-control" type="number" min="0" step="1" name="maxPastYears" value='<c:out value="${not empty param.maxPastYears ? param.maxPastYears : gradingTableSettings.maxPastYears }"/>' required /> 
+					<input id="gradingTableSettings_maxPastYears" class="form-control" type="number" placeholder="Max: 5" min="3" max="5" step="1" name="maxPastYears" value='<c:out value="${not empty param.maxPastYears ? param.maxPastYears : gradingTableSettings.maxPastYears }"/>' required /> 
 				</div>
 			</div>
 			<div class="form-group row">
