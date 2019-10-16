@@ -23,6 +23,7 @@ import org.fenixedu.academic.domain.student.gradingTable.GradingTableData;
 import org.fenixedu.academic.domain.student.gradingTable.GradingTableSettings;
 import org.fenixedu.academic.domain.student.gradingTable.InstitutionGradingTable;
 import org.fenixedu.academic.domain.student.gradingTable.GradingTableData.GradeConversion;
+import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.servlet.FenixeduUlisboaSpecificationsInitializer;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
@@ -121,10 +122,10 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     }
 
     @RequestMapping(value = _UPDATE_SETTINGS_URI + "{oid}", method = RequestMethod.POST)
-    public String updateSettings(@PathVariable(value = "oid") ExecutionYear executionYear, @RequestParam(value = "minSampleSize",
-            required = false) Integer minSampleSize,
-            @RequestParam(value = "minPastYears", required = false) Integer minPastYears, @RequestParam(value = "maxPastYears",
-                    required = false) Integer maxPastYears,
+    public String updateSettings(@PathVariable(value = "oid") ExecutionYear executionYear,
+            @RequestParam(value = "minSampleSize", required = true) Integer minSampleSize,
+            @RequestParam(value = "minPastYears", required = true) Integer minPastYears,
+            @RequestParam(value = "maxPastYears", required = true) Integer maxPastYears,
             @RequestParam(value = "degreeTypes", required = false) List<DegreeType> degreeTypes, Model model) {
         try {
             updateSettings(minSampleSize, minPastYears, maxPastYears, degreeTypes);
@@ -139,9 +140,7 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
 
     @Atomic
     private void updateSettings(Integer minSampleSize, Integer minPastYears, Integer maxPastYears, List<DegreeType> degreeTypes) {
-        GradingTableSettings.getInstance().setMinSampleSize(minSampleSize);
-        GradingTableSettings.getInstance().setMinPastYears(minPastYears);
-        GradingTableSettings.getInstance().setMaxPastYears(maxPastYears);
+        GradingTableSettings.getInstance().edit(minSampleSize, minPastYears, maxPastYears);
         for (DegreeType degreeType : GradingTableSettings.getInstance().getApplicableDegreeTypesSet()) {
             degreeType.setGradingTableSettings(null);
         }
@@ -217,8 +216,8 @@ public class EctsGradingTableBackofficeController extends FenixeduUlisboaSpecifi
     public static final String POLL_WORKERS_URL = CONTROLLER_URL + _POLL_WORKERS_URI;
 
     @RequestMapping(value = _POLL_WORKERS_URI + "{workerId}" + "/" + "{token}", method = RequestMethod.GET)
-    public @ResponseBody ResponseEntity<String> pollWorkers(@PathVariable(value = "workerId") long workerId, @PathVariable(
-            value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
+    public @ResponseBody ResponseEntity<String> pollWorkers(@PathVariable(value = "workerId") long workerId,
+            @PathVariable(value = "token") String token, @ModelAttribute("sectoken") String sectoken, Model model) {
         if (!token.equals(sectoken)) {
             return new ResponseEntity<String>(BundleUtil.getString(FenixeduUlisboaSpecificationsInitializer.BUNDLE,
                     "label.gradingTables.unauthorizedOperation"), HttpStatus.UNAUTHORIZED);
