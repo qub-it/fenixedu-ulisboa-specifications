@@ -397,7 +397,7 @@ public class DgesStudentImportService {
         final StudentCandidacy studentCandidacy = createCandidacy(entry, person);
         new StandByCandidacySituation(studentCandidacy, AccessControl.getPerson());
 
-        final Registration registration = new Registration(person, studentCandidacy.getDegreeCurricularPlan(), studentCandidacy,
+        final Registration registration = Registration.createRegistration(person, studentCandidacy.getDegreeCurricularPlan(), studentCandidacy,
                 ULisboaSpecificationsRoot.getInstance().getDefaultRegistrationProtocol(), CycleType.FIRST_CYCLE, executionYear);
 
         final PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation() != null ? studentCandidacy
