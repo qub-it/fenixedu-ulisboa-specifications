@@ -114,53 +114,6 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         return firstTimeCandidacies.findFirst().orElse(null);
     }
 
-    @Atomic
-    public static PersonalIngressionData getOrCreatePersonalIngressionData(final ExecutionYear executionYear,
-            final PrecedentDegreeInformation precedentInformation) {
-        PersonalIngressionData personalData = null;
-        personalData = precedentInformation.getPersonalIngressionData();
-        Student student = AccessControl.getPerson().getStudent();
-        if (personalData == null) {
-            personalData = student.getPersonalIngressionDataByExecutionYear(executionYear);
-            if (personalData != null) {
-                //if the student already has a PID it will have another PDI associated, it's necessary to add the new PDI
-                personalData.addPrecedentDegreesInformations(precedentInformation);
-            } else {
-                personalData = new PersonalIngressionData(executionYear, precedentInformation);
-            }
-        }
-
-        // It is necessary to create an early Registration so that the RAIDES objects are consistent
-        // see PrecedentDegreeInformation.checkHasAllRegistrationOrPhdInformation()
-        getOrCreateRegistration();
-
-        return personalData;
-    }
-
-    private static Registration getOrCreateRegistration() {
-        FirstTimeCandidacy studentCandidacy = FirstTimeCandidacyController.getCandidacy();
-        Registration registration = studentCandidacy.getRegistration();
-        if (registration != null) {
-            return registration;
-        }
-        registration = new Registration(studentCandidacy.getPerson(), studentCandidacy);
-
-        PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation();
-        pdi.setRegistration(registration);
-        pdi.getPersonalIngressionData().setStudent(studentCandidacy.getPerson().getStudent());
-
-        DegreeCurricularPlan curricularPlan = studentCandidacy.getExecutionDegree().getDegreeCurricularPlan();
-        ExecutionSemester semester = ExecutionSemester.findCurrent(registration.getDegree().getCalendar());
-        StudentCurricularPlan.createBolonhaStudentCurricularPlan(registration, curricularPlan, new YearMonthDay(), semester);
-
-        RegistrationState registeredState = registration.getActiveState();
-        registeredState.setStateDate(registeredState.getStateDate().minusMinutes(1));
-        RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                RegistrationStateType.INACTIVE, semester);
-
-        return registration;
-    }
-
     public static List<String> isValidForFirstTimeCandidacy() {
         List<String> errorMessages = new ArrayList<>();
         Person person = AccessControl.getPerson();
