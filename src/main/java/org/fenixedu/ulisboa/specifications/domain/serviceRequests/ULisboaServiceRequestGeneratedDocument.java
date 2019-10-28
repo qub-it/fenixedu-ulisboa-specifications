@@ -37,7 +37,7 @@ public class ULisboaServiceRequestGeneratedDocument extends ULisboaServiceReques
 		}
 		return user.getPerson().equals(getOperator()) || user.getPerson().equals(getOperator())
 				|| AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS).isMember(user)
-				|| PermissionService.isMember("SERVICE_REQUESTS", user);
+				|| PermissionService.hasAccess("SERVICE_REQUESTS", user);
 	}
 
 	@Override

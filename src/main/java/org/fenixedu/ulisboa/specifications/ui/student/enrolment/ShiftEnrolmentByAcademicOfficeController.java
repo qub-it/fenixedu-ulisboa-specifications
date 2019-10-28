@@ -227,7 +227,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
 	static private void checkUser() {
 		if (!(AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser())
-				|| PermissionService.isMember("STUDENT_ENROLMENTS", Authenticate.getUser()))) {
+				|| PermissionService.hasAccess("STUDENT_ENROLMENTS", Authenticate.getUser()))) {
 			throw new SecurityException("error.authorization.notGranted");
 		}
 	}

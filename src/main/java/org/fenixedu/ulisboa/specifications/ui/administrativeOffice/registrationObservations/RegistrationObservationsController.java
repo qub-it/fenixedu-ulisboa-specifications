@@ -55,7 +55,7 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
 		User user = AccessControl.getPerson().getUser();
 		boolean academicAuthorization = AcademicAuthorizationGroup
 				.get(AcademicOperationType.STUDENT_ENROLMENTS, registration.getDegree()).isMember(user)
-				|| PermissionService.isMember("STUDENT_ENROLMENTS", registration.getDegree(), user);
+				|| PermissionService.hasAccess("STUDENT_ENROLMENTS", registration.getDegree(), user);
 		boolean treasuryAuthorization = TreasuryAccessControlAPI.isBackOfficeMember(user.getUsername());
 
 		boolean writeAccessControll = academicAuthorization || treasuryAuthorization;

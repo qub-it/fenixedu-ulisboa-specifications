@@ -302,7 +302,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
 		if (AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
 				curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())
-				|| PermissionService.isMember("ENROLMENT_WITHOUT_RULES",
+				|| PermissionService.hasAccess("ENROLMENT_WITHOUT_RULES",
 						curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())) {
 			addCreditsDistributionMessage(curriculumGroup, executionSemester, result);
 		}

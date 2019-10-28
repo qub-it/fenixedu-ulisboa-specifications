@@ -192,7 +192,7 @@ public class CurriculumLayout extends Layout {
 
 				if (!isConclusionDocument() && (AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
 						.isMember(Authenticate.getUser())
-						|| PermissionService.isMember("MANAGE_CONCLUSION", Authenticate.getUser()))) {
+						|| PermissionService.hasAccess("MANAGE_CONCLUSION", Authenticate.getUser()))) {
 					generateCellWithLink(enrolmentRow, entry.getExecutionYear(), ULisboaSpecificationsUtil
 							.bundle("label.gradingTables.curriculumRenderer.generateInstitutionTable"));
 					return;
@@ -211,7 +211,7 @@ public class CurriculumLayout extends Layout {
 				} else if (CourseGradingTable.isApplicable(line)) {
 					if (!isConclusionDocument() && (AcademicAuthorizationGroup
 							.get(AcademicOperationType.MANAGE_CONCLUSION).isMember(Authenticate.getUser())
-							|| PermissionService.isMember("MANAGE_CONCLUSION", Authenticate.getUser()))) {
+							|| PermissionService.hasAccess("MANAGE_CONCLUSION", Authenticate.getUser()))) {
 						generateCellWithLink(enrolmentRow, entry.getExecutionYear(), ULisboaSpecificationsUtil
 								.bundle("label.gradingTables.curriculumRenderer.generateCourseTable"));
 						return;

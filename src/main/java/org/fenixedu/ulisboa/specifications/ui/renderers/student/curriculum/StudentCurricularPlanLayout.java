@@ -544,7 +544,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
 			if (AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
 					curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())
-					|| PermissionService.isMember("ENROLMENT_WITHOUT_RULES",
+					|| PermissionService.hasAccess("ENROLMENT_WITHOUT_RULES",
 							curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())) {
 				EnrolmentLayout.addCreditsDistributionMessage(curriculumGroup, getExecutionSemester(), groupName);
 			}
@@ -1565,7 +1565,7 @@ public class StudentCurricularPlanLayout extends Layout {
 			boolean canManageConclusion = AcademicAuthorizationGroup
 					.get(AcademicOperationType.MANAGE_CONCLUSION, registration.getDegree())
 					.isMember(Authenticate.getUser())
-					|| PermissionService.isMember("MANAGE_CONCLUSION", registration.getDegree(),
+					|| PermissionService.hasAccess("MANAGE_CONCLUSION", registration.getDegree(),
 							Authenticate.getUser());
 			if (canManageConclusion) {
 				final HtmlLink result = new HtmlLink();
