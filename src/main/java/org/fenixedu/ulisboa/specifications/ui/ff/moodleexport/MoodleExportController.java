@@ -40,7 +40,6 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.fenixedu.ulisboa.specifications.ui.ff.moodleexport.MoodleExportController.MoodleExportBean;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -119,6 +118,7 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
         moodleExportBean.setCourses(coursesNames);
         moodleExportBean.setRoles(roles);
         moodleExportBean.setDegreeMinistryCode(student.getLastRegistration().getDegree().getMinistryCode());
+        moodleExportBean.setCurricularPlan(student.getLastRegistration().getLastStudentCurricularPlan().getName());
 
         return moodleExportBean;
     }
@@ -187,7 +187,7 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
     }
 
     public static class MoodleExportBean {
-        String username, firstname, lastname, email, degreeMinistryCode, role1, auth;
+        String username, firstname, lastname, email, degreeMinistryCode, curricularPlan, role1, auth;
         Collection<String> courses;
         Collection<String> roles;
 
@@ -229,6 +229,14 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
 
         public void setDegreeMinistryCode(String degreeMinistryCode) {
             this.degreeMinistryCode = degreeMinistryCode;
+        }
+
+        public String getCurricularPlan() {
+            return curricularPlan;
+        }
+
+        public void setCurricularPlan(String curricularPlan) {
+            this.curricularPlan = curricularPlan;
         }
 
         public String getRole1() {
