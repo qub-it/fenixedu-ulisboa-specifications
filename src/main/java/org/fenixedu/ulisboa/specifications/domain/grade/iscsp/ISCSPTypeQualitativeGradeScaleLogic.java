@@ -4,34 +4,39 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.academic.domain.curriculum.grade.QualitativeGradeComparator;
+import org.fenixedu.commons.i18n.LocalizedString;
 
 public class ISCSPTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
-    /*private static final String A = "A";
-    private static final String SU = "SU";
+    private static final String A = "A";
+    private static final String REC = "REC";
     private static final String B = "B";
-    private static final String BD = "BD";
     private static final String MB = "MB";
+    private static final String SU = "SU";
     private static final String E = "E";
-    private static final String AD = "AD";
+    private static final String BD = "BD";
     private static final String ADL = "ADL";
-    private static final String R = "R";*/
+    private static final String AD = "AD";
+    private static final String MBD = "MBD";
+    private static final String MBM = "MBM";
+    private static final String MBU = "MBU";
+    
 
-    private static final List<String> SORTED_GRADES = Arrays.asList(/*A, AD, ADL, SU, B, BD, MB, E, R*/);
+    private static final List<String> SORTED_GRADES = Arrays.asList(A, AD, ADL, SU, B, BD, MB, MBD, MBM, MBU, E, REC);
     private static final QualitativeGradeComparator COMPARATOR = new QualitativeGradeComparator(SORTED_GRADES);
 
     private static Map<String, LocalizedString> CONFIGURATION = new HashMap<String, LocalizedString>();
 
     static {
-        /*CONFIGURATION.put(R, new LocalizedString(Locale.getDefault(), "Recusado").with(Locale.ENGLISH, "Refused"));
+        CONFIGURATION.put(REC, new LocalizedString(Locale.getDefault(), "Recusado").with(Locale.ENGLISH, "Refused"));
         CONFIGURATION.put(A, new LocalizedString(Locale.getDefault(), "Aprovado").with(Locale.ENGLISH, "Approved"));
         CONFIGURATION.put(SU, new LocalizedString(Locale.getDefault(), "Suficiente").with(Locale.ENGLISH, "Sufficient"));
         CONFIGURATION.put(B, new LocalizedString(Locale.getDefault(), "Bom").with(Locale.ENGLISH, "Good"));
@@ -42,7 +47,13 @@ public class ISCSPTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
         CONFIGURATION.put(AD, new LocalizedString(Locale.getDefault(), "Aprovado com Distinção").with(Locale.ENGLISH,
                 "Approved with Distinction"));
         CONFIGURATION.put(ADL, new LocalizedString(Locale.getDefault(), "Aprovado com Distinção e Louvor").with(Locale.ENGLISH,
-                "Approved with Distinction and Honors"));*/
+                "Approved with Distinction and Honors"));
+        CONFIGURATION.put(MBD, new LocalizedString(Locale.getDefault(), "Muito Bom com Distinção").with(Locale.ENGLISH,
+                "Very good with Distinction"));
+        CONFIGURATION.put(MBM,
+                new LocalizedString(Locale.getDefault(), "Muito Bom por Maioria").with(Locale.ENGLISH, "Very good by Majority"));
+        CONFIGURATION.put(MBU, new LocalizedString(Locale.getDefault(), "Muito Bom por Unanimidade").with(Locale.ENGLISH,
+                "Very good by Unanimity"));
 
     }
 
@@ -69,9 +80,7 @@ public class ISCSPTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
     @Override
     public boolean isNotApproved(Grade grade) {
-        //TODO
-        //return R.equals(grade.getValue());
-        return true;
+        return REC.equals(grade.getValue());
     }
 
     @Override
