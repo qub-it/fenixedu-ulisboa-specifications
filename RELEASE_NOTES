@@ -1,4 +1,6 @@
 - Improvement: added ISEG/ISCSP qualitative grades
+- Improvement: Add curricular plan column to the student's report in the MoodleExportController #UL-FF-1835
+
 6.1.0 (22-10-2019)
 - Refactor: Invocation of method factory for Registration creation
 
