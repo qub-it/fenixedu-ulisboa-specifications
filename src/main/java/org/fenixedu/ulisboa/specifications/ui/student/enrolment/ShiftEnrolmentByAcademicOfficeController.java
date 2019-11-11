@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: shezad.anavarali@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -72,234 +72,229 @@ import com.google.gson.JsonObject;
 import pt.ist.fenixframework.Atomic;
 
 /**
- * 
+ *
  * @author shezad - Sep 10, 2015
  *
  */
-@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.shiftEnrolmentByAcademicOffice", accessGroup = "logged")
+@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.shiftEnrolmentByAcademicOffice",
+        accessGroup = "logged")
 @RequestMapping("/academicAdministration/shiftEnrolment")
 public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpecificationsBaseController {
 
-	@RequestMapping(value = "{registrationOid}/{semesterOid}")
-	public String home(@PathVariable("registrationOid") Registration registration,
-			@PathVariable("semesterOid") ExecutionSemester executionSemester, Model model) {
+    @RequestMapping(value = "{registrationOid}/{semesterOid}")
+    public String home(@PathVariable("registrationOid") Registration registration,
+            @PathVariable("semesterOid") ExecutionSemester executionSemester, Model model) {
 
-		checkUser();
+        checkUser();
 
-		final List<EnrolmentPeriodDTO> enrolmentBeans = new ArrayList<EnrolmentPeriodDTO>();
-		for (final ExecutionSemester otherExecutionSemester : executionSemester.getExecutionYear()
-				.getExecutionPeriodsSet()) {
-			enrolmentBeans.add(new EnrolmentPeriodDTO(registration, otherExecutionSemester,
-					otherExecutionSemester == executionSemester));
-		}
+        final List<EnrolmentPeriodDTO> enrolmentBeans = new ArrayList<EnrolmentPeriodDTO>();
+        for (final ExecutionSemester otherExecutionSemester : executionSemester.getExecutionYear().getExecutionPeriodsSet()) {
+            enrolmentBeans.add(
+                    new EnrolmentPeriodDTO(registration, otherExecutionSemester, otherExecutionSemester == executionSemester));
+        }
 
-		if (!enrolmentBeans.isEmpty()) {
-			enrolmentBeans.sort((eb1, eb2) -> eb1.compareTo(eb2));
+        if (!enrolmentBeans.isEmpty()) {
+            enrolmentBeans.sort((eb1, eb2) -> eb1.compareTo(eb2));
 
-			try {
-				final List<ShiftToEnrol> shiftsToEnrol = ReadShiftsToEnroll.read(registration, executionSemester);
-				shiftsToEnrol.sort(
-						(s1, s2) -> s1.getExecutionCourse().getName().compareTo(s2.getExecutionCourse().getName()));
-				model.addAttribute("shiftsToEnrol", shiftsToEnrol);
-			} catch (NotAuthorizedException e) {
-				addErrorMessage(e.getLocalizedMessage(), model);
-			} catch (FenixServiceException e) {
-				addErrorMessage(
-						BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources", e.getMessage()),
-						model);
+            try {
+                final List<ShiftToEnrol> shiftsToEnrol = ReadShiftsToEnroll.read(registration, executionSemester);
+                shiftsToEnrol.sort((s1, s2) -> s1.getExecutionCourse().getName().compareTo(s2.getExecutionCourse().getName()));
+                model.addAttribute("shiftsToEnrol", shiftsToEnrol);
+            } catch (NotAuthorizedException e) {
+                addErrorMessage(e.getLocalizedMessage(), model);
+            } catch (FenixServiceException e) {
+                addErrorMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources", e.getMessage()), model);
 //            addActionMessage(request, "error.enrollment.period.closed", exception.getArgs());
-			} catch (DomainException e) {
-				addErrorMessage(e.getLocalizedMessage(), model);
-			}
+            } catch (DomainException e) {
+                addErrorMessage(e.getLocalizedMessage(), model);
+            }
 
-		}
+        }
 
-		model.addAttribute("enrolmentBeans", enrolmentBeans);
+        model.addAttribute("enrolmentBeans", enrolmentBeans);
 
-		return "academicOffice/shiftEnrolment/shiftEnrolment";
-	}
+        return "academicOffice/shiftEnrolment/shiftEnrolment";
+    }
 
-	@RequestMapping(value = "possibleShiftsToEnrol.json/{registrationOid}/{executionCourseOid}/{shiftType}")
-	public @ResponseBody String getPossibleShiftsToEnrol(@PathVariable("registrationOid") Registration registration,
-			@PathVariable("executionCourseOid") ExecutionCourse executionCourse,
-			@PathVariable("shiftType") ShiftType shiftType) {
+    @RequestMapping(value = "possibleShiftsToEnrol.json/{registrationOid}/{executionCourseOid}/{shiftType}")
+    public @ResponseBody String getPossibleShiftsToEnrol(@PathVariable("registrationOid") Registration registration,
+            @PathVariable("executionCourseOid") ExecutionCourse executionCourse, @PathVariable("shiftType") ShiftType shiftType) {
 
-		checkUser();
+        checkUser();
 
-		final List<Shift> shifts = executionCourse.getAssociatedShifts().stream().filter(s -> s.containsType(shiftType))
-				.sorted(Shift.SHIFT_COMPARATOR_BY_NAME).collect(Collectors.toList());
+        final List<Shift> shifts = executionCourse.getAssociatedShifts().stream().filter(s -> s.containsType(shiftType))
+                .sorted(Shift.SHIFT_COMPARATOR_BY_NAME).collect(Collectors.toList());
 
-		final JsonArray result = new JsonArray();
-		for (final Shift shift : shifts) {
-			if (shift.getLotacao().intValue() > shift.getStudentsSet().size()) {
-				JsonObject jsonShift = new JsonObject();
-				jsonShift.addProperty("name", shift.getNome());
-				jsonShift.addProperty("type", shift.getShiftTypesPrettyPrint());
-				jsonShift.addProperty("lessons", shift.getLessonPresentationString());
-				jsonShift.addProperty("externalId", shift.getExternalId());
-				result.add(jsonShift);
-			}
-		}
+        final JsonArray result = new JsonArray();
+        for (final Shift shift : shifts) {
+            if (shift.getLotacao().intValue() > shift.getStudentsSet().size()) {
+                JsonObject jsonShift = new JsonObject();
+                jsonShift.addProperty("name", shift.getNome());
+                jsonShift.addProperty("type", shift.getShiftTypesPrettyPrint());
+                jsonShift.addProperty("lessons", shift.getLessonPresentationString());
+                jsonShift.addProperty("externalId", shift.getExternalId());
+                result.add(jsonShift);
+            }
+        }
 
-		return new GsonBuilder().create().toJson(result);
-	}
+        return new GsonBuilder().create().toJson(result);
+    }
 
-	@RequestMapping(value = "addShift/{registrationOid}/{semesterOid}/{shiftOid}")
-	public String addShift(@PathVariable("registrationOid") Registration registration,
-			@PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift,
-			Model model) {
+    @RequestMapping(value = "addShift/{registrationOid}/{semesterOid}/{shiftOid}")
+    public String addShift(@PathVariable("registrationOid") Registration registration,
+            @PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift,
+            Model model) {
 
-		checkUser();
+        checkUser();
 
-		try {
-			addShiftService(registration, shift);
-			addInfoMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",
-					"message.shiftEnrolment.addShift.success"), model);
-		} catch (DomainException e) {
-			addErrorMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources", e.getMessage()),
-					model);
-		}
+        try {
+            addShiftService(registration, shift);
+            addInfoMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",
+                    "message.shiftEnrolment.addShift.success"), model);
+        } catch (DomainException e) {
+            addErrorMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources", e.getMessage()), model);
+        }
 
-		return home(registration, executionSemester, model);
-	}
+        return home(registration, executionSemester, model);
+    }
 
-	@Atomic
-	protected void addShiftService(Registration registration, Shift shift) {
-		if (!shift.reserveForStudent(registration)) {
-			throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(),
-					shift.getShiftTypesPrettyPrint(), shift.getExecutionCourse().getName());
-		}
-	}
+    @Atomic
+    protected void addShiftService(Registration registration, Shift shift) {
+        if (!shift.reserveForStudent(registration)) {
+            throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(), shift.getShiftTypesPrettyPrint(),
+                    shift.getExecutionCourse().getName());
+        }
+    }
 
-	@RequestMapping(value = "removeShift/{registrationOid}/{semesterOid}/{shiftOid}")
-	public String removeShift(@PathVariable("registrationOid") Registration registration,
-			@PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift,
-			Model model) {
+    @RequestMapping(value = "removeShift/{registrationOid}/{semesterOid}/{shiftOid}")
+    public String removeShift(@PathVariable("registrationOid") Registration registration,
+            @PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift,
+            Model model) {
 
-		checkUser();
+        checkUser();
 
-		try {
-			removeShiftService(registration, shift);
-			addInfoMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",
-					"message.shiftEnrolment.removeShift.success"), model);
-		} catch (DomainException e) {
-			addErrorMessage(e.getLocalizedMessage(), model);
-		}
+        try {
+            removeShiftService(registration, shift);
+            addInfoMessage(BundleUtil.getString("resources.FenixeduUlisboaSpecificationsResources",
+                    "message.shiftEnrolment.removeShift.success"), model);
+        } catch (DomainException e) {
+            addErrorMessage(e.getLocalizedMessage(), model);
+        }
 
-		return home(registration, executionSemester, model);
-	}
+        return home(registration, executionSemester, model);
+    }
 
-	@Atomic
-	private void removeShiftService(Registration registration, Shift shift) {
-		registration.removeShifts(shift);
-	}
+    @Atomic
+    private void removeShiftService(Registration registration, Shift shift) {
+        registration.removeShifts(shift);
+    }
 
-	@RequestMapping(value = "currentSchedule.json/{registrationOid}/{executionSemesterOid}", produces = "application/json; charset=utf-8")
-	public @ResponseBody String schedule(@PathVariable("registrationOid") Registration registration,
-			@PathVariable("executionSemesterOid") ExecutionSemester executionSemester) {
+    @RequestMapping(value = "currentSchedule.json/{registrationOid}/{executionSemesterOid}",
+            produces = "application/json; charset=utf-8")
+    public @ResponseBody String schedule(@PathVariable("registrationOid") Registration registration,
+            @PathVariable("executionSemesterOid") ExecutionSemester executionSemester) {
 
-		checkUser();
+        checkUser();
 
-		final JsonArray result = new JsonArray();
+        final JsonArray result = new JsonArray();
 
-		for (final Shift shift : registration.getShiftsFor(executionSemester)) {
-			for (Lesson lesson : shift.getAssociatedLessonsSet()) {
-				final DateTime now = new DateTime();
-				final DateTime weekDay = now.withDayOfWeek(lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat());
-				final DateTime startTime = weekDay.withTime(lesson.getBeginHourMinuteSecond().getHour(),
-						lesson.getBeginHourMinuteSecond().getMinuteOfHour(), 0, 0);
-				final DateTime endTime = weekDay.withTime(lesson.getEndHourMinuteSecond().getHour(),
-						lesson.getEndHourMinuteSecond().getMinuteOfHour(), 0, 0);
+        for (final Shift shift : registration.getShiftsFor(executionSemester)) {
+            for (Lesson lesson : shift.getAssociatedLessonsSet()) {
+                final DateTime now = new DateTime();
+                final DateTime weekDay = now.withDayOfWeek(lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat());
+                final DateTime startTime = weekDay.withTime(lesson.getBeginHourMinuteSecond().getHour(),
+                        lesson.getBeginHourMinuteSecond().getMinuteOfHour(), 0, 0);
+                final DateTime endTime = weekDay.withTime(lesson.getEndHourMinuteSecond().getHour(),
+                        lesson.getEndHourMinuteSecond().getMinuteOfHour(), 0, 0);
 
-				final JsonObject event = new JsonObject();
-				event.addProperty("id", lesson.getExternalId());
-				event.addProperty("start", startTime.toString());
-				event.addProperty("end", endTime.toString());
-				event.addProperty("title", shift.getExecutionCourse().getName() + " ("
-						+ shift.getShiftTypesCodePrettyPrint() + " - " + shift.getNome() + ")");
-				event.addProperty("shiftId", shift.getExternalId());
-				result.add(event);
-			}
-		}
+                final JsonObject event = new JsonObject();
+                event.addProperty("id", lesson.getExternalId());
+                event.addProperty("start", startTime.toString());
+                event.addProperty("end", endTime.toString());
+                event.addProperty("title", shift.getExecutionCourse().getName() + " (" + shift.getShiftTypesCodePrettyPrint()
+                        + " - " + shift.getNome() + ")");
+                event.addProperty("shiftId", shift.getExternalId());
+                result.add(event);
+            }
+        }
 
-		return result.toString();
-	}
+        return result.toString();
+    }
 
-	static private void checkUser() {
-		if (!(AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser())
-				|| PermissionService.hasAccess("STUDENT_ENROLMENTS", Authenticate.getUser()))) {
-			throw new SecurityException("error.authorization.notGranted");
-		}
-	}
+    static private void checkUser() {
+        if (!(AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser())
+                || PermissionService.hasAccess("ADMIN_OFFICE_ENROLMENTS", Authenticate.getUser()))) {
+            throw new SecurityException("error.authorization.notGranted");
+        }
+    }
 
-	public static class EnrolmentPeriodDTO implements Serializable, Comparable<EnrolmentPeriodDTO> {
+    public static class EnrolmentPeriodDTO implements Serializable, Comparable<EnrolmentPeriodDTO> {
 
-		private final Registration registration;
-		private final ExecutionSemester executionSemester;
-		private Boolean selected;
+        private final Registration registration;
+        private final ExecutionSemester executionSemester;
+        private Boolean selected;
 
-		public EnrolmentPeriodDTO(Registration registration, ExecutionSemester executionSemester, Boolean selected) {
-			super();
-			this.registration = registration;
-			this.executionSemester = executionSemester;
-			this.selected = selected;
-		}
+        public EnrolmentPeriodDTO(Registration registration, ExecutionSemester executionSemester, Boolean selected) {
+            super();
+            this.registration = registration;
+            this.executionSemester = executionSemester;
+            this.selected = selected;
+        }
 
-		public Registration getRegistration() {
-			return registration;
-		}
+        public Registration getRegistration() {
+            return registration;
+        }
 
-		public ExecutionSemester getExecutionSemester() {
-			return executionSemester;
-		}
+        public ExecutionSemester getExecutionSemester() {
+            return executionSemester;
+        }
 
-		public Boolean getSelected() {
-			return selected;
-		}
+        public Boolean getSelected() {
+            return selected;
+        }
 
-		public void setSelected(Boolean selected) {
-			this.selected = selected;
-		}
+        public void setSelected(Boolean selected) {
+            this.selected = selected;
+        }
 
-		public SchoolClass getSchoolClass() {
-			return RegistrationServices.getSchoolClassBy(getRegistration(), executionSemester).orElse(null);
-		}
+        public SchoolClass getSchoolClass() {
+            return RegistrationServices.getSchoolClassBy(getRegistration(), executionSemester).orElse(null);
+        }
 
-		@Override
-		public int compareTo(EnrolmentPeriodDTO o) {
-			int result = Degree.COMPARATOR_BY_NAME_AND_ID.compare(getRegistration().getDegree(),
-					o.getRegistration().getDegree());
-			return result == 0 ? getExecutionSemester().compareTo(o.getExecutionSemester()) : result;
-		}
+        @Override
+        public int compareTo(EnrolmentPeriodDTO o) {
+            int result = Degree.COMPARATOR_BY_NAME_AND_ID.compare(getRegistration().getDegree(), o.getRegistration().getDegree());
+            return result == 0 ? getExecutionSemester().compareTo(o.getExecutionSemester()) : result;
+        }
 
-		public Map<Lesson, Collection<Lesson>> getLessonsOverlaps() {
-			final Map<Lesson, Collection<Lesson>> overlapsMap = new HashMap<Lesson, Collection<Lesson>>();
+        public Map<Lesson, Collection<Lesson>> getLessonsOverlaps() {
+            final Map<Lesson, Collection<Lesson>> overlapsMap = new HashMap<Lesson, Collection<Lesson>>();
 
-			final List<Lesson> allLessons = registration.getShiftsFor(getExecutionSemester()).stream()
-					.flatMap(s -> s.getAssociatedLessonsSet().stream()).collect(Collectors.toList());
-			while (!allLessons.isEmpty()) {
-				final Lesson lesson = allLessons.remove(0);
-				final Set<Lesson> overlappingLessons = allLessons.stream()
-						.filter(l -> getLessonIntervalHack(l).overlaps(getLessonIntervalHack(lesson)))
-						.collect(Collectors.toSet());
-				if (!overlappingLessons.isEmpty()) {
-					overlapsMap.put(lesson, overlappingLessons);
-				}
-			}
+            final List<Lesson> allLessons = registration.getShiftsFor(getExecutionSemester()).stream()
+                    .flatMap(s -> s.getAssociatedLessonsSet().stream()).collect(Collectors.toList());
+            while (!allLessons.isEmpty()) {
+                final Lesson lesson = allLessons.remove(0);
+                final Set<Lesson> overlappingLessons =
+                        allLessons.stream().filter(l -> getLessonIntervalHack(l).overlaps(getLessonIntervalHack(lesson)))
+                                .collect(Collectors.toSet());
+                if (!overlappingLessons.isEmpty()) {
+                    overlapsMap.put(lesson, overlappingLessons);
+                }
+            }
 
-			return overlapsMap;
-		}
+            return overlapsMap;
+        }
 
-		/**
-		 * HACK: this interval is not accurate, because it doesn't takes into account
-		 * lesson instance dates
-		 */
-		private static Interval getLessonIntervalHack(final Lesson lesson) {
-			final int weekDay = lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat();
-			return new Interval(
-					new LocalDate().toDateTime(lesson.getBeginHourMinuteSecond().toLocalTime()).withDayOfWeek(weekDay),
-					new LocalDate().toDateTime(lesson.getEndHourMinuteSecond().toLocalTime()).withDayOfWeek(weekDay));
-		}
+        /**
+         * HACK: this interval is not accurate, because it doesn't takes into account
+         * lesson instance dates
+         */
+        private static Interval getLessonIntervalHack(final Lesson lesson) {
+            final int weekDay = lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat();
+            return new Interval(
+                    new LocalDate().toDateTime(lesson.getBeginHourMinuteSecond().toLocalTime()).withDayOfWeek(weekDay),
+                    new LocalDate().toDateTime(lesson.getEndHourMinuteSecond().toLocalTime()).withDayOfWeek(weekDay));
+        }
 
-	}
+    }
 }
