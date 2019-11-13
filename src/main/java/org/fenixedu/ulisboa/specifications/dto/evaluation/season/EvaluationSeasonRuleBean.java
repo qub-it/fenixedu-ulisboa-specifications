@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.student.StatuteType;
@@ -61,7 +61,7 @@ public class EvaluationSeasonRuleBean implements IBean {
 
     private String gradeValue;
 
-    private GradeScale gradeScale;
+    private GradeScaleEnum gradeScale;
 
     private List<TupleDataSourceBean> gradeScaleDataSource;
 
@@ -107,11 +107,11 @@ public class EvaluationSeasonRuleBean implements IBean {
         this.gradeValue = gradeValue;
     }
 
-    public GradeScale getGradeScale() {
+    public GradeScaleEnum getGradeScale() {
         return gradeScale;
     }
 
-    public void setGradeScale(GradeScale gradeScale) {
+    public void setGradeScale(GradeScaleEnum gradeScale) {
         this.gradeScale = gradeScale;
     }
 
@@ -256,8 +256,8 @@ public class EvaluationSeasonRuleBean implements IBean {
     }
 
     private void init() {
-        this.gradeScaleDataSource = Arrays.<GradeScale> asList(GradeScale.values()).stream()
-                .map(l -> new TupleDataSourceBean(((GradeScale) l).name(), ((GradeScale) l).getDescription()))
+        this.gradeScaleDataSource = Arrays.<GradeScaleEnum> asList(GradeScaleEnum.values()).stream()
+                .map(l -> new TupleDataSourceBean(((GradeScaleEnum) l).name(), ((GradeScaleEnum) l).getDescription()))
                 .collect(Collectors.<TupleDataSourceBean> toList());
 
         this.degreeTypesDataSource = DegreeType.all()

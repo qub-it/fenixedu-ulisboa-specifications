@@ -42,7 +42,7 @@ import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
@@ -120,7 +120,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                 evaluationSeasons.sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).collect(Collectors.toList()));
 
         model.addAttribute("gradeScaleValues",
-                Arrays.<GradeScale> asList(GradeScale.values()).stream()
+                Arrays.<GradeScaleEnum> asList(GradeScaleEnum.values()).stream()
                         .map(l -> new TupleDataSourceBean(l.name(), l.getDescription()))
                         .collect(Collectors.<TupleDataSourceBean> toList()));
 
@@ -167,7 +167,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
             @RequestParam(value = "availabledate",
                     required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate availableDate,
             @RequestParam(value = "examdate", required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate examDate,
-            @RequestParam(value = "gradescale", required = false) GradeScale gradeScale,
+            @RequestParam(value = "gradescale", required = false) GradeScaleEnum gradeScale,
             @RequestParam(value = "grade", required = false) String grade,
             @RequestParam(value = "type", required = false) EvaluationSeason type,
             @RequestParam(value = "improvementsemester", required = false) ExecutionInterval improvementSemester, Model model,
@@ -200,11 +200,11 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         }
     }
 
-    static private List<String> checkIfAllGradesAreSameScale(final Enrolment enrolment, final GradeScale gradeScale) {
+    static private List<String> checkIfAllGradesAreSameScale(final Enrolment enrolment, final GradeScaleEnum gradeScale) {
         final List<String> result = Lists.newArrayList();
 
         for (final EnrolmentEvaluation iter : enrolment.getEvaluationsSet()) {
-            final GradeScale other = iter.getGrade().getGradeScale();
+            final GradeScaleEnum other = iter.getGrade().getGradeScale();
 
             if (!iter.getGrade().isEmpty() && other != gradeScale) {
                 result.add(other.getDescription());

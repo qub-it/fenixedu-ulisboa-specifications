@@ -34,7 +34,7 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleServices;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
@@ -149,16 +149,12 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         final String since = getAggregator().getSince().getQualifiedName();
 
         final String gradeFactor =
-                ", " + (getGradeFactor() == null || BigDecimal.ZERO.compareTo(getGradeFactor()) == 0 ? BundleUtil
-                        .getLocalizedString(Bundle.ENUMERATION, GradeScale.TYPEQUALITATIVE.name())
-                        .getContent() : getGradeFactor().multiply(BigDecimal.valueOf(100d)).stripTrailingZeros().toPlainString()
-                                + "%");
+                ", " + (getGradeFactor() == null || BigDecimal.ZERO.compareTo(getGradeFactor()) == 0 ? 
+                            getAggregator().getCurricularCourse().getDegree().getQualitativeGradeScale().getName().getContent() : 
+                                getGradeFactor().multiply(BigDecimal.valueOf(100d)).stripTrailingZeros().toPlainString() + "%");
 
-        final GradeScale gradeScale = getGradeScale();
-        String gradeScaleDescription = "";
-        if (gradeScale != GradeScale.TYPE20) {
-            gradeScaleDescription = " " + gradeScale.getDescription().replace(GradeScale.TYPE20.getDescription(), "");
-        }
+        final GradeScaleEnum gradeScale = getGradeScale();
+        String gradeScaleDescription = " " + gradeScale.getDescription();
 
         String result = String.format("%s [%s %s%s%s]", description, BundleUtil.getString(Bundle.APPLICATION, "label.since"),
                 since, gradeFactor, gradeScaleDescription);
@@ -190,9 +186,9 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         return (CurricularCourse) getContext().getChildDegreeModule();
     }
 
-    public GradeScale getGradeScale() {
-        final GradeScale competenceScale = getCurricularCourse().getCompetenceCourse().getGradeScale();
-        return competenceScale != null ? competenceScale : getCurricularCourse().getGradeScaleChain();
+    public GradeScaleEnum getGradeScale() {
+        final GradeScaleEnum competenceScale = getCurricularCourse().getCompetenceCourse().getGradeScale();
+        return competenceScale;
     }
 
     protected boolean isAggregationEvaluated(final StudentCurricularPlan plan) {

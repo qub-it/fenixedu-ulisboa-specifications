@@ -40,7 +40,7 @@ import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
@@ -106,7 +106,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     private CompetenceCourseMarkSheetStateEnum markSheetState;
     private List<TupleDataSourceBean> markSheetStateDataSource;
 
-    private GradeScale gradeScale;
+    private GradeScaleEnum gradeScale;
     private List<TupleDataSourceBean> gradeScaleDataSource;
 
     private CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState;
@@ -577,7 +577,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                 .map(x -> new TupleDataSourceBean(x.name(), x.getDescriptionI18N().getContent())).collect(Collectors.toList());
     }
 
-    public GradeScale getGradeScale() {
+    public GradeScaleEnum getGradeScale() {
         return gradeScale;
     }
 
@@ -585,11 +585,11 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         return gradeScaleDataSource;
     }
 
-    public void setGradeScale(GradeScale gradeScale) {
+    public void setGradeScale(GradeScaleEnum gradeScale) {
         this.gradeScale = gradeScale;
     }
 
-    public void setGradeScaleDataSource(final List<GradeScale> value) {
+    public void setGradeScaleDataSource(final List<GradeScaleEnum> value) {
         this.gradeScaleDataSource =
                 value.stream().map(x -> new TupleDataSourceBean(x.name(), x.getDescription())).collect(Collectors.toList());
     }
@@ -665,8 +665,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         setMarkSheetStateDataSource(Lists.newArrayList(CompetenceCourseMarkSheetStateEnum.values()));
 
-        setGradeScaleDataSource(Lists.newArrayList(GradeScale.TYPE20, GradeScale.TYPE20_ABSOLUTE, GradeScale.TYPEQUALITATIVE,
-                GradeScale.TYPEAPT));
+        setGradeScaleDataSource(Lists.newArrayList(GradeScaleEnum.TYPE20, GradeScaleEnum.TYPE20_ABSOLUTE, GradeScaleEnum.TYPEQUALITATIVE,
+                GradeScaleEnum.TYPEAPT));
 
         setChangeRequestStateDataSource(Lists.newArrayList(CompetenceCourseMarkSheetChangeRequestStateEnum.values()));
     }

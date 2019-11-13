@@ -9,8 +9,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScale;
-import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
+import org.fenixedu.academic.domain.GradeScaleEnum;
+import org.fenixedu.academic.domain.GradeScaleEnum.GradeScaleLogic;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.academic.domain.curriculum.grade.QualitativeGradeComparator;
 import org.fenixedu.commons.i18n.LocalizedString;
 
@@ -115,7 +116,7 @@ public class ISEGTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
     @Override
     public Collection<Grade> getPossibleGrades() {
-        return CONFIGURATION.keySet().stream().map(v -> Grade.createGrade(v, GradeScale.TYPEQUALITATIVE))
+        return CONFIGURATION.keySet().stream().map(v -> Grade.createGrade(v, GradeScaleEnum.TYPEQUALITATIVE))
                 .collect(Collectors.toSet());
     }
 }

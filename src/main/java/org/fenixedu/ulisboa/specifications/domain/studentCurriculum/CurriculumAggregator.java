@@ -44,7 +44,7 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.academic.domain.degreeStructure.Context;
@@ -231,11 +231,8 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         final String description = getDescription().getContent();
         final String since = getSince().getQualifiedName();
 
-        final GradeScale gradeScale = getGradeScale();
-        String gradeScaleDescription = "";
-        if (gradeScale != GradeScale.TYPE20) {
-            gradeScaleDescription = ", " + gradeScale.getDescription().replace(GradeScale.TYPE20.getDescription(), "");
-        }
+        final GradeScaleEnum gradeScale = getGradeScale();
+        String gradeScaleDescription = ", " + gradeScale.getDescription();
 
         String result = String.format("%s [%s %s%s]", description, BundleUtil.getString(Bundle.APPLICATION, "label.since"), since,
                 gradeScaleDescription);
@@ -276,9 +273,9 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return (CurricularCourse) getContext().getChildDegreeModule();
     }
 
-    public GradeScale getGradeScale() {
-        final GradeScale competenceScale = getCurricularCourse().getCompetenceCourse().getGradeScale();
-        return competenceScale != null ? competenceScale : getCurricularCourse().getGradeScaleChain();
+    public GradeScaleEnum getGradeScale() {
+        final GradeScaleEnum competenceScale = getCurricularCourse().getCompetenceCourse().getGradeScale();
+        return competenceScale;
     }
 
     public boolean isWithMarkSheet() {
@@ -638,7 +635,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         }
 
         if (!isAggregationConcluded(plan)) {
-            return Grade.createGrade(GradeScale.RE, getGradeScale());
+            return Grade.createGrade(GradeScaleEnum.RE, getGradeScale());
         }
 
         return getGradeCalculator().calculate(this, plan);

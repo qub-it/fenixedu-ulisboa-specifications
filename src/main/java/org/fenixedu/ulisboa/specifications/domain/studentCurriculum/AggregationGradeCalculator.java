@@ -30,7 +30,7 @@ import java.math.RoundingMode;
 import java.util.function.Function;
 
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
@@ -88,12 +88,12 @@ public enum AggregationGradeCalculator implements IPresentableEnum {
     static private Grade createGrade(final CurriculumAggregator aggregator, final StudentCurricularPlan plan,
             final BigDecimal value) {
 
-        final GradeScale gradeScale = aggregator.getGradeScale();
+        final GradeScaleEnum gradeScale = aggregator.getGradeScale();
         final int gradeValueScale = aggregator.getGradeValueScale();
 
         final String grade = value.setScale(gradeValueScale, RoundingMode.HALF_UP).toString();
         if (!gradeScale.belongsTo(grade)) {
-            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.GradeScale.unsupports.ConclusionGrade",
+            throw new ULisboaSpecificationsDomainException("error.CurriculumAggregator.GradeScaleEnum.unsupports.ConclusionGrade",
                     plan.getRegistration().getNumber().toString(), aggregator.getCurricularCourse().getCode(), grade,
                     gradeScale.getDescription());
         }

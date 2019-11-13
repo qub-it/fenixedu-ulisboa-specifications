@@ -36,7 +36,7 @@ import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.GradeScale;
+import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
@@ -393,15 +393,6 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
                 if (!StringUtils.isEmpty(degreeModuleToEvaluate.getDegreeModule().getCode())) {
                     degreeModuleName = degreeModuleToEvaluate.getDegreeModule().getCode() + " - " + degreeModuleName;
-                }
-
-                if (canPerformStudentEnrolments) {
-                    final CurricularCourse curricularCourse = (CurricularCourse) degreeModuleToEvaluate.getDegreeModule();
-                    final GradeScale gradeScaleChain = curricularCourse.getGradeScaleChain();
-                    if (gradeScaleChain != GradeScale.TYPE20) {
-                        degreeModuleName +=
-                                " (" + i18n(Bundle.STUDENT, "label.grade.scale") + " - " + gradeScaleChain.getDescription() + ")";
-                    }
                 }
             }
 

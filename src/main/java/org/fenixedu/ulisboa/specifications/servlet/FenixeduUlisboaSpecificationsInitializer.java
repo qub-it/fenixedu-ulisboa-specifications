@@ -38,8 +38,8 @@ import org.fenixedu.academic.FenixeduAcademicExtensionsInitializer;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScale;
-import org.fenixedu.academic.domain.GradeScale.GradeScaleLogic;
+import org.fenixedu.academic.domain.GradeScaleEnum;
+import org.fenixedu.academic.domain.GradeScaleEnum.GradeScaleLogic;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
@@ -337,7 +337,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         }
 
         if (logic != null) {
-            GradeScale.TYPEQUALITATIVE.setLogic(logic);
+            GradeScaleEnum.TYPEQUALITATIVE.setLogic(logic);
         }
     }
 
