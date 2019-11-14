@@ -184,7 +184,7 @@ public class CurriculumLayout extends Layout {
 
                 if (!isConclusionDocument() && (AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
                         .isMember(Authenticate.getUser())
-                        || PermissionService.hasAccess("ADMIN_OFFICE_CONCLUSION", Authenticate.getUser()))) {
+                        || PermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", Authenticate.getUser()))) {
                     generateCellWithLink(enrolmentRow, entry.getExecutionYear(),
                             ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.generateInstitutionTable"));
                     return;

@@ -150,8 +150,8 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                                 .findEnrolmentCourseEvaluations(ev.getEnrolment(), ev.getEvaluationSeason(), semester).isEmpty()
                                 || AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
                                         studentCurricularPlan.getDegree(), Authenticate.getUser())
-                                || PermissionService.hasAccess("ADMIN_OFFICE_ENROLMENTS_ADMIN", studentCurricularPlan.getDegree(),
-                                        Authenticate.getUser()))
+                                || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
+                                        studentCurricularPlan.getDegree(), Authenticate.getUser()))
                         .sorted(c1.thenComparing(c2).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
                         .collect(Collectors.toList());
 
