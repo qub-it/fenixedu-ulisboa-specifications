@@ -19,7 +19,7 @@
 
 <bean:define id="registration" name="registration" scope="request" type="org.fenixedu.academic.domain.student.Registration"/>
 
-<academic:allowed operation="MANAGE_STUDENT_PAYMENTS">
+<academic:allowed operation="MANAGE_STUDENT_PAYMENTS" permission="TREASURY">
 <% if(TreasuryBridgeAPIFactory.implementation().isPersonAccountTreasuryManagementAvailable(registration.getStudent().getPerson())) { %>
 	<span class="dblock pbottom03">	
 		<img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />

@@ -107,7 +107,7 @@ ${portal.angularToolkit()}
 %>
 
 
-<academic:allowed operation="SERVICE_REQUESTS">                      
+<academic:allowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">                      
     <div class="well well-sm" style="display: inline-block">
         <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
         <a class=""
@@ -117,7 +117,7 @@ ${portal.angularToolkit()}
         &nbsp; 
     </div>
 </academic:allowed>
-<academic:notAllowed operation="SERVICE_REQUESTS">
+<academic:notAllowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">
     <div class="well well-sm" style="display: inline-block">
         <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
         <a class=""
@@ -357,11 +357,11 @@ ${portal.angularToolkit()}
                     <spring:message code="label.ULisboaServiceRequest.requestDate" />
                 </div>
                 <div class="col-sm-7">
-                    <academic:allowed operation="SERVICE_REQUESTS">                      
+                    <academic:allowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">                      
                         <input id="requestDate" class="form-control" type="text" bennu-date="object.requestDate"
                             name="field" ng-required="true" />  
                     </academic:allowed>
-                    <academic:notAllowed operation="SERVICE_REQUESTS">     
+                    <academic:notAllowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">     
                             <div class="form-control-static">
                             <c:out  value="{{ object.requestDate | date:'dd-MM-yyyy' }}" />                 
                             </div>

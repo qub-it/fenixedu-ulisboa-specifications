@@ -138,9 +138,9 @@
         </td>
         
         <td style="vertical-align: top; padding-top: 1em;">
-            <academic:allowed operation="MANAGE_REGISTRATIONS" program="<%= registration.getDegree() %>">
+            <academic:allowed operation="MANAGE_REGISTRATIONS" permission="ACADEMIC_OFFICE_REGISTRATION_ACCESS" program="<%= registration.getDegree() %>">
             <%-- qubExtension --%>
-            <academic:allowed operation="STUDENT_ENROLMENTS" program="<%= registration.getDegree() %>">
+            <academic:allowed operation="STUDENT_ENROLMENTS" permission="ACADEMIC_OFFICE_ENROLMENTS" program="<%= registration.getDegree() %>">
             <p class="mtop0 pleft1 asd">
                 <span class="dblock pbottom03">
                     <img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
@@ -166,7 +166,7 @@
                         <bean:message key="link.student.manageRegistrationStartDates" bundle="ACADEMIC_OFFICE_RESOURCES"/>
                     </html:link>
                 </span>     
-                <academic:allowed operation="MANAGE_CONCLUSION" program="<%= registration.getDegree() %>">
+                <academic:allowed operation="MANAGE_CONCLUSION" permission="ACADEMIC_OFFICE_CONCLUSION" program="<%= registration.getDegree() %>">
                     <%-- qubExtensions, removed conditional access to conclusion process page
                     <logic:equal name="registration" property="qualifiedToRegistrationConclusionProcess" value="true">
                      --%>
@@ -279,7 +279,7 @@
                 <fr:property name="sortBy" value="executionYear=desc" />
     
                 <%-- qubExtension --%>              
-                <academic:allowed operation="STUDENT_ENROLMENTS" program="<%= registration.getDegree() %>">
+                <academic:allowed operation="STUDENT_ENROLMENTS" permission="ACADEMIC_OFFICE_ENROLMENTS" program="<%= registration.getDegree() %>">
                     <%-- qubExtension --%>
                     <fr:link name="shiftEnrolment" label="label.shifts,APPLICATION_RESOURCES" 
                                  link="/shiftEnrolment/${registration.externalId}/${executionYear.firstExecutionPeriod.externalId}" order="1" />
@@ -301,7 +301,7 @@
     
     
     <%-- Curricular Plans --%>
-    <academic:allowed operation="MANAGE_REGISTRATIONS" program="<%= registration.getDegree() %>">
+    <academic:allowed operation="MANAGE_REGISTRATIONS" permission="ACADEMIC_OFFICE_REGISTRATION_ACCESS" program="<%= registration.getDegree() %>">
     <h3 class="mbottom05 mtop25 separator2"><bean:message key="label.studentCurricularPlans" bundle="ACADEMIC_OFFICE_RESOURCES"/></h3>
     <%-- qubExtension --%>
     <div onmouseout="document.getElementById('curriculumAccumulatedInfo').className='tooltip tooltipClosed';" id="curriculumAccumulatedInfo" class="tooltip tooltipClosed" onmouseover="document.getElementById('curriculumAccumulatedInfo').className='tooltip tooltipOpen';">
@@ -357,7 +357,7 @@
             </td>
                         
             <td class="acenter">
-                <academic:allowed operation="MANAGE_EQUIVALENCES">
+                <academic:allowed operation="MANAGE_EQUIVALENCES" permission="ACADEMIC_OFFICE_CREDITS_TRANSFER">
                     <html:link action="/studentDismissals.do?method=manage" paramId="scpID" paramName="studentCurricularPlan" paramProperty="externalId">
                         <bean:message key="label.dismissals" bundle="ACADEMIC_OFFICE_RESOURCES"/>
                     </html:link>
@@ -404,7 +404,7 @@
         </span>
         
         <%-- qubExtension --%>
-        <academic:allowed operation="STUDENT_ENROLMENTS" program="<%= registration.getDegree() %>">
+        <academic:allowed operation="STUDENT_ENROLMENTS" permission="ACADEMIC_OFFICE_ENROLMENTS" program="<%= registration.getDegree() %>">
         <span class="pleft1">
             <img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
             <html:link page="/manageStudentCurricularPlans.do?method=prepareCreate" paramId="registrationId" paramName="registration" paramProperty="externalId">
@@ -414,7 +414,7 @@
         </academic:allowed>
         
         <%-- qubExtension --%>
-        <academic:allowed operation="STUDENT_ENROLMENTS" program="<%= registration.getDegree() %>">
+        <academic:allowed operation="STUDENT_ENROLMENTS" permission="ACADEMIC_OFFICE_ENROLMENTS" program="<%= registration.getDegree() %>">
         <span class="pleft1">
             <img src="<%= request.getContextPath() %>/images/dotist_post.gif" alt="<bean:message key="dotist_post" bundle="IMAGE_RESOURCES" />" />
             <html:link page="/studentExternalEnrolments.do?method=manageExternalEnrolments" paramId="registrationId" paramName="registration" paramProperty="externalId">
@@ -427,8 +427,8 @@
     
     </academic:allowed>
     
-    <academic:notAllowed operation="MANAGE_REGISTRATIONS" program="<%= registration.getDegree() %>">
-        <academic:allowed operation="VIEW_FULL_STUDENT_CURRICULUM">
+    <academic:notAllowed operation="MANAGE_REGISTRATIONS" permission="ACADEMIC_OFFICE_REGISTRATION_ACCESS" program="<%= registration.getDegree() %>">
+        <academic:allowed operation="VIEW_FULL_STUDENT_CURRICULUM" permission="ACADEMIC_OFFICE_REGISTRATION_ACCESS">
             <h3 class="mbottom05 mtop25 separator2"><bean:message key="label.studentCurricularPlans" bundle="ACADEMIC_OFFICE_RESOURCES"/></h3>
             
             <fr:view name="registration" property="sortedStudentCurricularPlans" schema="student.studentCurricularPlans" >

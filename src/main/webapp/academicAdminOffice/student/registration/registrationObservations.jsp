@@ -10,7 +10,7 @@
     <fmt:setLocale value=""/>
     <fmt:setBundle basename="resources.FenixeduUlisboaSpecificationsResources" var="lang"/>
     <bean:define id="registration" name="registration" scope="request" type="org.fenixedu.academic.domain.student.Registration"/>
-    <academic:allowed operation="MANAGE_REGISTRATIONS">
+    <academic:allowed operation="MANAGE_REGISTRATIONS" permission="ACADEMIC_OFFICE_REGISTRATION_ACCESS">
         <h3 class="mbottom05 mtop25 separator2"><fmt:message key="label.student.observations" bundle="${lang}" /></h3>
         <logic:present name="registration" property="registrationObservations">
             <logic:notEmpty name="registration" property="registrationObservations">
