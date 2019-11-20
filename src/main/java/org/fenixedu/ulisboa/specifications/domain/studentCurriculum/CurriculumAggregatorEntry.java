@@ -34,10 +34,10 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleServices;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -153,8 +153,8 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
                             getAggregator().getCurricularCourse().getDegree().getQualitativeGradeScale().getName().getContent() : 
                                 getGradeFactor().multiply(BigDecimal.valueOf(100d)).stripTrailingZeros().toPlainString() + "%");
 
-        final GradeScaleEnum gradeScale = getGradeScale();
-        String gradeScaleDescription = " " + gradeScale.getDescription();
+        final GradeScale gradeScale = getGradeScale();
+        String gradeScaleDescription = " " + gradeScale.getName().getContent();
 
         String result = String.format("%s [%s %s%s%s]", description, BundleUtil.getString(Bundle.APPLICATION, "label.since"),
                 since, gradeFactor, gradeScaleDescription);
@@ -186,8 +186,8 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         return (CurricularCourse) getContext().getChildDegreeModule();
     }
 
-    public GradeScaleEnum getGradeScale() {
-        final GradeScaleEnum competenceScale = getCurricularCourse().getCompetenceCourse().getGradeScale();
+    public GradeScale getGradeScale() {
+        final GradeScale competenceScale = getCurricularCourse().getCompetenceCourse().getGradeScale();
         return competenceScale;
     }
 

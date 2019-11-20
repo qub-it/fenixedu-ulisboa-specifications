@@ -34,13 +34,9 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.ShiftType;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degree.DegreeType;
-import org.fenixedu.academic.domain.student.StatuteType;
-import org.fenixedu.bennu.IBean;
-import org.fenixedu.bennu.TupleDataSourceBean;
-import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonRule;
 import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonShiftType;
@@ -48,6 +44,10 @@ import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonStatu
 import org.fenixedu.academic.domain.evaluation.season.rule.GradeScaleValidator;
 import org.fenixedu.academic.domain.evaluation.season.rule.PreviousSeasonBlockingGrade;
 import org.fenixedu.academic.domain.evaluation.season.rule.PreviousSeasonMinimumGrade;
+import org.fenixedu.academic.domain.student.StatuteType;
+import org.fenixedu.bennu.IBean;
+import org.fenixedu.bennu.TupleDataSourceBean;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
 import com.google.common.collect.Lists;
@@ -61,7 +61,7 @@ public class EvaluationSeasonRuleBean implements IBean {
 
     private String gradeValue;
 
-    private GradeScaleEnum gradeScale;
+    private GradeScale gradeScale;
 
     private List<TupleDataSourceBean> gradeScaleDataSource;
 
@@ -107,11 +107,11 @@ public class EvaluationSeasonRuleBean implements IBean {
         this.gradeValue = gradeValue;
     }
 
-    public GradeScaleEnum getGradeScale() {
+    public GradeScale getGradeScale() {
         return gradeScale;
     }
 
-    public void setGradeScale(GradeScaleEnum gradeScale) {
+    public void setGradeScale(GradeScale gradeScale) {
         this.gradeScale = gradeScale;
     }
 
@@ -256,8 +256,14 @@ public class EvaluationSeasonRuleBean implements IBean {
     }
 
     private void init() {
-        this.gradeScaleDataSource = Arrays.<GradeScaleEnum> asList(GradeScaleEnum.values()).stream()
-                .map(l -> new TupleDataSourceBean(((GradeScaleEnum) l).name(), ((GradeScaleEnum) l).getDescription()))
+        List<GradeScale> gradeScaleList = GradeScale.findActive(true).sorted(GradeScale.COMPARE_BY_NAME).collect(Collectors.toList());
+        
+        if(this.gradeScale != null && !gradeScaleList.contains(this.gradeScale)) {
+            gradeScaleList.add(this.gradeScale);
+        }
+        
+        this.gradeScaleDataSource = gradeScaleList.stream()
+                .map(l -> new TupleDataSourceBean(l.getExternalId(), l.getName().getContent()))
                 .collect(Collectors.<TupleDataSourceBean> toList());
 
         this.degreeTypesDataSource = DegreeType.all()

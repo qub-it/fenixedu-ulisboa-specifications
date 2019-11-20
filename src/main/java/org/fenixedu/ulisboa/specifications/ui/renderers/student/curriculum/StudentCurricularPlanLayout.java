@@ -1192,7 +1192,7 @@ public class StudentCurricularPlanLayout extends Layout {
         if (grade != null && !grade.isEmpty()) {
 
             if (grade.isNumeric()) {
-                result = grade.getGradeScale().getDescription();
+                result = grade.getGradeScale().getName().getContent();
 
             } else {
                 result = StringUtils.capitalize(grade.getExtendedValue().getContent());

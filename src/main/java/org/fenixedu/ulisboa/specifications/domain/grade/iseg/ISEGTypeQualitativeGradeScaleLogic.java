@@ -15,6 +15,7 @@ import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.academic.domain.curriculum.grade.QualitativeGradeComparator;
 import org.fenixedu.commons.i18n.LocalizedString;
 
+@Deprecated
 public class ISEGTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
     private static final String REU = "REU";
@@ -115,8 +116,9 @@ public class ISEGTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     }
 
     @Override
+    @Deprecated
     public Collection<Grade> getPossibleGrades() {
-        return CONFIGURATION.keySet().stream().map(v -> Grade.createGrade(v, GradeScaleEnum.TYPEQUALITATIVE))
-                .collect(Collectors.toSet());
+        throw new RuntimeException("deprecated");
     }
+    
 }

@@ -44,8 +44,8 @@ import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
@@ -231,8 +231,8 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         final String description = getDescription().getContent();
         final String since = getSince().getQualifiedName();
 
-        final GradeScaleEnum gradeScale = getGradeScale();
-        String gradeScaleDescription = ", " + gradeScale.getDescription();
+        final GradeScale gradeScale = getGradeScale();
+        String gradeScaleDescription = ", " + gradeScale.getName().getContent();
 
         String result = String.format("%s [%s %s%s]", description, BundleUtil.getString(Bundle.APPLICATION, "label.since"), since,
                 gradeScaleDescription);
@@ -273,8 +273,8 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return (CurricularCourse) getContext().getChildDegreeModule();
     }
 
-    public GradeScaleEnum getGradeScale() {
-        final GradeScaleEnum competenceScale = getCurricularCourse().getCompetenceCourse().getGradeScale();
+    public GradeScale getGradeScale() {
+        final GradeScale competenceScale = getCurricularCourse().getCompetenceCourse().getGradeScale();
         return competenceScale;
     }
 
@@ -622,6 +622,8 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         return true;
     }
 
+    static final private String RE = "RE";
+
     /**
      * Note that this behaviour is independent from this aggregator being master or slave in the enrolment process
      */
@@ -635,7 +637,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
         }
 
         if (!isAggregationConcluded(plan)) {
-            return Grade.createGrade(GradeScaleEnum.RE, getGradeScale());
+            return Grade.createGrade(RE, getGradeScale());
         }
 
         return getGradeCalculator().calculate(this, plan);

@@ -45,6 +45,7 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
+import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.academic.domain.evaluation.EvaluationServices;
 import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
@@ -106,7 +107,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     private CompetenceCourseMarkSheetStateEnum markSheetState;
     private List<TupleDataSourceBean> markSheetStateDataSource;
 
-    private GradeScaleEnum gradeScale;
+    private GradeScale gradeScale;
     private List<TupleDataSourceBean> gradeScaleDataSource;
 
     private CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState;
@@ -577,7 +578,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
                 .map(x -> new TupleDataSourceBean(x.name(), x.getDescriptionI18N().getContent())).collect(Collectors.toList());
     }
 
-    public GradeScaleEnum getGradeScale() {
+    public GradeScale getGradeScale() {
         return gradeScale;
     }
 
@@ -585,13 +586,13 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         return gradeScaleDataSource;
     }
 
-    public void setGradeScale(GradeScaleEnum gradeScale) {
+    public void setGradeScale(GradeScale gradeScale) {
         this.gradeScale = gradeScale;
     }
 
-    public void setGradeScaleDataSource(final List<GradeScaleEnum> value) {
+    public void setGradeScaleDataSource(final List<GradeScale> value) {
         this.gradeScaleDataSource =
-                value.stream().map(x -> new TupleDataSourceBean(x.name(), x.getDescription())).collect(Collectors.toList());
+                value.stream().map(x -> new TupleDataSourceBean(x.getExternalId(), x.getName().getContent())).collect(Collectors.toList());
     }
 
     public CompetenceCourseMarkSheetChangeRequestStateEnum getChangeRequestState() {
@@ -665,8 +666,11 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         setMarkSheetStateDataSource(Lists.newArrayList(CompetenceCourseMarkSheetStateEnum.values()));
 
-        setGradeScaleDataSource(Lists.newArrayList(GradeScaleEnum.TYPE20, GradeScaleEnum.TYPE20_ABSOLUTE, GradeScaleEnum.TYPEQUALITATIVE,
-                GradeScaleEnum.TYPEAPT));
+        List<GradeScale> gradeScaleList = GradeScale.findActive(true).collect(Collectors.toList());
+        if(getCompetenceCourseMarkSheet() != null && !gradeScaleList.contains(getCompetenceCourseMarkSheet().getGradeScale())) {
+            gradeScaleList.add(getCompetenceCourseMarkSheet().getGradeScale());
+        }
+        setGradeScaleDataSource(gradeScaleList);
 
         setChangeRequestStateDataSource(Lists.newArrayList(CompetenceCourseMarkSheetChangeRequestStateEnum.values()));
     }

@@ -14,6 +14,7 @@ import org.fenixedu.academic.domain.GradeScaleEnum.GradeScaleLogic;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.academic.domain.curriculum.grade.QualitativeGradeComparator;
 
+@Deprecated
 public class FDTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
 
     private static final String R = "REC";
@@ -107,9 +108,9 @@ public class FDTypeQualitativeGradeScaleLogic implements GradeScaleLogic {
     }
 
     @Override
+    @Deprecated
     public Collection<Grade> getPossibleGrades() {
-        return CONFIGURATION.keySet().stream().map(v -> Grade.createGrade(v, GradeScaleEnum.TYPEQUALITATIVE))
-                .collect(Collectors.toSet());
+        throw new RuntimeException("deprecated");
     }
 
 }
