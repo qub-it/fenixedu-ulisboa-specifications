@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -8,7 +8,7 @@
  *
  * Contributors: shezad.anavarali@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -45,6 +45,7 @@ import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.academic.dto.ShiftToEnrol;
@@ -71,7 +72,7 @@ import com.google.gson.JsonObject;
 import pt.ist.fenixframework.Atomic;
 
 /**
- * 
+ *
  * @author shezad - Sep 10, 2015
  *
  */
@@ -221,7 +222,8 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
     }
 
     static private void checkUser() {
-        if (!AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser())) {
+        if (!(AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser())
+                || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", Authenticate.getUser()))) {
             throw new SecurityException("error.authorization.notGranted");
         }
     }
@@ -284,7 +286,8 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
         }
 
         /**
-         * HACK: this interval is not accurate, because it doesn't takes into account lesson instance dates
+         * HACK: this interval is not accurate, because it doesn't takes into account
+         * lesson instance dates
          */
         private static Interval getLessonIntervalHack(final Lesson lesson) {
             final int weekDay = lesson.getDiaSemana().getDiaSemanaInDayOfWeekJodaFormat();

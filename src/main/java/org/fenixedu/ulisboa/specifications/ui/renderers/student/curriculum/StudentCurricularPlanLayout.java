@@ -1,13 +1,13 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu Specifications is free software: you can redistribute it and/or modify
@@ -67,13 +67,18 @@ import org.fenixedu.academic.domain.accessControl.academicAdministration.Academi
 import org.fenixedu.academic.domain.curricularRules.CreditsLimit;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentState;
+import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
+import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.academic.domain.evaluation.EvaluationServices;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -85,11 +90,7 @@ import org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLa
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
-import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
-import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.ui.evaluation.managemarksheet.administrative.CompetenceCourseMarkSheetController;
 import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanRenderer.DetailedType;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
@@ -409,7 +410,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
         } else {
 
-            // must check already previously calculated value 
+            // must check already previously calculated value
             emptyGroups.put(key, isEmptyGroup(key) && value);
         }
     }
@@ -539,7 +540,9 @@ public class StudentCurricularPlanLayout extends Layout {
             }
 
             if (AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
-                    curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())) {
+                    curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())
+                    || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
+                            curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())) {
                 EnrolmentLayout.addCreditsDistributionMessage(curriculumGroup, getExecutionSemester(), groupName);
             }
         }
@@ -562,13 +565,15 @@ public class StudentCurricularPlanLayout extends Layout {
             return ConclusionValue.NOT_CONCLUDED;
         }
 
-        /* TODO legidio
-        final DegreeModulesSelectionLimit limitRule = (DegreeModulesSelectionLimit) group
-                .getMostRecentActiveCurricularRule(CurricularRuleType.DEGREE_MODULES_SELECTION_LIMIT, executionYear);
-        if (limitRule != null && limitRule.getMinimumLimit().intValue() != limitRule.getMaximumLimit().intValue()) {
-            return ConclusionValue.NOT_CONCLUDED;
-        }
-        */
+        /*
+         * TODO legidio final DegreeModulesSelectionLimit limitRule =
+         * (DegreeModulesSelectionLimit) group
+         * .getMostRecentActiveCurricularRule(CurricularRuleType.
+         * DEGREE_MODULES_SELECTION_LIMIT, executionYear); if (limitRule != null &&
+         * limitRule.getMinimumLimit().intValue() !=
+         * limitRule.getMaximumLimit().intValue()) { return
+         * ConclusionValue.NOT_CONCLUDED; }
+         */
 
         return ConclusionValue.CONCLUDED;
     }
@@ -923,9 +928,9 @@ public class StudentCurricularPlanLayout extends Layout {
         if (dismissal != null) {
 
             final DetailedType detailedType = getDetailedType();
-            return detailedType == DetailedType.TRUE || (detailedType == DetailedType.CURRENT
+            return detailedType == DetailedType.TRUE || detailedType == DetailedType.CURRENT
 
-                    && dismissal.getExecutionYear().isCurrent());
+                    && dismissal.getExecutionYear().isCurrent();
         }
 
         return false;
@@ -936,11 +941,11 @@ public class StudentCurricularPlanLayout extends Layout {
         if (!isDismissalOrigin && enrolment != null) {
 
             final DetailedType detailedType = getDetailedType();
-            return detailedType == DetailedType.TRUE || (detailedType == DetailedType.CURRENT
+            return detailedType == DetailedType.TRUE || detailedType == DetailedType.CURRENT
 
                     && (enrolment.getExecutionYear().isCurrent() || enrolment.getEvaluationsSet().stream()
                             .anyMatch(evaluation -> evaluation.getExecutionPeriod() != null
-                                    && evaluation.getExecutionPeriod().getExecutionYear().isCurrent())));
+                                    && evaluation.getExecutionPeriod().getExecutionYear().isCurrent()));
         }
 
         return false;
@@ -1018,7 +1023,8 @@ public class StudentCurricularPlanLayout extends Layout {
                         .hasNext();) {
             final EvaluationSeason season = iterator.next();
 
-            // either the person has access or this season should always show it's enrolment evaluations
+            // either the person has access or this season should always show it's enrolment
+            // evaluations
             if (EvaluationConfiguration.getInstance().getDefaultEvaluationSeason() == season
                     || EvaluationSeasonServices.isRequiredEnrolmentEvaluation(season)
                     || StudentCurricularPlanRenderer.isViewerAllowedToViewFullStudentCurriculum(studentCurricularPlan)) {
@@ -1049,13 +1055,10 @@ public class StudentCurricularPlanLayout extends Layout {
 
     /**
      * List the enrollment evaluations bounded to an enrollment
-     * 
-     * @param mainTable
-     *            - Main HTML Table
-     * @param evaluations
-     *            - List of enrollment evaluations
-     * @param level
-     *            - The level of the evaluation rows
+     *
+     * @param mainTable - Main HTML Table
+     * @param evaluations - List of enrollment evaluations
+     * @param level - The level of the evaluation rows
      */
 
     protected void generateEnrolmentEvaluationRows(HtmlTable mainTable, EnrolmentEvaluation evaluation, int level) {
@@ -1112,7 +1115,8 @@ public class StudentCurricularPlanLayout extends Layout {
 
         if (semester != null && EvaluationSeasonServices.isDifferentEvaluationSemesterAccepted(season)) {
             generateCellWithText(row, semester.getExecutionYear().getYear(), renderer.getEnrolmentExecutionYearCellClass());
-            generateCellWithText(row, semester.getChildOrder().toString() + " " + i18n(Bundle.APPLICATION, "label.semester.short"),
+            generateCellWithText(row,
+                    semester.getChildOrder().toString() + " " + i18n(Bundle.APPLICATION, "label.semester.short"),
                     renderer.getEnrolmentSemesterCellClass());
         } else {
             generateCellWithText(row, EMPTY_SPACE, renderer.getEnrolmentSemesterCellClass(), 2);
@@ -1336,7 +1340,7 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     protected void generateStatisticsLinkCell(final HtmlTableRow row, final Enrolment enrolment) {
-        //qubextension functionality not available
+        // qubextension functionality not available
 //        if (enrolment.getStudent() == AccessControl.getPerson().getStudent()
 //                && enrolment.getStudent().hasAnyActiveRegistration()) {
 //            ExecutionCourse executionCourse = enrolment.getExecutionCourseFor(enrolment.getExecutionPeriod());
@@ -1437,7 +1441,8 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected void generateDegreeCurricularPlanCell(final HtmlTableRow enrolmentRow, final Enrolment enrolment) {
 
-        // qubExtension, generate not only when enrolment's registration is different but also when the degree module's degree is different
+        // qubExtension, generate not only when enrolment's registration is different
+        // but also when the degree module's degree is different
         final DegreeCurricularPlan plan = enrolment.getDegreeCurricularPlanOfDegreeModule();
         if (plan == null || plan.getDegree() == studentCurricularPlan.getDegree()) {
 
@@ -1538,7 +1543,9 @@ public class StudentCurricularPlanLayout extends Layout {
 
         if (registration != null && programConclusion != null) {
             boolean canManageConclusion = AcademicAuthorizationGroup
-                    .get(AcademicOperationType.MANAGE_CONCLUSION, registration.getDegree()).isMember(Authenticate.getUser());
+                    .get(AcademicOperationType.MANAGE_CONCLUSION, registration.getDegree()).isMember(Authenticate.getUser())
+                    || PermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", registration.getDegree(),
+                            Authenticate.getUser());
             if (canManageConclusion) {
                 final HtmlLink result = new HtmlLink();
                 result.setText(text);

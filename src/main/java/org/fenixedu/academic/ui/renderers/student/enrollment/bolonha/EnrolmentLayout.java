@@ -57,6 +57,7 @@ import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.DegreeModuleToEnrol;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
+import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumModuleServices;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
@@ -293,7 +294,9 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
 
         if (AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
-                curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())) {
+                curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())
+                || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
+                        curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())) {
             addCreditsDistributionMessage(curriculumGroup, executionSemester, result);
         }
 
@@ -451,7 +454,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                     actionLink.setOnClick(
                             "$(this).closest('form').find('input[name=\\'method\\']').attr('value', 'prepareChooseOptionalCurricularCourseToEnrol');");
                 }
-                //actionLink.setOnClick("document.forms[2].method.value='prepareChooseOptionalCurricularCourseToEnrol';");
+                // actionLink.setOnClick("document.forms[2].method.value='prepareChooseOptionalCurricularCourseToEnrol';");
                 actionLink.setName("optionalCurricularCourseLink" + degreeModuleToEvaluate.getCurriculumGroup().getExternalId()
                         + "_" + degreeModuleToEvaluate.getContext().getExternalId());
                 linkTableCell.setBody(actionLink);
@@ -483,9 +486,10 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     /**
-     * qubExtension, filter CurricularCourses with CompetenceCourse approved
-     * Ideally this should be done on a StudentCurriculumGroupBean.buildCurricularCoursesToEnrol level, but we're limited by the
-     * usual trunk constrains
+     * qubExtension, filter CurricularCourses with CompetenceCourse approved Ideally
+     * this should be done on a
+     * StudentCurriculumGroupBean.buildCurricularCoursesToEnrol level, but we're
+     * limited by the usual trunk constrains
      */
     private List<IDegreeModuleToEvaluate> filterCurricularCoursesToEvaluate(final StudentCurriculumGroupBean bean) {
 
@@ -816,7 +820,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
         String result = "label label-";
 
-        // we test for aggregator enrolment in order to avoid counting optionals on a UI method
+        // we test for aggregator enrolment in order to avoid counting optionals on a UI
+        // method
         final CurriculumAggregator aggregator = entry.getAggregator();
         if (aggregator.isEnrolmentMaster()
                 || CurriculumAggregatorServices.isAggregationEnroled(aggregator.getContext(), scp, interval)) {
@@ -843,7 +848,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
         String result = "label label-";
 
-        // we test for aggregator enrolment in order to avoid counting optionals on a UI method
+        // we test for aggregator enrolment in order to avoid counting optionals on a UI
+        // method
         if (CurriculumAggregatorServices.isAggregationEnroled(aggregator.getContext(), scp, semester)) {
             result += "success";
 

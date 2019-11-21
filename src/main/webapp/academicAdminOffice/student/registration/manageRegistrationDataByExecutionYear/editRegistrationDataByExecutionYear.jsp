@@ -58,7 +58,7 @@
 	<fr:schema bundle="ACADEMIC_OFFICE_RESOURCES" type="<%= request.getAttribute("dataByExecutionYearBean").getClass().getName() %>">
 		<fr:slot name="dataByExecutionYear.executionYear.qualifiedName" key="label.executionYear" bundle="ACADEMIC_OFFICE_RESOURCES" readOnly="true" />
 		<fr:slot name="enrolmentDate" key="label.enrolmentDate" bundle="ACADEMIC_OFFICE_RESOURCES" />
-        <academic:allowed operation="ENROLMENT_WITHOUT_RULES" program="<%= degree %>">
+        <academic:allowed operation="ENROLMENT_WITHOUT_RULES" permission="ACADEMIC_OFFICE_ENROLMENTS_ADMIN" program="<%= degree %>">
             <fr:slot name="overridenCurricularYear" key="label.curricularYear.overriden" bundle="ACADEMIC_OFFICE_RESOURCES" />
             <fr:slot name="curricularYearPresentation" key="label.curricularYear" bundle="ACADEMIC_OFFICE_RESOURCES" readOnly="true" />
             <fr:slot name="curricularYearJustificationPresentation" key="label.curricularYear.justification" bundle="ACADEMIC_OFFICE_RESOURCES" readOnly="true" />

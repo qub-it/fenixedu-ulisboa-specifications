@@ -80,7 +80,7 @@ ${portal.toolkit()}
     src="${pageContext.request.contextPath}/static/ulisboaspecifications/js/omnis.js"></script>
 
 
-<academic:allowed operation="SERVICE_REQUESTS">
+<academic:allowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">
     <script type="text/javascript">
           function openConfirmationModal() {
               $("#uLisboaServiceRequestInvalidModal").modal('toggle');              
@@ -379,7 +379,7 @@ ${portal.toolkit()}
   String url = "/academicAdministration/student.do?method=visualizeRegistration&registrationID="+ registration.getExternalId();
 %>
 
-<academic:notAllowed operation="SERVICE_REQUESTS">
+<academic:notAllowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">
 <div class="well well-sm" style="display: inline-block">
     <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
     &nbsp; 
@@ -406,7 +406,7 @@ ${portal.toolkit()}
 </div>
 </academic:notAllowed>
 
-<academic:allowed operation="SERVICE_REQUESTS">
+<academic:allowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">
 <div class="well well-sm" style="display: inline-block">
     <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
     &nbsp; 
@@ -726,10 +726,10 @@ ${portal.toolkit()}
                     </tr>    
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.serviceRequests.AcademicServiceRequestSituation.responsible" /></th>
-                            <academic:allowed operation="SERVICE_REQUESTS">                        
+                            <academic:allowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">                        
                                 <td><c:out value='${ serviceRequest.activeSituation.creator.name }' /></td>
                             </academic:allowed>
-                            <academic:notAllowed operation="SERVICE_REQUESTS">
+                            <academic:notAllowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">
                                 <td><c:out value='${ serviceRequest.activeSituation.creator.profile.displayName }' /></td>
                             </academic:notAllowed>
                     </tr>
@@ -800,7 +800,7 @@ ${portal.toolkit()}
     </div>
 </div>
 
-<academic:allowed operation="SERVICE_REQUESTS">
+<academic:allowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">
 <c:forEach var="activeDebitEntry" items="${ activeDebitEntries }">
     <c:forEach var="paymentCode" items="${ activeDebitEntry.paymentCodesSet }">
         <c:set var="paymentReferenceCode" value="${ paymentCode.paymentReferenceCode }" />

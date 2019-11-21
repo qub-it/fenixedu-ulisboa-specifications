@@ -10,6 +10,7 @@ import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.OptionalEnrolment;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
+import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.student.curriculum.AverageEntry;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
@@ -181,8 +182,9 @@ public class CurriculumLayout extends Layout {
                 ectsGrade = table.getEctsGrade(grade);
             } else {
 
-                if (!isConclusionDocument() && AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
-                        .isMember(Authenticate.getUser())) {
+                if (!isConclusionDocument() && (AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
+                        .isMember(Authenticate.getUser())
+                        || PermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", Authenticate.getUser()))) {
                     generateCellWithLink(enrolmentRow, entry.getExecutionYear(),
                             ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.generateInstitutionTable"));
                     return;
@@ -199,8 +201,9 @@ public class CurriculumLayout extends Layout {
                 if (table != null) {
                     ectsGrade = table.getEctsGrade(grade);
                 } else if (CourseGradingTable.isApplicable(line)) {
-                    if (!isConclusionDocument() && AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
-                            .isMember(Authenticate.getUser())) {
+                    if (!isConclusionDocument() && (AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
+                            .isMember(Authenticate.getUser())
+                            || PermissionService.hasAccess("ADMIN_OFFICE_CONCLUSION", Authenticate.getUser()))) {
                         generateCellWithLink(enrolmentRow, entry.getExecutionYear(),
                                 ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.generateCourseTable"));
                         return;

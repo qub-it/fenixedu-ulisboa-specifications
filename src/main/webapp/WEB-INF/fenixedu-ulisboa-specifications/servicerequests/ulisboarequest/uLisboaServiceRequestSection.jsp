@@ -82,7 +82,7 @@ ${portal.angularToolkit()}
 
     <h3 class="mtop25 mbottom05 separator2"><fmt:message key="academic.services" bundle="${ACADEMIC_OFFICE_RESOURCES}" /></h3>
 
-    <academic:allowed operation="SERVICE_REQUESTS">                        
+    <academic:allowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">                        
         <div class="well well-sm" style="display: inline-block">
             <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
             &nbsp;
@@ -101,7 +101,7 @@ ${portal.angularToolkit()}
         </div>
     </academic:allowed>
 
-    <academic:notAllowed operation="SERVICE_REQUESTS">
+    <academic:notAllowed operation="SERVICE_REQUESTS" permission="ACADEMIC_REQUISITIONS">
     <div class="well well-sm" style="display: inline-block">
         <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
         &nbsp;

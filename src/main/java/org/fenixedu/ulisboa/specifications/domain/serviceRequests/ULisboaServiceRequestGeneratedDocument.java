@@ -5,6 +5,7 @@ import java.util.Comparator;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
+import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 
@@ -36,7 +37,8 @@ public class ULisboaServiceRequestGeneratedDocument extends ULisboaServiceReques
             return false;
         }
         return user.getPerson().equals(getOperator()) || user.getPerson().equals(getOperator())
-                || AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS).isMember(user);
+                || AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS).isMember(user)
+                || PermissionService.hasAccess("ACADEMIC_REQUISITIONS", user);
     }
 
     @Override

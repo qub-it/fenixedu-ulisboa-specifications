@@ -1,6 +1,6 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
@@ -9,7 +9,7 @@
  * Contributors: anil.mamede@qub-it.com
  * Contributors: luis.egidio@qub-it.com
  *
- * 
+ *
  * This file is part of FenixEdu Specifications.
  *
  * FenixEdu Specifications is free software: you can redistribute it and/or modify
@@ -47,8 +47,12 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
+import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.academic.domain.evaluation.EvaluationServices;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.academic.domain.groups.PermissionService;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -56,9 +60,6 @@ import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
-import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
-import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
@@ -120,7 +121,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
         model.addAttribute("gradeScaleValues",
                 Arrays.<GradeScale> asList(GradeScale.values()).stream()
-                        .map(l -> new TupleDataSourceBean(((GradeScale) l).name(), ((GradeScale) l).getDescription()))
+                        .map(l -> new TupleDataSourceBean(l.name(), l.getDescription()))
                         .collect(Collectors.<TupleDataSourceBean> toList()));
 
         model.addAttribute("improvementSemesterValues", ExecutionSemester.readNotClosedExecutionPeriods().stream()
@@ -148,6 +149,8 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                         .filter(ev -> EvaluationServices
                                 .findEnrolmentCourseEvaluations(ev.getEnrolment(), ev.getEvaluationSeason(), semester).isEmpty()
                                 || AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
+                                        studentCurricularPlan.getDegree(), Authenticate.getUser())
+                                || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
                                         studentCurricularPlan.getDegree(), Authenticate.getUser()))
                         .sorted(c1.thenComparing(c2).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
                         .collect(Collectors.toList());
@@ -258,8 +261,9 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         EnrolmentEvaluationServices.onStateChange(evaluation);
 
         if (FenixFramework.isDomainObjectValid(evaluation)) {
-            //TODO: hack since listeners can cause object to be deleted
-            //logic should be two-step, first change to Temporary and if it still exists delete
+            // TODO: hack since listeners can cause object to be deleted
+            // logic should be two-step, first change to Temporary and if it still exists
+            // delete
             evaluation.delete();
         }
 
