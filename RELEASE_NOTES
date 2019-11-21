@@ -1,3 +1,5 @@
+- Refactor: Included new access control Permissions to existing AcademicAuthorizations
+
 6.1.1 (08-11-2019)
 - Improvement: added ISEG/ISCSP qualitative grades
 - Improvement: Add curricular plan column to the student's report in the MoodleExportController #UL-FF-1835
