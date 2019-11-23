@@ -32,7 +32,7 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
         final ExecutionYear currentExecutionYear = currentExecutionSemester.getExecutionYear();
         final ExecutionYear previousExecutionYear = currentExecutionYear.getPreviousExecutionYear();
 
-        if (!currentExecutionSemester.isFirstOfYear()) {
+        if (!currentExecutionSemester.getChildOrder().equals(1)) {
             taskLog("Nothing to be done, currently not at the beggining of a given year\n");
             return;
 
