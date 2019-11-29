@@ -25,10 +25,10 @@
  */
 package org.fenixedu.academic.ui.renderers.providers.enrollment.bolonha;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.beanutils.BeanComparator;
 import org.fenixedu.academic.domain.Degree;
@@ -38,12 +38,9 @@ import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourse;
 import org.fenixedu.academic.domain.curricularRules.CompositeRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.degree.DegreeType;
-import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
-import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.BolonhaStudentOptionalEnrollmentBean;
 import org.fenixedu.academic.ui.renderers.providers.BolonhaDegreeTypesProvider;
-import org.fenixedu.bennu.core.security.Authenticate;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -67,53 +64,13 @@ public class BolonhaDegreeTypesProviderForOptionalEnrollment extends BolonhaDegr
     }
 
     static private Set<DegreeType> getDegreeTypes(final BolonhaStudentOptionalEnrollmentBean bean) {
-        final Set<DegreeType> result = Sets.newHashSet();
-
+        final Set<DegreeType> ruleDegreeTypes = new HashSet<>();
         final CurricularRule curricularRule = getCurricularRule(bean);
         if (curricularRule != null) {
-
-            // curricular rule configured
-            result.addAll(getAnyCurricularCourseRuleDegreesTypesFor(curricularRule));
+            ruleDegreeTypes.addAll(getAnyCurricularCourseRuleDegreesTypesFor(curricularRule));
         }
 
-        if (result.isEmpty()) {
-
-            final CycleCurriculumGroup group =
-                    bean.getSelectedDegreeModuleToEnrol().getCurriculumGroup().getParentCycleCurriculumGroup();
-            
-            if (group != null) {
-                final CycleType cycleType = group.getCycleType();
-
-                if (isStudentEnroling(bean)) {
-
-                    result.addAll(getDegreeTypes(cycleType));
-
-                } else {
-
-                    // allow enroling of optional of all cycle types below
-                    for (final CycleType iter : CycleType.values()) {
-                        if (iter.isBeforeOrEquals(cycleType)) {
-
-                            result.addAll(getDegreeTypes(iter));
-                        }
-                    }
-                }
-
-            } else {
-
-                // not in a cycle group hierarchy, inspecting from the degree's cycle type
-                for (final CycleType cycleType : bean.getStudentCurricularPlan().getDegreeType().getCycleTypes()) {
-                    result.addAll(getDegreeTypes(cycleType));
-                }
-            }
-        }
-
-        // failsafe
-        if (result.isEmpty()) {
-            result.addAll(readAll(bean));
-        }
-
-        return result;
+        return !ruleDegreeTypes.isEmpty() ? ruleDegreeTypes : readAll(bean);
     }
 
     static protected CurricularRule getCurricularRule(final BolonhaStudentOptionalEnrollmentBean bean) {
@@ -133,14 +90,6 @@ public class BolonhaDegreeTypesProviderForOptionalEnrollment extends BolonhaDegr
         }
 
         return result;
-    }
-
-    static private boolean isStudentEnroling(final BolonhaStudentOptionalEnrollmentBean bean) {
-        return Authenticate.getUser().getPerson() == bean.getStudentCurricularPlan().getPerson();
-    }
-
-    static private Set<DegreeType> getDegreeTypes(final CycleType cycleType) {
-        return DegreeType.all().filter(i -> i.hasCycleTypes(cycleType)).collect(Collectors.toSet());
     }
 
     static private Set<DegreeType> getAnyCurricularCourseRuleDegreesTypesFor(final CurricularRule curricularRule) {

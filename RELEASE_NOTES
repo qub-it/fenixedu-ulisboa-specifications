@@ -1,3 +1,6 @@
+- Fix: Degree types on optional curricular course enrolment should only be restricted if they are defined on curricular rule
+ 
+
 6.3.0 (23-11-2019)
 - Refactor: Upgraded dependency of fenixedu-academic-core
 
