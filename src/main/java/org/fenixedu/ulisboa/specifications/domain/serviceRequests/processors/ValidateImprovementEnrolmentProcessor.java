@@ -4,7 +4,8 @@ import java.util.Collections;
 
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EvaluationSeason;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
@@ -68,7 +69,7 @@ public class ValidateImprovementEnrolmentProcessor extends ValidateImprovementEn
                     "error.serviceRequest.ValidateEnrolmentProcessor.curriculumLineSlot.required");
         }
         if (executionSemesterSlot == null || executionSemesterSlot.getValue() == null
-                || !(executionSemesterSlot.getValue() instanceof ExecutionSemester)) {
+                || executionSemesterSlot.getValue() instanceof ExecutionYear) {
             throw new ULisboaSpecificationsDomainException(
                     "error.serviceRequest.ValidateEnrolmentProcessor.executionSemester.required");
         }
@@ -83,11 +84,11 @@ public class ValidateImprovementEnrolmentProcessor extends ValidateImprovementEn
     private void enrolCurricularCourse(final ULisboaServiceRequest request) {
         Enrolment enrolment = request.findProperty(getCurricularEntriesPropertyName()).getValue();
         IDegreeModuleToEvaluate enrolmentWrapper = null;
-        ExecutionSemester executionSemester = request.findProperty(ULisboaConstants.EXECUTION_SEMESTER).getValue();
+        ExecutionInterval executionInterval = request.findProperty(ULisboaConstants.EXECUTION_SEMESTER).getValue();
         StudentCurricularPlan studentCurricularPlan = request.getStudentCurricularPlan();
         //check if the course is valid to enrol in improvement
         if (Enrolment.getPredicateImprovement()
-                .fill(getEvaluationSeason(), executionSemester, EnrolmentEvaluationContext.MARK_SHEET_EVALUATION)
+                .fill(getEvaluationSeason(), executionInterval, EnrolmentEvaluationContext.MARK_SHEET_EVALUATION)
                 .test(enrolment)) {
             if (enrolment.parentCurriculumGroupIsNoCourseGroupCurriculumGroup()) {
                 enrolmentWrapper = new NoCourseGroupEnroledCurriculumModuleWrapper(enrolment, enrolment.getExecutionPeriod());
@@ -96,7 +97,7 @@ public class ValidateImprovementEnrolmentProcessor extends ValidateImprovementEn
             }
         }
         //enrolmentWrapper at this stage has a value because if the enrolment is not valid to improvement an exception will be thrown
-        studentCurricularPlan.enrol(executionSemester, Collections.singleton(enrolmentWrapper), Collections.emptyList(),
+        studentCurricularPlan.enrol(executionInterval, Collections.singleton(enrolmentWrapper), Collections.emptyList(),
                 CurricularRuleLevel.IMPROVEMENT_ENROLMENT, getEvaluationSeason());
     }
 

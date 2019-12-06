@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolPeriodDuration;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.organizationalStructure.CountryUnit;
@@ -198,22 +197,18 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
     }
 
     private void loadDataEndDataSource() {
-        final Comparator<ExecutionSemester> comparatorBySemesterAndYear =
-                Collections.reverseOrder(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR);
+        final Comparator<ExecutionInterval> comparatorBySemesterAndYear = ExecutionInterval.COMPARATOR_BY_BEGIN_DATE.reversed();
 
-        final List<TupleDataSourceBean> result = ExecutionSemester.readNotClosedExecutionPeriods().stream()
-                .sorted(comparatorBySemesterAndYear)
+        final List<TupleDataSourceBean> result = ExecutionInterval.findActiveChilds().stream().sorted(comparatorBySemesterAndYear)
                 .map((cs) -> new TupleDataSourceBean(cs.getExternalId(), cs.getQualifiedName())).collect(Collectors.toList());
 
         endDataSource = result.stream().collect(Collectors.toList());
     }
 
     private void loadDataBeginDataSource() {
-        final Comparator<ExecutionSemester> comparatorBySemesterAndYear =
-                Collections.reverseOrder(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR);
+        final Comparator<ExecutionInterval> comparatorBySemesterAndYear = ExecutionInterval.COMPARATOR_BY_BEGIN_DATE.reversed();
 
-        final List<TupleDataSourceBean> result = ExecutionSemester.readNotClosedExecutionPeriods().stream()
-                .sorted(comparatorBySemesterAndYear)
+        final List<TupleDataSourceBean> result = ExecutionInterval.findActiveChilds().stream().sorted(comparatorBySemesterAndYear)
                 .map((cs) -> new TupleDataSourceBean(cs.getExternalId(), cs.getQualifiedName())).collect(Collectors.toList());
 
         beginDataSource = result.stream().collect(Collectors.toList());
@@ -293,8 +288,8 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
         this.incoming = incoming;
     }
 
-    public Set<ExecutionSemester> getExecutionSemesterListProvider() {
-        return Sets.newHashSet(ExecutionSemester.readNotClosedExecutionPeriods());
+    public Set<ExecutionInterval> getExecutionSemesterListProvider() {
+        return Sets.newHashSet(ExecutionInterval.findActiveChilds());
     }
 
     public Set<MobilityProgramType> getMobilityProgramTypeListProvider() {

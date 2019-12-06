@@ -46,11 +46,12 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curriculum.EnrolmentEvaluationContext;
 import org.fenixedu.academic.domain.enrolment.EnroledCurriculumModuleWrapper;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -68,7 +69,6 @@ import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
 import org.fenixedu.ulisboa.specifications.domain.services.enrollment.AttendsServices;
-import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 
 import com.google.common.collect.Lists;
 
@@ -100,7 +100,7 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
 
     @Override
     protected ActionForward prepareShowDegreeModulesToEnrol(ActionMapping mapping, ActionForm form, HttpServletRequest request,
-            HttpServletResponse response, StudentCurricularPlan studentCurricularPlan, ExecutionSemester executionSemester,
+            HttpServletResponse response, StudentCurricularPlan studentCurricularPlan, ExecutionInterval executionSemester,
             final EvaluationSeason evaluationSeason) {
 
         super.prepareShowDegreeModulesToEnrol(mapping, form, request, response, studentCurricularPlan, executionSemester,
@@ -187,17 +187,17 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
 
         final Enrolment enrolment = getDomainObject(request, "enrolmentId");
         final ExecutionCourse executionCourse = getDomainObject(request, "executionCourseId");
-        final ExecutionSemester improvementSemester = bean.getExecutionPeriod();
-        createOrSwitchAttend(enrolment, improvementSemester, executionCourse);
+        final ExecutionInterval improvementInterval = bean.getExecutionPeriod();
+        createOrSwitchAttend(enrolment, improvementInterval, executionCourse);
 
         return prepareShowImprovementsToAttend(mapping, form, request, response, bean, getImprovementAttendsBeans(bean));
     }
 
     @Atomic
-    static private void createOrSwitchAttend(final Enrolment enrolment, final ExecutionSemester improvementSemester,
+    static private void createOrSwitchAttend(final Enrolment enrolment, final ExecutionInterval improvementInterval,
             final ExecutionCourse executionCourse) {
 
-        final Attends current = enrolment.getAttendsFor(improvementSemester);
+        final Attends current = enrolment.getAttendsFor(improvementInterval);
         if (current != null) {
             // the UI garantees that we won't be able to switch if any shifts are associated with the existing attends
             current.delete();
@@ -210,9 +210,9 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
             final ImprovementBolonhaStudentEnrolmentBean input) {
         final List<ImprovementAttendsBean> result = Lists.newArrayList();
 
-        final ExecutionSemester semester = input.getExecutionPeriod();
-        for (final EnrolmentEvaluation evaluation : input.getStudentCurricularPlan().getEnroledImprovements(semester)) {
-            result.add(createImprovementAttendsBeans(evaluation.getEnrolment(), semester));
+        final ExecutionInterval interval = input.getExecutionPeriod();
+        for (final EnrolmentEvaluation evaluation : input.getStudentCurricularPlan().getEnroledImprovements(interval)) {
+            result.add(createImprovementAttendsBeans(evaluation.getEnrolment(), interval));
         }
 
         Collections.sort(result, new BeanComparator<>("enrolment.externalId"));
@@ -220,9 +220,9 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
     }
 
     static private ImprovementAttendsBean createImprovementAttendsBeans(final Enrolment enrolment,
-            final ExecutionSemester semester) {
+            final ExecutionInterval interval) {
 
-        final ImprovementAttendsBean result = new ImprovementAttendsBean(enrolment, semester);
+        final ImprovementAttendsBean result = new ImprovementAttendsBean(enrolment, interval);
         if (result.getAttends() == null) {
 
             // find unique execution
@@ -238,14 +238,14 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
     static public class ImprovementAttendsBean {
 
         private Enrolment enrolment;
-        private ExecutionSemester semester;
+        private ExecutionInterval semester;
         private Attends attends;
         private Set<ExecutionCourse> executionCourses;
 
-        private ImprovementAttendsBean(final Enrolment enrolment, final ExecutionSemester semester) {
+        private ImprovementAttendsBean(final Enrolment enrolment, final ExecutionInterval interval) {
             this.enrolment = enrolment;
-            this.semester = semester;
-            setAttends(enrolment.getAttendsFor(semester));
+            this.semester = interval;
+            setAttends(enrolment.getAttendsFor(interval));
         }
 
         public Enrolment getEnrolment() {
@@ -298,12 +298,12 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
             extends org.fenixedu.academic.dto.student.enrollment.bolonha.ImprovementBolonhaStudentEnrolmentBean {
 
         public ImprovementBolonhaStudentEnrolmentBean(final StudentCurricularPlan studentCurricularPlan,
-                final ExecutionSemester executionSemester, final EvaluationSeason evaluationSeason) {
-            super(studentCurricularPlan, executionSemester, evaluationSeason);
-            setRootStudentCurriculumGroupBean(createBean(studentCurricularPlan, executionSemester, evaluationSeason));
+                final ExecutionInterval executionInterval, final EvaluationSeason evaluationSeason) {
+            super(studentCurricularPlan, executionInterval, evaluationSeason);
+            setRootStudentCurriculumGroupBean(createBean(studentCurricularPlan, executionInterval, evaluationSeason));
         }
 
-        private static StudentCurriculumGroupBean createBean(final StudentCurricularPlan scp, final ExecutionSemester semester,
+        private static StudentCurriculumGroupBean createBean(final StudentCurricularPlan scp, final ExecutionInterval semester,
                 final EvaluationSeason evaluationSeason) {
             return ImprovementStudentCurriculumGroupBean.create(scp.getRoot(), semester, evaluationSeason);
         }
@@ -319,25 +319,25 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
 
         @Override
         public StudentCurriculumGroupBean create(final CurriculumGroup curriculumGroup,
-                final ExecutionSemester executionSemester) {
-            return new StudentCurriculumGroupBean(curriculumGroup, executionSemester, null) {
+                final ExecutionInterval executionInterval) {
+            return new StudentCurriculumGroupBean(curriculumGroup, executionInterval, null) {
 
                 @Override
                 protected List<IDegreeModuleToEvaluate> buildCourseGroupsToEnrol(CurriculumGroup group,
-                        ExecutionSemester executionSemester) {
+                        ExecutionInterval executionInterval) {
                     return Collections.emptyList();
                 }
 
                 @Override
                 protected List<StudentCurriculumEnrolmentBean> buildCurricularCoursesEnroled(CurriculumGroup group,
-                        ExecutionSemester executionSemester) {
+                        ExecutionInterval executionInterval) {
 
                     List<StudentCurriculumEnrolmentBean> result = new ArrayList<StudentCurriculumEnrolmentBean>();
                     for (CurriculumModule curriculumModule : group.getCurriculumModulesSet()) {
                         if (curriculumModule.isEnrolment()) {
                             Enrolment enrolment = (Enrolment) curriculumModule;
 
-                            if (enrolment.isEnroledInSeason(getEvaluationSeason(), executionSemester)) {
+                            if (enrolment.isEnroledInSeason(getEvaluationSeason(), executionInterval)) {
                                 result.add(new StudentCurriculumEnrolmentBean(enrolment));
                             }
                         }
@@ -348,7 +348,7 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
 
                 @Override
                 protected List<IDegreeModuleToEvaluate> buildCurricularCoursesToEnrol(CurriculumGroup group,
-                        ExecutionSemester executionSemester) {
+                        ExecutionInterval executionInterval) {
 
                     final List<IDegreeModuleToEvaluate> result = new ArrayList<IDegreeModuleToEvaluate>();
 
@@ -358,7 +358,7 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
 
                             if (enrolment.isApproved()
                                     && Enrolment.getPredicateSeason()
-                                            .fill(getEvaluationSeason(), executionSemester,
+                                            .fill(getEvaluationSeason(), executionInterval,
                                                     EnrolmentEvaluationContext.MARK_SHEET_EVALUATION)
                                             .testExceptionless(enrolment)) {
 
@@ -377,7 +377,7 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
 
                 @Override
                 protected List<StudentCurriculumGroupBean> buildCurriculumGroupsEnroled(CurriculumGroup parentGroup,
-                        ExecutionSemester executionSemester, int[] curricularYears) {
+                        ExecutionInterval executionInterval, int[] curricularYears) {
 
                     final List<StudentCurriculumGroupBean> result = new ArrayList<StudentCurriculumGroupBean>();
 
@@ -393,7 +393,7 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
                     }
 
                     for (final CurriculumGroup curriculumGroup : curriculumGroupsToEnrolmentProcess) {
-                        result.add(create(curriculumGroup, executionSemester));
+                        result.add(create(curriculumGroup, executionInterval));
                     }
 
                     return result;
@@ -415,7 +415,7 @@ public class AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA extends
         }
 
         public static StudentCurriculumGroupBean create(final CurriculumGroup curriculumGroup,
-                final ExecutionSemester executionSemester, final EvaluationSeason evaluationSeason) {
+                final ExecutionInterval executionSemester, final EvaluationSeason evaluationSeason) {
             return new ImprovementStudentCurriculumGroupBean(evaluationSeason).create(curriculumGroup, executionSemester);
         }
 

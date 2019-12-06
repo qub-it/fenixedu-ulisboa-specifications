@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
@@ -139,7 +139,7 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     }
 
     @Atomic
-    private void activateRegistration(final Registration registration, final ExecutionSemester executionSemester) {
+    private void activateRegistration(final Registration registration, final ExecutionInterval executionSemester) {
         RegistrationState state = registration.getActiveState();
         if (state.getStateType().equals(RegistrationStateType.INACTIVE)) {
             RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
@@ -153,7 +153,7 @@ public class EnrolmentsController extends EnrolmentAbstractController {
      * ------------------------------------------------------
      */
     @Atomic
-    public void createAutomaticEnrolments(final Registration registration, final ExecutionSemester executionSemester,
+    public void createAutomaticEnrolments(final Registration registration, final ExecutionInterval executionSemester,
             final StudentCurricularPlan studentCurricularPlan) {
         if (studentCurricularPlan.getEnrolmentsSet().isEmpty()) {
             createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(),
@@ -162,15 +162,15 @@ public class EnrolmentsController extends EnrolmentAbstractController {
             registration.updateEnrolmentDate(executionSemester.getExecutionYear());
             if (hasAnnualEnrollments(studentCurricularPlan)) {
                 createFirstTimeStudentEnrolmentsFor(studentCurricularPlan, studentCurricularPlan.getRoot(),
-                        studentCurricularPlan.getDegreeCurricularPlan().getCurricularPeriodFor(1, 2),
-                        executionSemester.getNextExecutionPeriod(), AccessControl.getPerson().getUsername());
+                        studentCurricularPlan.getDegreeCurricularPlan().getCurricularPeriodFor(1, 2), executionSemester.getNext(),
+                        AccessControl.getPerson().getUsername());
             }
         }
     }
 
     void createFirstTimeStudentEnrolmentsFor(final StudentCurricularPlan studentCurricularPlan,
             final CurriculumGroup curriculumGroup, final CurricularPeriod curricularPeriod,
-            final ExecutionSemester executionSemester, final String createdBy) {
+            final ExecutionInterval executionSemester, final String createdBy) {
 
         if (curriculumGroup.getDegreeModule() != null) {
             for (final Context context : curriculumGroup.getDegreeModule()

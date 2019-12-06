@@ -38,7 +38,6 @@ import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
@@ -106,16 +105,16 @@ public class StudentEnrolmentsDA
                 studentEnrolmentBean = new StudentEnrolmentBean();
 
                 // QubExtension
-                ExecutionSemester executionSemester = getDomainObject(request, "executionSemesterID");
-                if (executionSemester == null) {
+                ExecutionInterval executionInterval = getDomainObject(request, "executionSemesterID");
+                if (executionInterval == null) {
                     final ExecutionYear lastScpExecutionYear = plan.getLastExecutionYear();
-                    final ExecutionSemester currentSemester =
-                            ExecutionSemester.findCurrent(plan.getRegistration().getDegree().getCalendar());
-                    executionSemester = lastScpExecutionYear == null
-                            || currentSemester.getExecutionYear() == lastScpExecutionYear ? currentSemester : lastScpExecutionYear
+                    final ExecutionInterval currentInterval =
+                            ExecutionInterval.findFirstCurrentChild(plan.getRegistration().getDegree().getCalendar());
+                    executionInterval = lastScpExecutionYear == null
+                            || currentInterval.getExecutionYear() == lastScpExecutionYear ? currentInterval : lastScpExecutionYear
                                     .getFirstExecutionPeriod();
                 }
-                studentEnrolmentBean.setExecutionPeriod(executionSemester);
+                studentEnrolmentBean.setExecutionPeriod(executionInterval);
             }
             studentEnrolmentBean.setStudentCurricularPlan(plan);
             return showExecutionPeriodEnrolments(studentEnrolmentBean, mapping, actionForm, request, response);
@@ -152,7 +151,7 @@ public class StudentEnrolmentsDA
     public ActionForward prepareFromStudentEnrollmentWithRules(ActionMapping mapping, ActionForm form, HttpServletRequest request,
             HttpServletResponse response) {
         final StudentEnrolmentBean studentEnrolmentBean = new StudentEnrolmentBean();
-        studentEnrolmentBean.setExecutionPeriod((ExecutionSemester) request.getAttribute("executionPeriod"));
+        studentEnrolmentBean.setExecutionPeriod((ExecutionInterval) request.getAttribute("executionPeriod"));
         studentEnrolmentBean.setStudentCurricularPlan((StudentCurricularPlan) request.getAttribute("studentCurricularPlan"));
         return showExecutionPeriodEnrolments(studentEnrolmentBean, mapping, form, request, response);
     }

@@ -34,7 +34,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
 import org.fenixedu.academic.domain.student.Registration;
@@ -107,7 +107,7 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
     public ActionForward prepare(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
             final HttpServletResponse response) {
 
-        final ExecutionSemester executionSemester = getDomainObject(request, "executionSemesterOID");
+        final ExecutionInterval executionSemester = getDomainObject(request, "executionSemesterOID");
         final StudentCurricularPlan scp = getDomainObject(request, "studentCurricularPlanOID");
 
         return prepareShowDegreeModulesToEnrol(mapping, form, request, response, scp, executionSemester);
@@ -116,7 +116,7 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
     @Override
     protected ActionForward prepareShowDegreeModulesToEnrol(final ActionMapping mapping, final ActionForm form,
             final HttpServletRequest request, final HttpServletResponse response, final StudentCurricularPlan scp,
-            final ExecutionSemester semester) {
+            final ExecutionInterval semester) {
 
         setContext(request, semester, scp);
         return super.prepareShowDegreeModulesToEnrol(mapping, form, request, response, scp, semester);
@@ -154,7 +154,7 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
     public ActionForward showEnrollmentInstructions(final ActionMapping mapping, final ActionForm form,
             final HttpServletRequest request, final HttpServletResponse response) {
 
-        final ExecutionSemester executionSemester = getDomainObject(request, "executionSemesterOID");
+        final ExecutionInterval executionSemester = getDomainObject(request, "executionSemesterOID");
         final StudentCurricularPlan scp = getDomainObject(request, "studentCurricularPlanOID");
         setContext(request, executionSemester, scp);
 
@@ -175,7 +175,7 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
         return mapping.findForward("chooseCycleCourseGroupToEnrol");
     }
 
-    private EnrolmentProcess setContext(final HttpServletRequest request, final ExecutionSemester executionSemester,
+    private EnrolmentProcess setContext(final HttpServletRequest request, final ExecutionInterval executionSemester,
             final StudentCurricularPlan scp) {
 
         final EnrolmentProcess process = EnrolmentProcess.find(executionSemester, scp);

@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.dto.student.IStudentCurricularPlanBean;
@@ -56,7 +56,7 @@ public class ExecutionPeriodsForEnrolmentProvider implements DataProvider {
 
         final StudentCurricularPlan studentCurricularPlan = ((IStudentCurricularPlanBean) source).getStudentCurricularPlan();
 
-        final Set<ExecutionSemester> result = new TreeSet<ExecutionSemester>(Collections.reverseOrder());
+        final Set<ExecutionInterval> result = new TreeSet<ExecutionInterval>(Collections.reverseOrder());
         ExecutionYear executionYear = studentCurricularPlan.getStartExecutionYear();
         result.addAll(executionYear.getExecutionPeriodsSet());
         while (executionYear.getNextExecutionYear() != null) {

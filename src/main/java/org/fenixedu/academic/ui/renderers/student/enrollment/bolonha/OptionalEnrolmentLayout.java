@@ -35,19 +35,19 @@ import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseRestrictions;
 import org.fenixedu.academic.domain.curricularRules.CompositeRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.AnyCurricularCourseExceptionsExecutorLogic;
+import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.BolonhaStudentOptionalEnrollmentBean;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
-import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 
@@ -190,11 +190,11 @@ public class OptionalEnrolmentLayout extends Layout {
 
     // qubExtension
     static public HtmlBlockContainer generateCurricularCourseNameComponent(final CurricularCourse curricularCourse,
-            final ExecutionSemester executionSemester) {
+            final ExecutionInterval executionInterval) {
 
         final HtmlBlockContainer container = new HtmlBlockContainer();
         container.addChild(
-                new HtmlText(curricularCourse.getCode() + " - " + curricularCourse.getNameI18N(executionSemester).getContent()));
+                new HtmlText(curricularCourse.getCode() + " - " + curricularCourse.getNameI18N(executionInterval).getContent()));
 
         if (curricularCourse.getCompetenceCourse() != null) {
 
@@ -255,7 +255,7 @@ public class OptionalEnrolmentLayout extends Layout {
             return ULisboaSpecificationsUtil.bundle("CurriculumAggregator");
         }
 
-        if (CompetenceCourseServices.isCompetenceCourseApproved(scp, course, (ExecutionSemester) null)) {
+        if (CompetenceCourseServices.isCompetenceCourseApproved(scp, course, null)) {
             return BundleUtil.getString(Bundle.ENUMERATION, "approved");
         }
 
@@ -275,7 +275,7 @@ public class OptionalEnrolmentLayout extends Layout {
             final BolonhaStudentOptionalEnrollmentBean bean) {
 
         final IDegreeModuleToEvaluate degreeModuleToEnrol = bean.getSelectedDegreeModuleToEnrol();
-        final ExecutionSemester executionPeriod = bean.getExecutionPeriod();
+        final ExecutionInterval executionPeriod = bean.getExecutionPeriod();
         return getAnyCurricularCourseRestrictions(degreeModuleToEnrol.getCurricularRulesFromDegreeModule(executionPeriod));
     }
 

@@ -22,7 +22,6 @@ import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
@@ -860,7 +859,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         final ExecutionYear executionYear = bean.getExecutionYears().iterator().next();
 
         final Collection<StudentStatute> studentStatutes = Sets.newHashSet();
-        for (final ExecutionSemester executionSemester : executionYear.getExecutionPeriodsSet()) {
+        for (final ExecutionInterval executionSemester : executionYear.getExecutionPeriodsSet()) {
             studentStatutes.addAll(executionSemester.getBeginningStudentStatutesSet().stream()
                     .filter(x -> bean.getStatuteTypes().isEmpty() || bean.getStatuteTypes().contains(x.getType()))
                     .collect(Collectors.toSet()));

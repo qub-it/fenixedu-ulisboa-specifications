@@ -44,7 +44,6 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
@@ -429,7 +428,7 @@ abstract public class CurriculumAggregatorServices {
                 if (competence != null) {
 
                     for (final CurricularCourse iter : competence.getAssociatedCurricularCoursesSet()) {
-                        final Context context = getContext(iter, (ExecutionSemester) null, (CourseGroup) null);
+                        final Context context = getContext(iter, null, (CourseGroup) null);
                         if (context != null && !context.getCurriculumAggregatorEntrySet().isEmpty()) {
                             return true;
                         }
@@ -623,8 +622,8 @@ abstract public class CurriculumAggregatorServices {
         // if is a slave entry, must check for aggregator's approval
         // (typically this is not a problem because the aggregator is on the "first level" and is discarted by UI) 
         final CurriculumAggregatorEntry entry = context == null ? null : getAggregatorEntry(context, year);
-        if (entry != null && entry.getAggregator().isEnrolmentMaster() && CompetenceCourseServices.isCompetenceCourseApproved(
-                plan, (CurricularCourse) entry.getAggregator().getCurricularCourse(), (ExecutionSemester) null)) {
+        if (entry != null && entry.getAggregator().isEnrolmentMaster() && CompetenceCourseServices
+                .isCompetenceCourseApproved(plan, (CurricularCourse) entry.getAggregator().getCurricularCourse(), null)) {
             return false;
         }
 
@@ -639,7 +638,7 @@ abstract public class CurriculumAggregatorServices {
                 final boolean optionalEntryRelated = isOptionalEntryRelated(iter, year);
 
                 if (isAggregationEnroled(iter, plan, interval) || CompetenceCourseServices.isCompetenceCourseApproved(plan,
-                        (CurricularCourse) iter.getChildDegreeModule(), (ExecutionSemester) null)) {
+                        (CurricularCourse) iter.getChildDegreeModule(), null)) {
 
                     if (optionalEntryRelated) {
                         optionalEnroled++;

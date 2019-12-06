@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.Attends;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionDegree;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.contacts.EmailAddress;
@@ -38,14 +38,14 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
     @RequestMapping
     public String home(Model model) {
         model.addAttribute("executionSemesters", Bennu.getInstance().getExecutionPeriodsSet().stream()
-                .sorted(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR.reversed()).collect(Collectors.toList()));
+                .sorted(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList()));
         return "academicOffice/lists/studentsByCurricularCourses";
     }
 
     @RequestMapping(value = "/executionSemesters/{executionSemester}", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public @ResponseBody String getAvailableDegreesForExecutionSemester(
-            @PathVariable("executionSemester") ExecutionSemester executionSemester) {
+            @PathVariable("executionSemester") ExecutionInterval executionSemester) {
         JsonArray result = new JsonArray();
 
         executionSemester.getExecutionYear().getExecutionDegreesSet().stream()
@@ -66,7 +66,7 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
     @RequestMapping(value = "/executionSemesters/{executionSemester}/{executionDegree}/classes", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public @ResponseBody String getAvailableClassesForDegreeInExecutionSemester(
-            @PathVariable("executionSemester") ExecutionSemester executionSemester,
+            @PathVariable("executionSemester") ExecutionInterval executionSemester,
             @PathVariable("executionDegree") ExecutionDegree executionDegree) {
         JsonArray result = new JsonArray();
         executionDegree.getSchoolClassesSet().stream().filter(sc -> sc.getExecutionPeriod() == executionSemester)
@@ -84,7 +84,7 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
     @RequestMapping(value = "/executionSemesters/{executionSemester}/{executionDegree}/courses", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public @ResponseBody String getAvailableCoursesForDegreeInExecutionSemester(
-            @PathVariable("executionSemester") ExecutionSemester executionSemester,
+            @PathVariable("executionSemester") ExecutionInterval executionSemester,
             @PathVariable("executionDegree") ExecutionDegree executionDegree) {
         JsonArray result = new JsonArray();
         executionDegree.getDegreeCurricularPlan().getExecutionCourses(executionSemester).stream()
@@ -95,7 +95,7 @@ public class StudentsListByCurricularCourseController extends FenixeduUlisboaSpe
     @RequestMapping(value = "/executionSemesters/{executionSemester}/courses", method = RequestMethod.GET,
             produces = "application/json; charset=utf-8")
     public @ResponseBody String getAvailableCoursesForExecutionSemester(
-            @PathVariable("executionSemester") ExecutionSemester executionSemester) {
+            @PathVariable("executionSemester") ExecutionInterval executionSemester) {
         JsonArray result = new JsonArray();
         executionSemester.getAssociatedExecutionCoursesSet().stream().sorted(ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR)
                 .forEach(ec -> addExecutionCourse(result, ec));

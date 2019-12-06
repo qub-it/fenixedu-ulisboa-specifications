@@ -40,7 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.exceptions.AcademicExtensionsDomainException;
@@ -154,7 +154,7 @@ public class EnrolmentManagementDA extends FenixDispatchAction {
     public ActionForward endEnrolmentProcess(final ActionMapping mapping, final ActionForm form, final HttpServletRequest request,
             final HttpServletResponse response) {
 
-        final ExecutionSemester executionSemester = getDomainObject(request, "executionSemesterOID");
+        final ExecutionInterval executionSemester = getDomainObject(request, "executionSemesterOID");
         final StudentCurricularPlan scp = getDomainObject(request, "studentCurricularPlanOID");
         final EnrolmentProcess process = EnrolmentProcess.find(executionSemester, scp);
 

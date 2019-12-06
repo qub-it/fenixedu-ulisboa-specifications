@@ -45,7 +45,6 @@ import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
@@ -90,688 +89,668 @@ import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 
 @Component("org.fenixedu.ulisboa.specifications.evaluation.manageMarkSheet.administrative")
-@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.evaluation.manageMarkSheet.administrative", accessGroup = "academic(MANAGE_MARKSHEETS)")
+@SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class,
+        title = "label.title.evaluation.manageMarkSheet.administrative", accessGroup = "academic(MANAGE_MARKSHEETS)")
 @RequestMapping(CompetenceCourseMarkSheetController.CONTROLLER_URL)
 public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecificationsBaseController {
 
-	public static final String CONTROLLER_URL = "/fenixedu-ulisboa-specifications/evaluation/managemarksheet/administrative/competencecoursemarksheet";
-
-	private static final String JSP_PATH = CONTROLLER_URL.substring(1);
-
-	private String jspPage(final String page) {
-		return JSP_PATH + "/" + page;
-	}
-
-	@RequestMapping
-	public String home(final Model model) {
-		return "forward:" + CONTROLLER_URL + "/";
-	}
-
-	private CompetenceCourseMarkSheetBean getCompetenceCourseMarkSheetBean(final Model model) {
-		return (CompetenceCourseMarkSheetBean) model.asMap().get("competenceCourseMarkSheetBean");
-	}
-
-	private void setCompetenceCourseMarkSheetBean(final CompetenceCourseMarkSheetBean bean, final Model model) {
-		model.addAttribute("competenceCourseMarkSheetBeanJson", getBeanJson(bean));
-		model.addAttribute("competenceCourseMarkSheetBean", bean);
-	}
-
-	private CompetenceCourseMarkSheet getCompetenceCourseMarkSheet(final Model model) {
-		return (CompetenceCourseMarkSheet) model.asMap().get("competenceCourseMarkSheet");
-	}
-
-	private void setCompetenceCourseMarkSheet(final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			final Model model) {
-		model.addAttribute("competenceCourseMarkSheet", competenceCourseMarkSheet);
-	}
-
-	private static final String _SEARCH_URI = "/";
-	public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
-
-	@RequestMapping(value = _SEARCH_URI)
-	public String search(
-			@RequestParam(value = "executionsemester", required = false) ExecutionSemester executionSemester,
-			@RequestParam(value = "competencecourse", required = false) CompetenceCourse competenceCourse,
-			final Model model) {
-		final List<CompetenceCourseMarkSheet> searchResultsDataSet = filterSearch(executionSemester, competenceCourse,
-				(CompetenceCourseMarkSheetStateEnum) null, (EvaluationSeason) null,
-				(CompetenceCourseMarkSheetChangeRequestStateEnum) null);
-
-		final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean();
-		bean.update();
-		setCompetenceCourseMarkSheetBean(bean, model);
-
-		model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", searchResultsDataSet);
-		return jspPage("search");
-	}
+    public static final String CONTROLLER_URL =
+            "/fenixedu-ulisboa-specifications/evaluation/managemarksheet/administrative/competencecoursemarksheet";
 
-	@RequestMapping(value = _SEARCH_URI, method = RequestMethod.POST)
-	public String search(@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
-			final Model model) {
-
-		setCompetenceCourseMarkSheetBean(bean, model);
+    private static final String JSP_PATH = CONTROLLER_URL.substring(1);
 
-		model.addAttribute("searchcompetencecoursemarksheetResultsDataSet",
-				filterSearch(bean.getExecutionSemester(), bean.getCompetenceCourse(), bean.getMarkSheetState(),
-						bean.getEvaluationSeason(), bean.getChangeRequestState()));
+    private String jspPage(final String page) {
+        return JSP_PATH + "/" + page;
+    }
 
-		return jspPage("search");
-	}
+    @RequestMapping
+    public String home(final Model model) {
+        return "forward:" + CONTROLLER_URL + "/";
+    }
 
-	private static final String _SEARCHPOSTBACK_URI = "/searchpostback/";
-	public static final String SEARCHPOSTBACK_URL = CONTROLLER_URL + _SEARCHPOSTBACK_URI;
+    private CompetenceCourseMarkSheetBean getCompetenceCourseMarkSheetBean(final Model model) {
+        return (CompetenceCourseMarkSheetBean) model.asMap().get("competenceCourseMarkSheetBean");
+    }
 
-	@RequestMapping(value = _SEARCHPOSTBACK_URI, method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	public @ResponseBody ResponseEntity<String> searchpostback(
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
-			final Model model) {
+    private void setCompetenceCourseMarkSheetBean(final CompetenceCourseMarkSheetBean bean, final Model model) {
+        model.addAttribute("competenceCourseMarkSheetBeanJson", getBeanJson(bean));
+        model.addAttribute("competenceCourseMarkSheetBean", bean);
+    }
 
-		bean.update();
-		this.setCompetenceCourseMarkSheetBean(bean, model);
-		return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
-	}
+    private CompetenceCourseMarkSheet getCompetenceCourseMarkSheet(final Model model) {
+        return (CompetenceCourseMarkSheet) model.asMap().get("competenceCourseMarkSheet");
+    }
 
-	private Stream<CompetenceCourseMarkSheet> getSearchUniverseSearchDataSet(final ExecutionInterval interval,
-			final CompetenceCourse competence, final CompetenceCourseMarkSheetStateEnum markSheetState,
-			final EvaluationSeason season, CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
-
-		return CompetenceCourseMarkSheet.findBy(interval, competence, (ExecutionCourse) null, season, (DateTime) null,
-				(Set<Shift>) null, markSheetState, changeRequestState);
-	}
+    private void setCompetenceCourseMarkSheet(final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model) {
+        model.addAttribute("competenceCourseMarkSheet", competenceCourseMarkSheet);
+    }
 
-	private List<CompetenceCourseMarkSheet> filterSearch(final ExecutionInterval executionInterval,
-			final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
-			final EvaluationSeason evaluationSeason,
-			final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
+    private static final String _SEARCH_URI = "/";
+    public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
 
-		return getSearchUniverseSearchDataSet(executionInterval, competenceCourse, markSheetState, evaluationSeason,
-				changeRequestState).collect(Collectors.toList());
-	}
+    @RequestMapping(value = _SEARCH_URI)
+    public String search(@RequestParam(value = "executionsemester", required = false) ExecutionInterval executionSemester,
+            @RequestParam(value = "competencecourse", required = false) CompetenceCourse competenceCourse, final Model model) {
+        final List<CompetenceCourseMarkSheet> searchResultsDataSet =
+                filterSearch(executionSemester, competenceCourse, (CompetenceCourseMarkSheetStateEnum) null,
+                        (EvaluationSeason) null, (CompetenceCourseMarkSheetChangeRequestStateEnum) null);
 
-	private static final String _SEARCH_TO_VIEW_ACTION_URI = "/search/view/";
-	public static final String SEARCH_TO_VIEW_ACTION_URL = CONTROLLER_URL + _SEARCH_TO_VIEW_ACTION_URI;
+        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean();
+        bean.update();
+        setCompetenceCourseMarkSheetBean(bean, model);
 
-	@RequestMapping(value = _SEARCH_TO_VIEW_ACTION_URI + "{oid}")
-	public String processSearchToViewAction(
-			@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
-			final RedirectAttributes redirectAttributes) {
+        model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", searchResultsDataSet);
+        return jspPage("search");
+    }
 
-		return redirect(READ_URL + competenceCourseMarkSheet.getExternalId(), model, redirectAttributes);
-	}
+    @RequestMapping(value = _SEARCH_URI, method = RequestMethod.POST)
+    public String search(@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
+            final Model model) {
 
-	private static final String _READ_URI = "/read/";
-	public static final String READ_URL = CONTROLLER_URL + _READ_URI;
+        setCompetenceCourseMarkSheetBean(bean, model);
 
-	@RequestMapping(value = _READ_URI + "{oid}")
-	public String read(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			final Model model) {
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
-		return jspPage("read");
-	}
+        model.addAttribute("searchcompetencecoursemarksheetResultsDataSet", filterSearch(bean.getExecutionSemester(),
+                bean.getCompetenceCourse(), bean.getMarkSheetState(), bean.getEvaluationSeason(), bean.getChangeRequestState()));
 
-	private static final String _DELETE_URI = "/delete/";
-	public static final String DELETE_URL = CONTROLLER_URL + _DELETE_URI;
+        return jspPage("search");
+    }
 
-	@RequestMapping(value = _DELETE_URI + "{oid}", method = RequestMethod.POST)
-	public String delete(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			final Model model, final RedirectAttributes redirectAttributes) {
+    private static final String _SEARCHPOSTBACK_URI = "/searchpostback/";
+    public static final String SEARCHPOSTBACK_URL = CONTROLLER_URL + _SEARCHPOSTBACK_URI;
 
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
-		try {
-			competenceCourseMarkSheet.delete();
+    @RequestMapping(value = _SEARCHPOSTBACK_URI, method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> searchpostback(
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model) {
 
-			addInfoMessage(ULisboaSpecificationsUtil.bundle("label.success.delete"), model);
-			return redirect(CONTROLLER_URL, model, redirectAttributes);
+        bean.update();
+        this.setCompetenceCourseMarkSheetBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
 
-		} catch (Exception ex) {
-			addErrorMessage(ex.getLocalizedMessage(), model);
-		}
+    private Stream<CompetenceCourseMarkSheet> getSearchUniverseSearchDataSet(final ExecutionInterval interval,
+            final CompetenceCourse competence, final CompetenceCourseMarkSheetStateEnum markSheetState,
+            final EvaluationSeason season, CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
 
-		return jspPage("read/" + getCompetenceCourseMarkSheet(model).getExternalId());
-	}
+        return CompetenceCourseMarkSheet.findBy(interval, competence, (ExecutionCourse) null, season, (DateTime) null,
+                (Set<Shift>) null, markSheetState, changeRequestState);
+    }
 
-	@RequestMapping(value = "/read/{oid}/updateevaluations")
-	public String processReadToUpdateEvaluations(
-			@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
-			final RedirectAttributes redirectAttributes) {
+    private List<CompetenceCourseMarkSheet> filterSearch(final ExecutionInterval executionInterval,
+            final CompetenceCourse competenceCourse, final CompetenceCourseMarkSheetStateEnum markSheetState,
+            final EvaluationSeason evaluationSeason, final CompetenceCourseMarkSheetChangeRequestStateEnum changeRequestState) {
 
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+        return getSearchUniverseSearchDataSet(executionInterval, competenceCourse, markSheetState, evaluationSeason,
+                changeRequestState).collect(Collectors.toList());
+    }
 
-		return redirect(UPDATEEVALUATIONS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
-				redirectAttributes);
-	}
+    private static final String _SEARCH_TO_VIEW_ACTION_URI = "/search/view/";
+    public static final String SEARCH_TO_VIEW_ACTION_URL = CONTROLLER_URL + _SEARCH_TO_VIEW_ACTION_URI;
 
-	private static final String _UPDATE_URI = "/update/";
-	public static final String UPDATE_URL = CONTROLLER_URL + _UPDATE_URI;
+    @RequestMapping(value = _SEARCH_TO_VIEW_ACTION_URI + "{oid}")
+    public String processSearchToViewAction(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            final Model model, final RedirectAttributes redirectAttributes) {
 
-	@RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.GET)
-	public String update(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			final Model model) {
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+        return redirect(READ_URL + competenceCourseMarkSheet.getExternalId(), model, redirectAttributes);
+    }
 
-		final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet);
-		this.setCompetenceCourseMarkSheetBean(bean, model);
+    private static final String _READ_URI = "/read/";
+    public static final String READ_URL = CONTROLLER_URL + _READ_URI;
 
-		return jspPage("update");
-	}
+    @RequestMapping(value = _READ_URI + "{oid}")
+    public String read(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model) {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+        return jspPage("read");
+    }
 
-	private static final String _UPDATEPOSTBACK_URI = "/updatepostback/";
-	public static final String UPDATEPOSTBACK_URL = CONTROLLER_URL + _UPDATEPOSTBACK_URI;
+    private static final String _DELETE_URI = "/delete/";
+    public static final String DELETE_URL = CONTROLLER_URL + _DELETE_URI;
 
-	@RequestMapping(value = _UPDATEPOSTBACK_URI
-			+ "{oid}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	public @ResponseBody ResponseEntity<String> updatepostback(
-			@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
-			final Model model) {
+    @RequestMapping(value = _DELETE_URI + "{oid}", method = RequestMethod.POST)
+    public String delete(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
-		bean.update();
-		this.setCompetenceCourseMarkSheetBean(bean, model);
-		return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
-	}
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+        try {
+            competenceCourseMarkSheet.delete();
 
-	@RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.POST)
-	public String update(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
-			final RedirectAttributes redirectAttributes) {
+            addInfoMessage(ULisboaSpecificationsUtil.bundle("label.success.delete"), model);
+            return redirect(CONTROLLER_URL, model, redirectAttributes);
 
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+        } catch (Exception ex) {
+            addErrorMessage(ex.getLocalizedMessage(), model);
+        }
 
-		try {
+        return jspPage("read/" + getCompetenceCourseMarkSheet(model).getExternalId());
+    }
 
-			competenceCourseMarkSheet.edit(bean.getEvaluationDate(), bean.getGradeScale(), bean.getCertifier(),
-					bean.getExpireDate());
+    @RequestMapping(value = "/read/{oid}/updateevaluations")
+    public String processReadToUpdateEvaluations(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            final Model model, final RedirectAttributes redirectAttributes) {
 
-			return redirect(READ_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model, redirectAttributes);
-		} catch (Exception de) {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-			addErrorMessage(de.getLocalizedMessage(), model);
-			setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
-			this.setCompetenceCourseMarkSheetBean(bean, model);
+        return redirect(UPDATEEVALUATIONS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model, redirectAttributes);
+    }
 
-			return jspPage("update");
-		}
-	}
+    private static final String _UPDATE_URI = "/update/";
+    public static final String UPDATE_URL = CONTROLLER_URL + _UPDATE_URI;
 
-	private static final String _CREATE_URI = "/create/";
-	public static final String CREATE_URL = CONTROLLER_URL + _CREATE_URI;
+    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.GET)
+    public String update(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model) {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-	@RequestMapping(value = _CREATE_URI, method = RequestMethod.GET)
-	public String create(final Model model) {
-		final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean();
-		this.setCompetenceCourseMarkSheetBean(bean, model);
+        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet);
+        this.setCompetenceCourseMarkSheetBean(bean, model);
 
-		return jspPage("create");
-	}
+        return jspPage("update");
+    }
 
-	private static final String _CREATEPOSTBACK_URI = "/createpostback/";
-	public static final String CREATEPOSTBACK_URL = CONTROLLER_URL + _CREATEPOSTBACK_URI;
+    private static final String _UPDATEPOSTBACK_URI = "/updatepostback/";
+    public static final String UPDATEPOSTBACK_URL = CONTROLLER_URL + _UPDATEPOSTBACK_URI;
 
-	@RequestMapping(value = _CREATEPOSTBACK_URI, method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	public @ResponseBody ResponseEntity<String> createpostback(
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
-			final Model model) {
+    @RequestMapping(value = _UPDATEPOSTBACK_URI + "{oid}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> updatepostback(
+            @PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model) {
 
-		bean.update();
-		this.setCompetenceCourseMarkSheetBean(bean, model);
-		return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
-	}
+        bean.update();
+        this.setCompetenceCourseMarkSheetBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
 
-	@RequestMapping(value = _CREATE_URI, method = RequestMethod.POST)
-	public String create(@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
-			final Model model, final RedirectAttributes redirectAttributes) {
+    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.POST)
+    public String update(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
-		try {
-			final CompetenceCourseMarkSheet markSheet = CompetenceCourseMarkSheet.create(bean.getExecutionSemester(),
-					bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(),
-					bean.getCourseEvaluation(), bean.getEvaluationDate(), bean.getCertifier(), bean.getShifts(), false);
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-			model.addAttribute("competenceCourseMarkSheet", markSheet);
-			return redirect(UPDATEEVALUATIONS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
-					redirectAttributes);
+        try {
 
-		} catch (Exception de) {
-
-			addErrorMessage(de.getLocalizedMessage(), model);
-			this.setCompetenceCourseMarkSheetBean(bean, model);
-			return jspPage("create");
-		}
-	}
+            competenceCourseMarkSheet.edit(bean.getEvaluationDate(), bean.getGradeScale(), bean.getCertifier(),
+                    bean.getExpireDate());
 
-	private static final String _UPDATEEVALUATIONS_URI = "/updateevaluations/";
-	public static final String UPDATEEVALUATIONS_URL = CONTROLLER_URL + _UPDATEEVALUATIONS_URI;
-
-	@RequestMapping(value = _UPDATEEVALUATIONS_URI + "{oid}", method = RequestMethod.GET)
-	public String updateevaluations(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			final Model model) {
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+            return redirect(READ_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model, redirectAttributes);
+        } catch (Exception de) {
 
-		final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet);
-		bean.getUpdateGradeBeans().forEach(i -> i.updateViewStudentCurriculum(request));
+            addErrorMessage(de.getLocalizedMessage(), model);
+            setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+            this.setCompetenceCourseMarkSheetBean(bean, model);
 
-		this.setCompetenceCourseMarkSheetBean(bean, model);
-		return jspPage("updateevaluations");
-	}
+            return jspPage("update");
+        }
+    }
 
-	private static final String _UPDATEEVALUATIONSPOSTBACK_URI = "/updateevaluationspostback/";
-	public static final String UPDATEEVALUATIONSPOSTBACK_URL = CONTROLLER_URL + _UPDATEEVALUATIONSPOSTBACK_URI;
-
-	@RequestMapping(value = _UPDATEEVALUATIONSPOSTBACK_URI
-			+ "{oid}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	public @ResponseBody ResponseEntity<String> updateevaluationspostback(
-			@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
-			final Model model) {
+    private static final String _CREATE_URI = "/create/";
+    public static final String CREATE_URL = CONTROLLER_URL + _CREATE_URI;
 
-		this.setCompetenceCourseMarkSheetBean(bean, model);
-		return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
-	}
+    @RequestMapping(value = _CREATE_URI, method = RequestMethod.GET)
+    public String create(final Model model) {
+        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean();
+        this.setCompetenceCourseMarkSheetBean(bean, model);
 
-	@RequestMapping(value = _UPDATEEVALUATIONS_URI + "{oid}", method = RequestMethod.POST)
-	public String updateevaluations(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
-			final RedirectAttributes redirectAttributes) {
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
-
-		try {
-			bean.updateGrades();
-
-			return redirect(READ_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model, redirectAttributes);
-		} catch (Exception de) {
-			addErrorMessage(de.getLocalizedMessage(), model);
-			this.setCompetenceCourseMarkSheetBean(bean, model);
+        return jspPage("create");
+    }
 
-			return jspPage("updateevaluations");
-		}
-	}
+    private static final String _CREATEPOSTBACK_URI = "/createpostback/";
+    public static final String CREATEPOSTBACK_URL = CONTROLLER_URL + _CREATEPOSTBACK_URI;
 
-	@RequestMapping(value = "/read/{oid}/updategradeavailabledates")
-	public String processReadToUpdateGradeAvailableDates(
-			@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
-			final RedirectAttributes redirectAttributes) {
+    @RequestMapping(value = _CREATEPOSTBACK_URI, method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> createpostback(
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model) {
 
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+        bean.update();
+        this.setCompetenceCourseMarkSheetBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
 
-		return redirect(UPDATEGRADEAVAILABLEDATES_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
-				redirectAttributes);
-	}
+    @RequestMapping(value = _CREATE_URI, method = RequestMethod.POST)
+    public String create(@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
+            final Model model, final RedirectAttributes redirectAttributes) {
 
-	private static final String _UPDATEGRADEAVAILABLEDATES_URI = "/updategradeavailabledates/";
-	public static final String UPDATEGRADEAVAILABLEDATES_URL = CONTROLLER_URL + _UPDATEGRADEAVAILABLEDATES_URI;
+        try {
+            final CompetenceCourseMarkSheet markSheet = CompetenceCourseMarkSheet.create(bean.getExecutionSemester(),
+                    bean.getCompetenceCourse(), bean.getExecutionCourse(), bean.getEvaluationSeason(), bean.getCourseEvaluation(),
+                    bean.getEvaluationDate(), bean.getCertifier(), bean.getShifts(), false);
 
-	@RequestMapping(value = _UPDATEGRADEAVAILABLEDATES_URI + "{oid}", method = RequestMethod.GET)
-	public String updategradeavailabledates(
-			@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model) {
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+            model.addAttribute("competenceCourseMarkSheet", markSheet);
+            return redirect(UPDATEEVALUATIONS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
+                    redirectAttributes);
 
-		final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet);
-		bean.getUpdateGradeAvailableDateBeans().forEach(i -> i.updateViewStudentCurriculum(request));
+        } catch (Exception de) {
 
-		this.setCompetenceCourseMarkSheetBean(bean, model);
-		return jspPage("updategradeavailabledates");
-	}
+            addErrorMessage(de.getLocalizedMessage(), model);
+            this.setCompetenceCourseMarkSheetBean(bean, model);
+            return jspPage("create");
+        }
+    }
 
-	private static final String _UPDATEGRADEAVAILABLEDATESPOSTBACK_URI = "/updategradeavailabledatespostback/";
-	public static final String UPDATEGRADEAVAILABLEDATESPOSTBACK_URL = CONTROLLER_URL
-			+ _UPDATEGRADEAVAILABLEDATESPOSTBACK_URI;
+    private static final String _UPDATEEVALUATIONS_URI = "/updateevaluations/";
+    public static final String UPDATEEVALUATIONS_URL = CONTROLLER_URL + _UPDATEEVALUATIONS_URI;
 
-	@RequestMapping(value = _UPDATEGRADEAVAILABLEDATESPOSTBACK_URI
-			+ "{oid}", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
-	public @ResponseBody ResponseEntity<String> updategradeavailabledatespostback(
-			@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
-			final Model model) {
+    @RequestMapping(value = _UPDATEEVALUATIONS_URI + "{oid}", method = RequestMethod.GET)
+    public String updateevaluations(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            final Model model) {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-		this.setCompetenceCourseMarkSheetBean(bean, model);
-		return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
-	}
+        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet);
+        bean.getUpdateGradeBeans().forEach(i -> i.updateViewStudentCurriculum(request));
 
-	@RequestMapping(value = _UPDATEGRADEAVAILABLEDATES_URI + "{oid}", method = RequestMethod.POST)
-	public String updategradeavailabledates(
-			@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
-			final RedirectAttributes redirectAttributes) {
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+        this.setCompetenceCourseMarkSheetBean(bean, model);
+        return jspPage("updateevaluations");
+    }
 
-		try {
-			bean.updateGradeAvailableDates();
+    private static final String _UPDATEEVALUATIONSPOSTBACK_URI = "/updateevaluationspostback/";
+    public static final String UPDATEEVALUATIONSPOSTBACK_URL = CONTROLLER_URL + _UPDATEEVALUATIONSPOSTBACK_URI;
 
-			return redirect(READ_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model, redirectAttributes);
-		} catch (Exception de) {
-			addErrorMessage(de.getLocalizedMessage(), model);
-			this.setCompetenceCourseMarkSheetBean(bean, model);
+    @RequestMapping(value = _UPDATEEVALUATIONSPOSTBACK_URI + "{oid}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> updateevaluationspostback(
+            @PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model) {
 
-			return jspPage("updategradeavailabledates");
-		}
-	}
+        this.setCompetenceCourseMarkSheetBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
 
-	private static final String _PRINT_URI = "/print/";
-	public static final String PRINT_URL = CONTROLLER_URL + _PRINT_URI;
+    @RequestMapping(value = _UPDATEEVALUATIONS_URI + "{oid}", method = RequestMethod.POST)
+    public String updateevaluations(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-	@RequestMapping(value = _PRINT_URI + "{oid}")
-	public void print(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
-			final HttpServletResponse response) throws IOException {
+        try {
+            bean.updateGrades();
 
-		final CompetenceCourse competenceCourse = competenceCourseMarkSheet.getCompetenceCourse();
-		final String filename = competenceCourse.getCode() + "_"
-				+ competenceCourse.getName().replace(' ', '_').replace('/', '-').replace('\\', '-')
-				+ competenceCourseMarkSheet.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-')
-				+ ".pdf";
+            return redirect(READ_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model, redirectAttributes);
+        } catch (Exception de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
+            this.setCompetenceCourseMarkSheetBean(bean, model);
 
-		writeFile(response, filename, MarkSheetDocumentPrintService.PDF,
-				MarkSheetDocumentPrintService.print(competenceCourseMarkSheet));
-	}
+            return jspPage("updateevaluations");
+        }
+    }
 
-	private static final String _PRINT_SNAPSHOT_URI = "/printsnapshot/";
-	public static final String PRINT_SNAPSHOT_URL = CONTROLLER_URL + _PRINT_SNAPSHOT_URI;
+    @RequestMapping(value = "/read/{oid}/updategradeavailabledates")
+    public String processReadToUpdateGradeAvailableDates(
+            @PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
-	@RequestMapping(value = _PRINT_SNAPSHOT_URI + "{oid}")
-	public void printSnapshot(@PathVariable("oid") final CompetenceCourseMarkSheetSnapshot snapshot, final Model model,
-			final HttpServletResponse response) throws IOException {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-		final String filename = snapshot.getCompetenceCourseCode() + "_"
-				+ snapshot.getCompetenceCourseName().getContent().replace(' ', '_').replace('/', '-').replace('\\', '-')
-				+ snapshot.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-') + ".pdf";
+        return redirect(UPDATEGRADEAVAILABLEDATES_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
+                redirectAttributes);
+    }
 
-		writeFile(response, filename, MarkSheetDocumentPrintService.PDF, MarkSheetDocumentPrintService.print(snapshot));
-	}
+    private static final String _UPDATEGRADEAVAILABLEDATES_URI = "/updategradeavailabledates/";
+    public static final String UPDATEGRADEAVAILABLEDATES_URL = CONTROLLER_URL + _UPDATEGRADEAVAILABLEDATES_URI;
 
-	private static final String _CONFIRM_URI = "/confirm/";
-	public static final String CONFIRM_URL = CONTROLLER_URL + _CONFIRM_URI;
+    @RequestMapping(value = _UPDATEGRADEAVAILABLEDATES_URI + "{oid}", method = RequestMethod.GET)
+    public String updategradeavailabledates(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            final Model model) {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-	@RequestMapping(value = _CONFIRM_URI + "{oid}", method = RequestMethod.POST)
-	public String confirm(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			final Model model, final RedirectAttributes redirectAttributes) {
+        final CompetenceCourseMarkSheetBean bean = new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet);
+        bean.getUpdateGradeAvailableDateBeans().forEach(i -> i.updateViewStudentCurriculum(request));
 
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+        this.setCompetenceCourseMarkSheetBean(bean, model);
+        return jspPage("updategradeavailabledates");
+    }
 
-		try {
-			competenceCourseMarkSheet.confirm(false);
+    private static final String _UPDATEGRADEAVAILABLEDATESPOSTBACK_URI = "/updategradeavailabledatespostback/";
+    public static final String UPDATEGRADEAVAILABLEDATESPOSTBACK_URL = CONTROLLER_URL + _UPDATEGRADEAVAILABLEDATESPOSTBACK_URI;
 
-		} catch (Exception de) {
-			addErrorMessage(de.getLocalizedMessage(), model);
+    @RequestMapping(value = _UPDATEGRADEAVAILABLEDATESPOSTBACK_URI + "{oid}", method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> updategradeavailabledatespostback(
+            @PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model) {
 
-			return jspPage("read");
+        this.setCompetenceCourseMarkSheetBean(bean, model);
+        return new ResponseEntity<String>(getBeanJson(bean), HttpStatus.OK);
+    }
 
-		}
+    @RequestMapping(value = _UPDATEGRADEAVAILABLEDATES_URI + "{oid}", method = RequestMethod.POST)
+    public String updategradeavailabledates(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-		return redirect(READ_URL + competenceCourseMarkSheet.getExternalId(), model, redirectAttributes);
-	}
+        try {
+            bean.updateGradeAvailableDates();
 
-	private static final String _SUBMIT_URI = "/submit/";
-	public static final String SUBMIT_URL = CONTROLLER_URL + _SUBMIT_URI;
+            return redirect(READ_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model, redirectAttributes);
+        } catch (Exception de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
+            this.setCompetenceCourseMarkSheetBean(bean, model);
 
-	@RequestMapping(value = _SUBMIT_URI + "{oid}", method = RequestMethod.POST)
-	public String submit(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			final Model model, final RedirectAttributes redirectAttributes) {
+            return jspPage("updategradeavailabledates");
+        }
+    }
 
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+    private static final String _PRINT_URI = "/print/";
+    public static final String PRINT_URL = CONTROLLER_URL + _PRINT_URI;
 
-		try {
-			new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet).checkRulesForSubmission();
-			competenceCourseMarkSheet.submit(false);
+    @RequestMapping(value = _PRINT_URI + "{oid}")
+    public void print(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
+            final HttpServletResponse response) throws IOException {
 
-		} catch (Exception de) {
-			addErrorMessage(de.getLocalizedMessage(), model);
+        final CompetenceCourse competenceCourse = competenceCourseMarkSheet.getCompetenceCourse();
+        final String filename = competenceCourse.getCode() + "_"
+                + competenceCourse.getName().replace(' ', '_').replace('/', '-').replace('\\', '-')
+                + competenceCourseMarkSheet.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-') + ".pdf";
 
-			return jspPage("read");
+        writeFile(response, filename, MarkSheetDocumentPrintService.PDF,
+                MarkSheetDocumentPrintService.print(competenceCourseMarkSheet));
+    }
 
-		}
+    private static final String _PRINT_SNAPSHOT_URI = "/printsnapshot/";
+    public static final String PRINT_SNAPSHOT_URL = CONTROLLER_URL + _PRINT_SNAPSHOT_URI;
 
-		return redirect(READ_URL + competenceCourseMarkSheet.getExternalId(), model, redirectAttributes);
-	}
+    @RequestMapping(value = _PRINT_SNAPSHOT_URI + "{oid}")
+    public void printSnapshot(@PathVariable("oid") final CompetenceCourseMarkSheetSnapshot snapshot, final Model model,
+            final HttpServletResponse response) throws IOException {
 
-	private static final String _REVERT_TO_EDITION_URI = "/reverttoedition/";
-	public static final String REVERT_TO_EDITION_URL = CONTROLLER_URL + _REVERT_TO_EDITION_URI;
+        final String filename = snapshot.getCompetenceCourseCode() + "_"
+                + snapshot.getCompetenceCourseName().getContent().replace(' ', '_').replace('/', '-').replace('\\', '-')
+                + snapshot.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-') + ".pdf";
 
-	@RequestMapping(value = _REVERT_TO_EDITION_URI + "{oid}", method = RequestMethod.POST)
-	public String revertToEdition(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			final Model model, final RedirectAttributes redirectAttributes) {
+        writeFile(response, filename, MarkSheetDocumentPrintService.PDF, MarkSheetDocumentPrintService.print(snapshot));
+    }
 
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+    private static final String _CONFIRM_URI = "/confirm/";
+    public static final String CONFIRM_URL = CONTROLLER_URL + _CONFIRM_URI;
 
-		try {
-			// TODO: add reason
-			competenceCourseMarkSheet.revertToEdition(false, null);
+    @RequestMapping(value = _CONFIRM_URI + "{oid}", method = RequestMethod.POST)
+    public String confirm(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
-		} catch (Exception de) {
-			addErrorMessage(de.getLocalizedMessage(), model);
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-			return jspPage("read");
+        try {
+            competenceCourseMarkSheet.confirm(false);
 
-		}
+        } catch (Exception de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
 
-		return redirect(READ_URL + competenceCourseMarkSheet.getExternalId(), model, redirectAttributes);
-	}
+            return jspPage("read");
 
-	private static final String _EXPORT_EXCEL_URI = "/exportexcel/";
-	public static final String EXPORT_EXCEL_URL = CONTROLLER_URL + _EXPORT_EXCEL_URI;
+        }
 
-	@RequestMapping(value = _EXPORT_EXCEL_URI + "{oid}", method = RequestMethod.GET)
-	public void exportExcel(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			final Model model, final HttpServletResponse response) throws IOException {
+        return redirect(READ_URL + competenceCourseMarkSheet.getExternalId(), model, redirectAttributes);
+    }
 
-		final CompetenceCourse competenceCourse = competenceCourseMarkSheet.getCompetenceCourse();
-		final String filename = competenceCourse.getCode() + "_"
-				+ competenceCourse.getName().replace(' ', '_').replace('/', '-').replace('\\', '-')
-				+ competenceCourseMarkSheet.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-')
-				+ MarkSheetImportExportService.XLSX_EXTENSION;
+    private static final String _SUBMIT_URI = "/submit/";
+    public static final String SUBMIT_URL = CONTROLLER_URL + _SUBMIT_URI;
 
-		writeFile(response, filename, MarkSheetImportExportService.XLSX_MIME_TYPE, MarkSheetImportExportService
-				.exportToXLSX(new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet)));
-	}
+    @RequestMapping(value = _SUBMIT_URI + "{oid}", method = RequestMethod.POST)
+    public String submit(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
+            final RedirectAttributes redirectAttributes) {
 
-	private static final String _IMPORT_EXCEL_URI = "/importexcel/";
-	public static final String IMPORT_EXCEL_URL = CONTROLLER_URL + _IMPORT_EXCEL_URI;
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-	@RequestMapping(value = _IMPORT_EXCEL_URI + "{oid}", method = RequestMethod.POST)
-	public String importExcel(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			@RequestParam(value = "file", required = true) MultipartFile markSheetFile, final Model model,
-			final RedirectAttributes redirectAttributes) throws IOException {
+        try {
+            new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet).checkRulesForSubmission();
+            competenceCourseMarkSheet.submit(false);
 
-		CompetenceCourseMarkSheetBean bean = null;
-		try {
-			bean = MarkSheetImportExportService.importFromXLSX(competenceCourseMarkSheet,
-					FilenameUtils.getName(markSheetFile.getOriginalFilename()), markSheetFile.getBytes());
-			bean.updateGrades();
+        } catch (Exception de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
 
-			addInfoMessage(
-					ULisboaSpecificationsUtil.bundle("label.event.evaluation.manageMarkSheet.importExcel.success"),
-					model);
+            return jspPage("read");
 
-		} catch (Exception e) {
-			addErrorMessage(e.getLocalizedMessage(), model);
-		}
+        }
 
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
-		setCompetenceCourseMarkSheetBean(
-				bean == null ? new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet) : bean, model);
+        return redirect(READ_URL + competenceCourseMarkSheet.getExternalId(), model, redirectAttributes);
+    }
 
-		return jspPage("updateevaluations");
+    private static final String _REVERT_TO_EDITION_URI = "/reverttoedition/";
+    public static final String REVERT_TO_EDITION_URL = CONTROLLER_URL + _REVERT_TO_EDITION_URI;
 
-	}
+    @RequestMapping(value = _REVERT_TO_EDITION_URI + "{oid}", method = RequestMethod.POST)
+    public String revertToEdition(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            final Model model, final RedirectAttributes redirectAttributes) {
 
-	private static final String _SEARCH_CHANGE_REQUESTS_URI = "/searchchangerequests/";
-	public static final String SEARCH_CHANGE_REQUESTS_URL = CONTROLLER_URL + _SEARCH_CHANGE_REQUESTS_URI;
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-	@RequestMapping(value = _SEARCH_CHANGE_REQUESTS_URI + "{oid}", method = RequestMethod.GET)
-	public String searchChangeRequests(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			final Model model, final RedirectAttributes redirectAttributes) throws IOException {
+        try {
+            // TODO: add reason
+            competenceCourseMarkSheet.revertToEdition(false, null);
 
-		setCompetenceCourseMarkSheetBean(new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet), model);
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+        } catch (Exception de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
 
-		return jspPage("searchchangerequests");
-	}
+            return jspPage("read");
 
-	private static final String _AUTHORIZE_CHANGE_REQUEST_URI = "/authorizechangerequest/";
-	public static final String AUTHORIZE_CHANGE_REQUEST_URL = CONTROLLER_URL + _AUTHORIZE_CHANGE_REQUEST_URI;
+        }
 
-	@RequestMapping(value = _AUTHORIZE_CHANGE_REQUEST_URI + "{oid}/{changeRequestId}", method = RequestMethod.POST)
-	public String authorizeChangeRequest(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			@PathVariable("changeRequestId") final CompetenceCourseMarkSheetChangeRequest changeRequest,
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
-			final RedirectAttributes redirectAttributes) throws IOException {
+        return redirect(READ_URL + competenceCourseMarkSheet.getExternalId(), model, redirectAttributes);
+    }
 
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+    private static final String _EXPORT_EXCEL_URI = "/exportexcel/";
+    public static final String EXPORT_EXCEL_URL = CONTROLLER_URL + _EXPORT_EXCEL_URI;
 
-		try {
+    @RequestMapping(value = _EXPORT_EXCEL_URI + "{oid}", method = RequestMethod.GET)
+    public void exportExcel(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet, final Model model,
+            final HttpServletResponse response) throws IOException {
 
-			changeRequest.authorize(Authenticate.getUser().getPerson(), bean.getChangeRequestComments(),
-					bean.getExpireDate());
+        final CompetenceCourse competenceCourse = competenceCourseMarkSheet.getCompetenceCourse();
+        final String filename = competenceCourse.getCode() + "_"
+                + competenceCourse.getName().replace(' ', '_').replace('/', '-').replace('\\', '-')
+                + competenceCourseMarkSheet.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-')
+                + MarkSheetImportExportService.XLSX_EXTENSION;
 
-			return redirect(SEARCH_CHANGE_REQUESTS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
-					redirectAttributes);
-		} catch (Exception de) {
-			addErrorMessage(de.getLocalizedMessage(), model);
-			this.setCompetenceCourseMarkSheetBean(bean, model);
+        writeFile(response, filename, MarkSheetImportExportService.XLSX_MIME_TYPE,
+                MarkSheetImportExportService.exportToXLSX(new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet)));
+    }
 
-			return jspPage("searchchangerequests");
-		}
-	}
+    private static final String _IMPORT_EXCEL_URI = "/importexcel/";
+    public static final String IMPORT_EXCEL_URL = CONTROLLER_URL + _IMPORT_EXCEL_URI;
 
-	private static final String _CLOSE_CHANGE_REQUESTS_URI = "/closechangerequest/";
-	public static final String CLOSE_CHANGE_REQUESTS_URL = CONTROLLER_URL + _CLOSE_CHANGE_REQUESTS_URI;
+    @RequestMapping(value = _IMPORT_EXCEL_URI + "{oid}", method = RequestMethod.POST)
+    public String importExcel(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @RequestParam(value = "file", required = true) MultipartFile markSheetFile, final Model model,
+            final RedirectAttributes redirectAttributes) throws IOException {
 
-	@RequestMapping(value = _CLOSE_CHANGE_REQUESTS_URI + "{oid}/{changeRequestId}", method = RequestMethod.POST)
-	public String closeChangeRequest(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
-			@PathVariable("changeRequestId") final CompetenceCourseMarkSheetChangeRequest changeRequest,
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
-			final RedirectAttributes redirectAttributes) throws IOException {
+        CompetenceCourseMarkSheetBean bean = null;
+        try {
+            bean = MarkSheetImportExportService.importFromXLSX(competenceCourseMarkSheet,
+                    FilenameUtils.getName(markSheetFile.getOriginalFilename()), markSheetFile.getBytes());
+            bean.updateGrades();
 
-		setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+            addInfoMessage(ULisboaSpecificationsUtil.bundle("label.event.evaluation.manageMarkSheet.importExcel.success"), model);
 
-		try {
+        } catch (Exception e) {
+            addErrorMessage(e.getLocalizedMessage(), model);
+        }
 
-			changeRequest.close(Authenticate.getUser().getPerson(), bean.getChangeRequestComments());
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
+        setCompetenceCourseMarkSheetBean(bean == null ? new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet) : bean,
+                model);
 
-			return redirect(SEARCH_CHANGE_REQUESTS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
-					redirectAttributes);
-		} catch (Exception de) {
-			addErrorMessage(de.getLocalizedMessage(), model);
-			this.setCompetenceCourseMarkSheetBean(bean, model);
+        return jspPage("updateevaluations");
 
-			return jspPage("searchchangerequests");
-		}
-	}
+    }
 
-	private byte[] exportReportToXLS(final CompetenceCourseMarkSheetBean bean) {
+    private static final String _SEARCH_CHANGE_REQUESTS_URI = "/searchchangerequests/";
+    public static final String SEARCH_CHANGE_REQUESTS_URL = CONTROLLER_URL + _SEARCH_CHANGE_REQUESTS_URI;
 
-		final List<CompetenceCourseSeasonReport> entries = MarkSheetStatusReportService
-				.getReportsForCompetenceCourses(bean.getExecutionSemester(), bean.getEvaluationSeasonsToReport());
+    @RequestMapping(value = _SEARCH_CHANGE_REQUESTS_URI + "{oid}", method = RequestMethod.GET)
+    public String searchChangeRequests(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            final Model model, final RedirectAttributes redirectAttributes) throws IOException {
 
-		final SpreadsheetBuilder builder = new SpreadsheetBuilder();
-		builder.addSheet(reportLabelFor("sheetTitle"), new SheetData<CompetenceCourseSeasonReport>(entries) {
-			@Override
-			protected void makeLine(CompetenceCourseSeasonReport entry) {
-				addCell(reportLabelFor("period"), entry.getExecutionSemester().getQualifiedName());
-				addCell(reportLabelFor("curricularCourseCode"), entry.getCompetenceCourse().getCode());
-				addCell(reportLabelFor("curricularCourseName"), entry.getCompetenceCourse().getName());
-				addCell(reportLabelFor("executionCourses"), entry.getExecutionCourses());
-				addCell(reportLabelFor("season"),
-						EvaluationSeasonServices.getDescriptionI18N(entry.getSeason()).getContent());
-				addCell(reportLabelFor("totalStudents"), entry.getTotalStudents());
-				addCell(reportLabelFor("notEvaluatedStudents"), entry.getNotEvaluatedStudents());
-				addCell(reportLabelFor("evaluatedStudents"), entry.getEvaluatedStudents());
-				addCell(reportLabelFor("marksheetsTotal"), entry.getMarksheetsTotal());
-				addCell(reportLabelFor("marksheetsToConfirm"), entry.getMarksheetsToConfirm());
-				addCell(reportLabelFor("responsibleName"), Joiner.on("; ").join(entry.getResponsibleNames()));
-				addCell(reportLabelFor("responsibleContact"), Joiner.on("; ").join(entry.getResponsibleEmails()));
-			}
-		});
+        setCompetenceCourseMarkSheetBean(new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet), model);
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-		final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		try {
-			builder.build(WorkbookExportFormat.EXCEL, byteArrayOutputStream);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+        return jspPage("searchchangerequests");
+    }
 
-		return byteArrayOutputStream.toByteArray();
-	}
+    private static final String _AUTHORIZE_CHANGE_REQUEST_URI = "/authorizechangerequest/";
+    public static final String AUTHORIZE_CHANGE_REQUEST_URL = CONTROLLER_URL + _AUTHORIZE_CHANGE_REQUEST_URI;
 
-	static private String reportLabelFor(final String field) {
-		return BundleUtil.getString(ULisboaConstants.BUNDLE, "label.MarksheetStatusReport.report." + field);
-	}
+    @RequestMapping(value = _AUTHORIZE_CHANGE_REQUEST_URI + "{oid}/{changeRequestId}", method = RequestMethod.POST)
+    public String authorizeChangeRequest(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @PathVariable("changeRequestId") final CompetenceCourseMarkSheetChangeRequest changeRequest,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) throws IOException {
 
-	@RequestMapping(value = "/exportreport", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
-	public @ResponseBody ResponseEntity<String> exportReport(
-			@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
-			final Model model) {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-		final String reportId = UUID.randomUUID().toString();
-		new Thread(() -> processReport(this::exportReportToXLS, bean, reportId)).start();
+        try {
 
-		return new ResponseEntity<String>(reportId, HttpStatus.OK);
-	}
+            changeRequest.authorize(Authenticate.getUser().getPerson(), bean.getChangeRequestComments(), bean.getExpireDate());
 
-	@Atomic(mode = TxMode.READ)
-	protected void processReport(final Function<CompetenceCourseMarkSheetBean, byte[]> reportProcessor,
-			final CompetenceCourseMarkSheetBean bean, final String reportId) {
+            return redirect(SEARCH_CHANGE_REQUESTS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
+                    redirectAttributes);
+        } catch (Exception de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
+            this.setCompetenceCourseMarkSheetBean(bean, model);
 
-		byte[] content = null;
-		try {
-			content = reportProcessor.apply(bean);
-		} catch (Throwable e) {
-			content = createXLSWithError((e instanceof DomainException) ? ((DomainException) e).getLocalizedMessage()
-					: ExceptionUtils.getFullStackTrace(e));
-		}
+            return jspPage("searchchangerequests");
+        }
+    }
 
-		ULisboaSpecificationsTemporaryFile.create(reportId, content, Authenticate.getUser());
-	}
+    private static final String _CLOSE_CHANGE_REQUESTS_URI = "/closechangerequest/";
+    public static final String CLOSE_CHANGE_REQUESTS_URL = CONTROLLER_URL + _CLOSE_CHANGE_REQUESTS_URI;
 
-	private byte[] createXLSWithError(String error) {
+    @RequestMapping(value = _CLOSE_CHANGE_REQUESTS_URI + "{oid}/{changeRequestId}", method = RequestMethod.POST)
+    public String closeChangeRequest(@PathVariable("oid") final CompetenceCourseMarkSheet competenceCourseMarkSheet,
+            @PathVariable("changeRequestId") final CompetenceCourseMarkSheetChangeRequest changeRequest,
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) throws IOException {
 
-		try {
+        setCompetenceCourseMarkSheet(competenceCourseMarkSheet, model);
 
-			final SpreadsheetBuilder builder = new SpreadsheetBuilder();
-			builder.addSheet("Registrations", new SheetData<String>(Collections.singleton(error)) {
-				@Override
-				protected void makeLine(String item) {
-					addCell(ULisboaSpecificationsUtil.bundle("label.unexpected.error.occured"), item);
-				}
-			});
+        try {
 
-			final ByteArrayOutputStream result = new ByteArrayOutputStream();
-			builder.build(WorkbookExportFormat.EXCEL, result);
+            changeRequest.close(Authenticate.getUser().getPerson(), bean.getChangeRequestComments());
 
-			return result.toByteArray();
+            return redirect(SEARCH_CHANGE_REQUESTS_URL + getCompetenceCourseMarkSheet(model).getExternalId(), model,
+                    redirectAttributes);
+        } catch (Exception de) {
+            addErrorMessage(de.getLocalizedMessage(), model);
+            this.setCompetenceCourseMarkSheetBean(bean, model);
 
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
+            return jspPage("searchchangerequests");
+        }
+    }
 
-	@RequestMapping(value = "/exportstatus/{reportId}", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
-	public @ResponseBody ResponseEntity<String> exportStatus(@PathVariable(value = "reportId") final String reportId,
-			final Model model) {
-		return new ResponseEntity<String>(String.valueOf(
-				ULisboaSpecificationsTemporaryFile.findByUserAndFilename(Authenticate.getUser(), reportId).isPresent()),
-				HttpStatus.OK);
-	}
+    private byte[] exportReportToXLS(final CompetenceCourseMarkSheetBean bean) {
 
-	@RequestMapping(value = "/downloadreport/{reportId}", method = RequestMethod.GET)
-	public void downloadReport(@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
-			@PathVariable("reportId") String reportId, final Model model, RedirectAttributes redirectAttributes,
-			HttpServletResponse response) throws IOException {
-		final Optional<ULisboaSpecificationsTemporaryFile> temporaryFile = ULisboaSpecificationsTemporaryFile
-				.findByUserAndFilename(Authenticate.getUser(), reportId);
-		writeFile(response, getFileName(null/* TODO legidio bean.getExecutionSemester() */), "application/vnd.ms-excel",
-				temporaryFile.get().getContent());
-	}
+        final List<CompetenceCourseSeasonReport> entries = MarkSheetStatusReportService
+                .getReportsForCompetenceCourses(bean.getExecutionSemester(), bean.getEvaluationSeasonsToReport());
 
-	private String getFileName(final ExecutionSemester executionInterval) {
-		final org.fenixedu.academic.domain.organizationalStructure.Unit institutionUnit = Bennu.getInstance()
-				.getInstitutionUnit();
-		final String acronym = institutionUnit.getAcronym();
+        final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+        builder.addSheet(reportLabelFor("sheetTitle"), new SheetData<CompetenceCourseSeasonReport>(entries) {
+            @Override
+            protected void makeLine(CompetenceCourseSeasonReport entry) {
+                addCell(reportLabelFor("period"), entry.getExecutionSemester().getQualifiedName());
+                addCell(reportLabelFor("curricularCourseCode"), entry.getCompetenceCourse().getCode());
+                addCell(reportLabelFor("curricularCourseName"), entry.getCompetenceCourse().getName());
+                addCell(reportLabelFor("executionCourses"), entry.getExecutionCourses());
+                addCell(reportLabelFor("season"), EvaluationSeasonServices.getDescriptionI18N(entry.getSeason()).getContent());
+                addCell(reportLabelFor("totalStudents"), entry.getTotalStudents());
+                addCell(reportLabelFor("notEvaluatedStudents"), entry.getNotEvaluatedStudents());
+                addCell(reportLabelFor("evaluatedStudents"), entry.getEvaluatedStudents());
+                addCell(reportLabelFor("marksheetsTotal"), entry.getMarksheetsTotal());
+                addCell(reportLabelFor("marksheetsToConfirm"), entry.getMarksheetsToConfirm());
+                addCell(reportLabelFor("responsibleName"), Joiner.on("; ").join(entry.getResponsibleNames()));
+                addCell(reportLabelFor("responsibleContact"), Joiner.on("; ").join(entry.getResponsibleEmails()));
+            }
+        });
 
-		final String title = acronym + "_"
-				+ ULisboaSpecificationsUtil.bundle("label.MarkSheetStatusReport.create").replace(" ", "-") + "_";
+        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try {
+            builder.build(WorkbookExportFormat.EXCEL, byteArrayOutputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-		final String period = executionInterval == null ? ""
-				: executionInterval.getQualifiedName().replace("/", "-").replace(" ", "-") + "_";
+        return byteArrayOutputStream.toByteArray();
+    }
 
-		return title + period + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xls";
-	}
+    static private String reportLabelFor(final String field) {
+        return BundleUtil.getString(ULisboaConstants.BUNDLE, "label.MarksheetStatusReport.report." + field);
+    }
+
+    @RequestMapping(value = "/exportreport", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> exportReport(
+            @RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean, final Model model) {
+
+        final String reportId = UUID.randomUUID().toString();
+        new Thread(() -> processReport(this::exportReportToXLS, bean, reportId)).start();
+
+        return new ResponseEntity<String>(reportId, HttpStatus.OK);
+    }
+
+    @Atomic(mode = TxMode.READ)
+    protected void processReport(final Function<CompetenceCourseMarkSheetBean, byte[]> reportProcessor,
+            final CompetenceCourseMarkSheetBean bean, final String reportId) {
+
+        byte[] content = null;
+        try {
+            content = reportProcessor.apply(bean);
+        } catch (Throwable e) {
+            content = createXLSWithError((e instanceof DomainException) ? ((DomainException) e)
+                    .getLocalizedMessage() : ExceptionUtils.getFullStackTrace(e));
+        }
+
+        ULisboaSpecificationsTemporaryFile.create(reportId, content, Authenticate.getUser());
+    }
+
+    private byte[] createXLSWithError(String error) {
+
+        try {
+
+            final SpreadsheetBuilder builder = new SpreadsheetBuilder();
+            builder.addSheet("Registrations", new SheetData<String>(Collections.singleton(error)) {
+                @Override
+                protected void makeLine(String item) {
+                    addCell(ULisboaSpecificationsUtil.bundle("label.unexpected.error.occured"), item);
+                }
+            });
+
+            final ByteArrayOutputStream result = new ByteArrayOutputStream();
+            builder.build(WorkbookExportFormat.EXCEL, result);
+
+            return result.toByteArray();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @RequestMapping(value = "/exportstatus/{reportId}", method = RequestMethod.GET, produces = "text/plain;charset=UTF-8")
+    public @ResponseBody ResponseEntity<String> exportStatus(@PathVariable(value = "reportId") final String reportId,
+            final Model model) {
+        return new ResponseEntity<String>(
+                String.valueOf(
+                        ULisboaSpecificationsTemporaryFile.findByUserAndFilename(Authenticate.getUser(), reportId).isPresent()),
+                HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/downloadreport/{reportId}", method = RequestMethod.GET)
+    public void downloadReport(@RequestParam(value = "bean", required = false) final CompetenceCourseMarkSheetBean bean,
+            @PathVariable("reportId") String reportId, final Model model, RedirectAttributes redirectAttributes,
+            HttpServletResponse response) throws IOException {
+        final Optional<ULisboaSpecificationsTemporaryFile> temporaryFile =
+                ULisboaSpecificationsTemporaryFile.findByUserAndFilename(Authenticate.getUser(), reportId);
+        writeFile(response, getFileName(null/* TODO legidio bean.getExecutionSemester() */), "application/vnd.ms-excel",
+                temporaryFile.get().getContent());
+    }
+
+    private String getFileName(final ExecutionInterval executionInterval) {
+        final org.fenixedu.academic.domain.organizationalStructure.Unit institutionUnit =
+                Bennu.getInstance().getInstitutionUnit();
+        final String acronym = institutionUnit.getAcronym();
+
+        final String title =
+                acronym + "_" + ULisboaSpecificationsUtil.bundle("label.MarkSheetStatusReport.create").replace(" ", "-") + "_";
+
+        final String period =
+                executionInterval == null ? "" : executionInterval.getQualifiedName().replace("/", "-").replace(" ", "-") + "_";
+
+        return title + period + new DateTime().toString("yyyy-MM-dd_HH-mm-ss") + ".xls";
+    }
 
 }

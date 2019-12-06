@@ -1,4 +1,4 @@
-<%@page import="org.fenixedu.academic.domain.ExecutionSemester"%>
+<%@page import="org.fenixedu.academic.domain.ExecutionInterval"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt" %>
@@ -247,7 +247,7 @@ ${portal.toolkit()}
 <script type="text/javascript">
 		
 	$(document).ready(function() {
-		$("#executionSemesters").val("<%= ExecutionSemester.readActualExecutionSemester().getExternalId() %>").trigger("change");
+		$("#executionSemesters").val("<%= ExecutionInterval.findFirstCurrentChild(null).getExternalId() %>").trigger("change");
 		$("#listBy").select2();
 		$("#selectCourseOrClass").select2();
 		$("#selectShiftEntry").hide();

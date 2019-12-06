@@ -2,13 +2,14 @@ package org.fenixedu.ulisboa.specifications.ui.enrolmentperiod.manageenrolmentpe
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
 import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriod;
 import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriodType;
@@ -62,12 +63,12 @@ public class AcademicEnrolmentPeriodController extends FenixeduUlisboaSpecificat
     public static final String SEARCH_URL = CONTROLLER_URL + _SEARCH_URI;
 
     @RequestMapping(value = _SEARCH_URI, method = GET)
-    public String search(@RequestParam(value = "executionSemester", required = false) ExecutionSemester executionSemester,
+    public String search(@RequestParam(value = "executionSemester", required = false) ExecutionInterval executionSemester,
             @RequestParam(value = "enrolmentPeriodType", required = false) AcademicEnrolmentPeriodType enrolmentPeriodType,
             @RequestParam(value = "automaticEnrolment", required = false) AutomaticEnrolment automaticEnrolment, Model model) {
         //TODOJN - this list is not going correctly sorted to the screen
-        List<ExecutionSemester> semesters = ExecutionSemester.readNotClosedExecutionPeriods();
-        semesters.sort(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed());
+        List<ExecutionInterval> semesters = new ArrayList<>(ExecutionInterval.findActiveChilds());
+        semesters.sort(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE.reversed());
         model.addAttribute("executionSemesters", semesters);
         model.addAttribute("enrolmentPeriodTypes", Arrays.asList(AcademicEnrolmentPeriodType.values()));
         model.addAttribute("automaticEnrolments", Arrays.asList(AutomaticEnrolment.values()));
@@ -77,7 +78,7 @@ public class AcademicEnrolmentPeriodController extends FenixeduUlisboaSpecificat
         return jspPage(_SEARCH_URI);
     }
 
-    private List<AcademicEnrolmentPeriod> filterSearchAcademicEnrolmentPeriod(final ExecutionSemester executionSemester,
+    private List<AcademicEnrolmentPeriod> filterSearchAcademicEnrolmentPeriod(final ExecutionInterval executionSemester,
             final AcademicEnrolmentPeriodType enrolmentPeriodType, final AutomaticEnrolment automaticEnrolment) {
 
         final List<AcademicEnrolmentPeriod> result = AcademicEnrolmentPeriod.readAll()

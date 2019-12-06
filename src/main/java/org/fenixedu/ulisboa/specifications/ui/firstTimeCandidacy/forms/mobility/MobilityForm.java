@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolPeriodDuration;
 import org.fenixedu.academic.domain.student.mobility.MobilityActivityType;
 import org.fenixedu.academic.domain.student.mobility.MobilityProgramType;
@@ -121,22 +120,20 @@ public class MobilityForm implements CandidancyForm {
     }
 
     private void loadDataEndDataSource() {
-        final Comparator<ExecutionSemester> comparatorBySemesterAndYear =
-                Collections.reverseOrder(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR);
+        final Comparator<ExecutionInterval> comparatorBySemesterAndYear =
+                Collections.reverseOrder(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE);
 
-        final List<TupleDataSourceBean> result = ExecutionSemester.readNotClosedExecutionPeriods().stream()
-                .sorted(comparatorBySemesterAndYear)
+        final List<TupleDataSourceBean> result = ExecutionInterval.findActiveChilds().stream().sorted(comparatorBySemesterAndYear)
                 .map((cs) -> new TupleDataSourceBean(cs.getExternalId(), cs.getQualifiedName())).collect(Collectors.toList());
 
         endDataSource = result.stream().collect(Collectors.toList());
     }
 
     private void loadDataBeginDataSource() {
-        final Comparator<ExecutionSemester> comparatorBySemesterAndYear =
-                Collections.reverseOrder(ExecutionSemester.COMPARATOR_BY_SEMESTER_AND_YEAR);
+        final Comparator<ExecutionInterval> comparatorBySemesterAndYear =
+                Collections.reverseOrder(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE);
 
-        final List<TupleDataSourceBean> result = ExecutionSemester.readNotClosedExecutionPeriods().stream()
-                .sorted(comparatorBySemesterAndYear)
+        final List<TupleDataSourceBean> result = ExecutionInterval.findActiveChilds().stream().sorted(comparatorBySemesterAndYear)
                 .map((cs) -> new TupleDataSourceBean(cs.getExternalId(), cs.getQualifiedName())).collect(Collectors.toList());
 
         beginDataSource = result.stream().collect(Collectors.toList());

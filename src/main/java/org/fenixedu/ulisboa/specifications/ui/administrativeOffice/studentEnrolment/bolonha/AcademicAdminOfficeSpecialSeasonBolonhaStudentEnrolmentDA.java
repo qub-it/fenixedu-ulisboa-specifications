@@ -10,14 +10,14 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.EvaluationSeason;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.SpecialSeasonEnrolmentLayout;
 import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.SearchForStudentsDA;
 import org.fenixedu.bennu.struts.annotations.Forward;
 import org.fenixedu.bennu.struts.annotations.Forwards;
 import org.fenixedu.bennu.struts.annotations.Mapping;
-import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 
 @Mapping(path = "/specialSeasonBolonhaStudentEnrolment", module = "academicAdministration",
         formBean = "bolonhaStudentEnrollmentForm", functionality = SearchForStudentsDA.class)
@@ -42,10 +42,10 @@ public class AcademicAdminOfficeSpecialSeasonBolonhaStudentEnrolmentDA extends
 
     @Override
     protected ActionForward prepareShowDegreeModulesToEnrol(ActionMapping mapping, ActionForm form, HttpServletRequest request,
-            HttpServletResponse response, StudentCurricularPlan studentCurricularPlan, ExecutionSemester executionSemester,
+            HttpServletResponse response, StudentCurricularPlan studentCurricularPlan, ExecutionInterval executionInterval,
             final EvaluationSeason evaluationSeason) {
 
-        super.prepareShowDegreeModulesToEnrol(mapping, form, request, response, studentCurricularPlan, executionSemester,
+        super.prepareShowDegreeModulesToEnrol(mapping, form, request, response, studentCurricularPlan, executionInterval,
                 evaluationSeason);
 
         request.setAttribute("enrolmentLayoutClassName", SpecialSeasonEnrolmentLayout.class.getName());

@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.dto.enrolmentperiod;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -11,7 +12,6 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
@@ -215,9 +215,9 @@ public class AcademicEnrolmentPeriodBean implements IBean {
         return executionSemesterDataSource;
     }
 
-    public void setExecutionSemesterDataSource(List<ExecutionSemester> executionSemesters) {
+    public void setExecutionSemesterDataSource(Collection<ExecutionInterval> executionSemesters) {
         this.executionSemesterDataSource =
-                executionSemesters.stream().sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).map(semester -> {
+                executionSemesters.stream().sorted(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE.reversed()).map(semester -> {
                     TupleDataSourceBean tuple = new TupleDataSourceBean();
                     tuple.setId(semester.getExternalId());
                     tuple.setText(semester.getQualifiedName());
@@ -355,7 +355,7 @@ public class AcademicEnrolmentPeriodBean implements IBean {
     public AcademicEnrolmentPeriodBean() {
         setEnrolmentPeriodTypeDataSource(Arrays.asList(AcademicEnrolmentPeriodType.values()));
         setAutomaticEnrolmentDataSource(Arrays.asList(AutomaticEnrolment.values()));
-        setExecutionSemesterDataSource(ExecutionSemester.readNotClosedExecutionPeriods());
+        setExecutionSemesterDataSource(ExecutionInterval.findActiveChilds());
 
         setDegreeCurricularPlans(Collections.emptyList());
         setStatuteTypes(Lists.newArrayList());

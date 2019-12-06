@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.ui.struts.action.base.FenixDispatchAction;
 import org.fenixedu.academic.ui.struts.action.student.StudentApplication.StudentEnrollApp;
@@ -56,7 +56,7 @@ public class InitialStepExtensionPointDA extends FenixDispatchAction {
 
     @FunctionalInterface
     static public interface ExtensionPredicate {
-        public boolean appliesTo(ExecutionSemester executionSemester, StudentCurricularPlan studentCurricularPlan);
+        public boolean appliesTo(ExecutionInterval executionSemester, StudentCurricularPlan studentCurricularPlan);
     }
 
     static final private String MAPPING_MODULE = "/student";
@@ -103,7 +103,7 @@ public class InitialStepExtensionPointDA extends FenixDispatchAction {
         return getDomainObject(request, "studentCurricularPlanOID");
     }
 
-    protected ExecutionSemester getExecutionSemester(HttpServletRequest request) {
+    protected ExecutionInterval getExecutionSemester(HttpServletRequest request) {
         return getDomainObject(request, "executionSemesterOID");
     }
 

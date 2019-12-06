@@ -53,7 +53,7 @@
 					<bean:define id="executionSemesterID" name="executionSemester" property="externalId" />
 					<html:link page="<%="/studentTimeTable.do?method=showTimeTable&registrationId=" + registrationId + "&executionSemesterID=" + executionSemesterID %>">
 						<c:out value="${executionSemester.qualifiedName}"></c:out>
-						<bean:define id="executionSemester" name="executionSemester" type="org.fenixedu.academic.domain.ExecutionSemester" />
+						<bean:define id="executionSemester" name="executionSemester" type="org.fenixedu.academic.domain.ExecutionInterval" />
 						<% request.setAttribute("thisSchoolClass", RegistrationServices.getSchoolClassBy(registration, executionSemester)); %>
 						<c:if test="${thisSchoolClass.present}">
 							<span class="badge"><c:out value="${thisSchoolClass.get().name}" /></span>

@@ -40,7 +40,7 @@ import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.Person;
@@ -106,7 +106,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
     @RequestMapping(value = _CREATE_URI + "{scpId}/{executionSemesterId}", method = RequestMethod.GET)
     public String create(@PathVariable("scpId") final StudentCurricularPlan studentCurricularPlan,
-            @PathVariable("executionSemesterId") final ExecutionSemester semester, final Model model) {
+            @PathVariable("executionSemesterId") final ExecutionInterval semester, final Model model) {
 
         model.addAttribute("studentCurricularPlan", studentCurricularPlan);
         model.addAttribute("LooseEvaluationBean_enrolment_options",
@@ -124,8 +124,8 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                         .map(l -> new TupleDataSourceBean(l.name(), l.getDescription()))
                         .collect(Collectors.<TupleDataSourceBean> toList()));
 
-        model.addAttribute("improvementSemesterValues", ExecutionSemester.readNotClosedExecutionPeriods().stream()
-                .sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList()));
+        model.addAttribute("improvementSemesterValues", ExecutionInterval.findActiveChilds().stream()
+                .sorted(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE.reversed()).collect(Collectors.toList()));
 
         model.addAttribute("executionSemester", semester);
 
@@ -162,7 +162,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
     @RequestMapping(value = _CREATE_URI + "{scpId}/{executionSemesterId}", method = RequestMethod.POST)
     public String create(@PathVariable("scpId") final StudentCurricularPlan studentCurricularPlan,
-            @PathVariable("executionSemesterId") final ExecutionSemester executionSemester,
+            @PathVariable("executionSemesterId") final ExecutionInterval executionSemester,
             @RequestParam(value = "enrolment", required = false) Enrolment enrolment,
             @RequestParam(value = "availabledate",
                     required = true) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate availableDate,
@@ -170,7 +170,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
             @RequestParam(value = "gradescale", required = false) GradeScale gradeScale,
             @RequestParam(value = "grade", required = false) String grade,
             @RequestParam(value = "type", required = false) EvaluationSeason type,
-            @RequestParam(value = "improvementsemester", required = false) ExecutionSemester improvementSemester, Model model,
+            @RequestParam(value = "improvementsemester", required = false) ExecutionInterval improvementSemester, Model model,
             final RedirectAttributes redirectAttributes) {
 
         try {
@@ -216,7 +216,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
 
     @Atomic
     public void createLooseEvaluation(Enrolment enrolment, LocalDate examDate, Grade grade, LocalDate availableDate,
-            EvaluationSeason season, ExecutionSemester improvementSemester) {
+            EvaluationSeason season, ExecutionInterval improvementSemester) {
 
         EnrolmentEvaluation evaluation = enrolment.getEnrolmentEvaluation(season, improvementSemester, false).orElse(null);
         if (evaluation == null || evaluation.getCompetenceCourseMarkSheet() != null) {
@@ -240,7 +240,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
     @RequestMapping(value = _DELETE_URI + "{scpId}/{evaluationId}/{executionSemesterId}", method = RequestMethod.POST)
     public String delete(@PathVariable("scpId") final StudentCurricularPlan studentCurricularPlan,
             @PathVariable("evaluationId") EnrolmentEvaluation enrolmentEvaluation,
-            @PathVariable("executionSemesterId") final ExecutionSemester executionSemester, Model model,
+            @PathVariable("executionSemesterId") final ExecutionInterval executionSemester, Model model,
             final RedirectAttributes redirectAttributes) {
 
         try {
@@ -277,7 +277,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
     @RequestMapping(value = _ANNUL_URI + "{scpId}/{evaluationId}/{executionSemesterId}", method = RequestMethod.POST)
     public String annul(@PathVariable("scpId") final StudentCurricularPlan studentCurricularPlan,
             @PathVariable("evaluationId") EnrolmentEvaluation enrolmentEvaluation,
-            @PathVariable("executionSemesterId") final ExecutionSemester executionSemester, Model model,
+            @PathVariable("executionSemesterId") final ExecutionInterval executionSemester, Model model,
             final RedirectAttributes redirectAttributes) {
 
         try {
@@ -296,7 +296,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
     @RequestMapping(value = _ACTIVATE_URI + "{scpId}/{evaluationId}/{executionSemesterId}", method = RequestMethod.POST)
     public String activate(@PathVariable("scpId") final StudentCurricularPlan studentCurricularPlan,
             @PathVariable("evaluationId") EnrolmentEvaluation enrolmentEvaluation,
-            @PathVariable("executionSemesterId") final ExecutionSemester executionSemester, Model model,
+            @PathVariable("executionSemesterId") final ExecutionInterval executionSemester, Model model,
             final RedirectAttributes redirectAttributes) {
 
         try {

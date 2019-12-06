@@ -54,7 +54,6 @@ import org.fenixedu.academic.domain.EvaluationConfiguration;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.IEnrolment;
@@ -198,7 +197,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
     protected ExecutionYear executionYearContext;
 
-    protected ExecutionSemester executionPeriodContext;
+    protected ExecutionInterval executionPeriodContext;
 
     protected StudentCurricularPlanRenderer renderer;
 
@@ -227,7 +226,7 @@ public class StudentCurricularPlanLayout extends Layout {
     }
 
     // qubExtension
-    private ExecutionSemester getExecutionSemester() {
+    private ExecutionInterval getExecutionSemester() {
         return this.executionPeriodContext;
     }
 

@@ -3,7 +3,7 @@ package org.fenixedu.ulisboa.specifications.task;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
@@ -28,7 +28,7 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
     @Override
     public void runTask() throws Exception {
 
-        final ExecutionSemester currentExecutionSemester = ExecutionSemester.findCurrent(null);
+        final ExecutionInterval currentExecutionSemester = ExecutionInterval.findFirstCurrentChild(null);
         final ExecutionYear currentExecutionYear = currentExecutionSemester.getExecutionYear();
         final ExecutionYear previousExecutionYear = currentExecutionYear.getPreviousExecutionYear();
 
@@ -129,7 +129,7 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
     }
 
     @Atomic(mode = TxMode.WRITE)
-    protected void blockRegistration(final Registration registration, String reasons, final ExecutionSemester executionSemester) {
+    protected void blockRegistration(final Registration registration, String reasons, final ExecutionInterval executionSemester) {
         final RegistrationState createdState = RegistrationState.createRegistrationState(registration, (Person) null,
                 new DateTime(), RegistrationStateType.INTERRUPTED, executionSemester);
         createdState.setRemarks(String.format("Estado criado automaticamente. %s", reasons));
