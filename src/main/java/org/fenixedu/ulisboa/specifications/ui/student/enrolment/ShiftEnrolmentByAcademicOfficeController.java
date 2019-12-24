@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionCourse;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
@@ -83,12 +83,12 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
     @RequestMapping(value = "{registrationOid}/{semesterOid}")
     public String home(@PathVariable("registrationOid") Registration registration,
-            @PathVariable("semesterOid") ExecutionSemester executionSemester, Model model) {
+            @PathVariable("semesterOid") ExecutionInterval executionSemester, Model model) {
 
         checkUser();
 
         final List<EnrolmentPeriodDTO> enrolmentBeans = new ArrayList<EnrolmentPeriodDTO>();
-        for (final ExecutionSemester otherExecutionSemester : executionSemester.getExecutionYear().getExecutionPeriodsSet()) {
+        for (final ExecutionInterval otherExecutionSemester : executionSemester.getExecutionYear().getExecutionPeriodsSet()) {
             enrolmentBeans.add(
                     new EnrolmentPeriodDTO(registration, otherExecutionSemester, otherExecutionSemester == executionSemester));
         }
@@ -142,7 +142,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
     @RequestMapping(value = "addShift/{registrationOid}/{semesterOid}/{shiftOid}")
     public String addShift(@PathVariable("registrationOid") Registration registration,
-            @PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift,
+            @PathVariable("semesterOid") ExecutionInterval executionSemester, @PathVariable("shiftOid") Shift shift,
             Model model) {
 
         checkUser();
@@ -168,7 +168,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
     @RequestMapping(value = "removeShift/{registrationOid}/{semesterOid}/{shiftOid}")
     public String removeShift(@PathVariable("registrationOid") Registration registration,
-            @PathVariable("semesterOid") ExecutionSemester executionSemester, @PathVariable("shiftOid") Shift shift,
+            @PathVariable("semesterOid") ExecutionInterval executionSemester, @PathVariable("shiftOid") Shift shift,
             Model model) {
 
         checkUser();
@@ -192,7 +192,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
     @RequestMapping(value = "currentSchedule.json/{registrationOid}/{executionSemesterOid}",
             produces = "application/json; charset=utf-8")
     public @ResponseBody String schedule(@PathVariable("registrationOid") Registration registration,
-            @PathVariable("executionSemesterOid") ExecutionSemester executionSemester) {
+            @PathVariable("executionSemesterOid") ExecutionInterval executionSemester) {
 
         checkUser();
 
@@ -231,10 +231,10 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
     public static class EnrolmentPeriodDTO implements Serializable, Comparable<EnrolmentPeriodDTO> {
 
         private final Registration registration;
-        private final ExecutionSemester executionSemester;
+        private final ExecutionInterval executionSemester;
         private Boolean selected;
 
-        public EnrolmentPeriodDTO(Registration registration, ExecutionSemester executionSemester, Boolean selected) {
+        public EnrolmentPeriodDTO(Registration registration, ExecutionInterval executionSemester, Boolean selected) {
             super();
             this.registration = registration;
             this.executionSemester = executionSemester;
@@ -245,7 +245,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
             return registration;
         }
 
-        public ExecutionSemester getExecutionSemester() {
+        public ExecutionInterval getExecutionSemester() {
             return executionSemester;
         }
 

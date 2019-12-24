@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleCourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
@@ -16,7 +16,7 @@ import org.fenixedu.bennu.core.security.Authenticate;
 @SuppressWarnings("serial")
 public class CycleEnrolmentBean extends org.fenixedu.academic.dto.student.enrollment.bolonha.CycleEnrolmentBean {
 
-    public CycleEnrolmentBean(final StudentCurricularPlan scp, final ExecutionSemester semester, final CycleType source,
+    public CycleEnrolmentBean(final StudentCurricularPlan scp, final ExecutionInterval semester, final CycleType source,
             CycleType toEnrol) {
         super(scp, semester, source, toEnrol);
     }
@@ -44,7 +44,7 @@ public class CycleEnrolmentBean extends org.fenixedu.academic.dto.student.enroll
                     .anyMatch(p -> p.isOpen() && p.isForCurricularCourses())) {
                 result.add(cycleCourseGroup);
             }
-            
+
         }
         return result;
     }

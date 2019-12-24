@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
@@ -123,8 +123,8 @@ public class CurricularCoursesController extends FirstTimeCandidacyAbstractContr
             redirect(EnrolmentsController.ENROL_URL, model, redirectAttributes);
         }
 
-        ExecutionSemester firstSemester = executionYear.getFirstExecutionPeriod();
-        ExecutionSemester secondSemester = firstSemester.getNextExecutionPeriod();
+        ExecutionInterval firstSemester = executionYear.getFirstExecutionPeriod();
+        ExecutionInterval secondSemester = firstSemester.getNext();
         Collection<Enrolment> firstSemEnrolments = studentCurricularPlan.getEnrolmentsByExecutionPeriod(firstSemester).stream()
                 .filter(e -> e.getEctsCredits() > 0).collect(Collectors.toList());
         Double firstSemCredits = 0d;

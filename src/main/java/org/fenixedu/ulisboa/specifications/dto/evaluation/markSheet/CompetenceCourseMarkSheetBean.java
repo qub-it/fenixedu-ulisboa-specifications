@@ -40,7 +40,6 @@ import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
@@ -248,8 +247,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         this.executionInterval = executionInterval;
     }
 
-    public void setExecutionSemesterDataSource(final Set<ExecutionSemester> value) {
-        this.executionSemesterDataSource = value.stream().sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).map(x -> {
+    public void setExecutionSemesterDataSource(final Set<ExecutionInterval> value) {
+        this.executionSemesterDataSource = value.stream().sorted(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE.reversed()).map(x -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
             tuple.setText(x.getQualifiedName());
@@ -650,7 +649,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public void update() {
-        setExecutionSemesterDataSource(ExecutionSemester.readNotClosedExecutionPeriods().stream().collect(Collectors.toSet()));
+        setExecutionSemesterDataSource(ExecutionInterval.findActiveChilds().stream().collect(Collectors.toSet()));
 
         updateCompetenceCourseDataSource();
 

@@ -22,7 +22,6 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.SchoolClass;
@@ -101,7 +100,7 @@ public class StudentsListByCurricularCourseDA
             final Integer semester) {
         final List<Enrolment> result = new ArrayList<Enrolment>();
 
-        final ExecutionSemester executionSemester = executionYear.getExecutionSemesterFor(semester);
+        final ExecutionInterval executionSemester = executionYear.getExecutionSemesterFor(semester);
         for (final Enrolment enrolment : curricularCourse.getEnrolmentsByExecutionPeriod(executionSemester)) {
             result.add(enrolment);
         }

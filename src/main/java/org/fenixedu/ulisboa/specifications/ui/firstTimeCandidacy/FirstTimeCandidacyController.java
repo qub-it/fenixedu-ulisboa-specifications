@@ -35,19 +35,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.fenixedu.academic.domain.DegreeCurricularPlan;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.Candidacy;
-import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriod;
-import org.fenixedu.academic.domain.student.PersonalIngressionData;
-import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
-import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
@@ -59,14 +50,10 @@ import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolment
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.personalinfo.PersonalInformationFormController;
-import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.YearMonthDay;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import pt.ist.fenixframework.Atomic;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.firstTimeCandidacy")
 @RequestMapping(FirstTimeCandidacyController.CONTROLLER_URL)

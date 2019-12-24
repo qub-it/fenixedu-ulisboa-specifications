@@ -33,7 +33,7 @@
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/fenix-renderers" prefix="fr"%>
 <%@page import="org.fenixedu.commons.i18n.I18N"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.studentEnrolment.bolonha.AcademicAdminOfficeImprovementBolonhaStudentEnrolmentDA.ImprovementAttendsBean"%>
-<%@page import="org.fenixedu.academic.domain.ExecutionSemester"%>
+<%@page import="org.fenixedu.academic.domain.ExecutionInterval"%>
 <%@page import="org.fenixedu.academic.domain.ExecutionCourse"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.services.ExecutionCourseServices"%>
 <h2>
@@ -120,7 +120,7 @@
 		 	<c:if test="${empty bean.attends}">
 				<c:choose>
 		 			<c:when test="${empty bean.executionCourses}">
-						<em><bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.manageImprovementsToAttend.noExecutionCourse" arg0="<%=((ExecutionSemester)executionSemester).getQualifiedName()%>"/></em>
+						<em><bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.manageImprovementsToAttend.noExecutionCourse" arg0="<%=((ExecutionInterval)executionSemester).getQualifiedName()%>"/></em>
 					</c:when>
 					<c:otherwise>
 						<em><bean:message bundle="ACADEMIC_OFFICE_RESOURCES" key="label.manageImprovementsToAttend.availableExecutionCourses"/></em>

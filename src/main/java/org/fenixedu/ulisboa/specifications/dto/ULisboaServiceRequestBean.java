@@ -41,11 +41,12 @@ import java.util.stream.Stream;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.Enrolment.EnrolmentPredicate;
 import org.fenixedu.academic.domain.EvaluationSeason;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.student.Registration;
@@ -62,7 +63,6 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaService
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ValidateImprovementEnrolmentProcessor;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ValidateSpecialSeasonEnrolmentProcessor;
-import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
@@ -367,7 +367,7 @@ public class ULisboaServiceRequestBean implements IBean {
             return provideForCurriculumEntry(collection);
         });
         DATA_SOURCE_PROVIDERS.put(ULisboaConstants.ENROLMENTS_BY_SEMESTER, bean -> {
-            final ExecutionSemester executionSemester = bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_SEMESTER);
+            final ExecutionInterval executionSemester = bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_SEMESTER);
             StudentCurricularPlan studentCurricularPlan = bean.getServiceRequestPropertyValue(ULisboaConstants.CURRICULAR_PLAN);
             if (studentCurricularPlan == null) {
                 studentCurricularPlan = bean.getRegistration().getStudentCurricularPlan(executionSemester);
@@ -403,7 +403,7 @@ public class ULisboaServiceRequestBean implements IBean {
 
             @Override
             public List<TupleDataSourceBean> provideDataSourceList(final ULisboaServiceRequestBean bean) {
-                final ExecutionSemester executionSemester =
+                final ExecutionInterval executionSemester =
                         bean.getServiceRequestPropertyValue(ULisboaConstants.EXECUTION_SEMESTER);
                 StudentCurricularPlan studentCurricularPlan =
                         bean.getServiceRequestPropertyValue(ULisboaConstants.CURRICULAR_PLAN);
@@ -422,7 +422,7 @@ public class ULisboaServiceRequestBean implements IBean {
                 return provideForCurriculumEntry(collection);
             }
 
-            private List<Enrolment> getEnrolmentsToEnrol(final ExecutionSemester executionSemester,
+            private List<Enrolment> getEnrolmentsToEnrol(final ExecutionInterval executionSemester,
                     final StudentCurricularPlan studentCurricularPlan, final Set<ULisboaServiceRequestProcessor> processors) {
                 EvaluationSeason evaluationSeason = null;
                 EnrolmentPredicate predicate = null;
@@ -462,8 +462,8 @@ public class ULisboaServiceRequestBean implements IBean {
                             tuple.setText(x.getName());
                             return tuple;
                         }).collect(Collectors.toList()));
-        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.EXECUTION_SEMESTER, bean -> ExecutionSemester.readNotClosedExecutionPeriods()
-                .stream().sorted(ExecutionSemester.COMPARATOR_BY_BEGIN_DATE.reversed()).map(x -> {
+        DATA_SOURCE_PROVIDERS.put(ULisboaConstants.EXECUTION_SEMESTER, bean -> ExecutionInterval.findActiveChilds().stream()
+                .sorted(ExecutionInterval.COMPARATOR_BY_BEGIN_DATE.reversed()).map(x -> {
                     TupleDataSourceBean tuple = new TupleDataSourceBean();
                     tuple.setId(x.getExternalId());
                     tuple.setText(x.getQualifiedName());

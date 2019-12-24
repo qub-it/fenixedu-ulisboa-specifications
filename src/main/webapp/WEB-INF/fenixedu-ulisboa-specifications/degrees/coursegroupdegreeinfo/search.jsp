@@ -1,5 +1,5 @@
 <%@page import="org.fenixedu.ulisboa.specifications.ui.degrees.extendeddegreeinfo.CourseGroupDegreeInfoController"%>
-<%@page import="org.fenixedu.academic.domain.ExecutionSemester"%>
+<%@page import="org.fenixedu.academic.domain.ExecutionInterval"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>

@@ -32,7 +32,7 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.BeanComparator;
 import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourse;
 import org.fenixedu.academic.domain.curricularRules.CompositeRule;
@@ -77,9 +77,9 @@ public class BolonhaDegreeTypesProviderForOptionalEnrollment extends BolonhaDegr
         CurricularRule result = null;
 
         final IDegreeModuleToEvaluate degreeModuleToEnrol = bean.getSelectedDegreeModuleToEnrol();
-        final ExecutionSemester executionPeriod = bean.getExecutionPeriod();
+        final ExecutionInterval executionInterval = bean.getExecutionPeriod();
 
-        for (final CurricularRule curricularRule : degreeModuleToEnrol.getCurricularRulesFromDegreeModule(executionPeriod)) {
+        for (final CurricularRule curricularRule : degreeModuleToEnrol.getCurricularRulesFromDegreeModule(executionInterval)) {
             if (curricularRule instanceof AnyCurricularCourse || curricularRule.isCompositeRule()) {
                 result = curricularRule;
                 break;

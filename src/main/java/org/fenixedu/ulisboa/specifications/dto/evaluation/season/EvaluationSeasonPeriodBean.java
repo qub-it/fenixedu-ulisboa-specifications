@@ -35,14 +35,14 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionDegree;
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.degree.DegreeType;
-import org.fenixedu.bennu.IBean;
-import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonPeriod;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonPeriodType;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
+import org.fenixedu.bennu.IBean;
+import org.fenixedu.bennu.TupleDataSourceBean;
 import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 
@@ -64,7 +64,7 @@ public class EvaluationSeasonPeriodBean implements IBean {
 
     private List<TupleDataSourceBean> seasonDataSource;
 
-    private ExecutionSemester executionSemester;
+    private ExecutionInterval executionSemester;
 
     private List<TupleDataSourceBean> executionSemesterDataSource;
 
@@ -138,11 +138,11 @@ public class EvaluationSeasonPeriodBean implements IBean {
         this.seasonDataSource = input;
     }
 
-    public ExecutionSemester getExecutionSemester() {
+    public ExecutionInterval getExecutionSemester() {
         return executionSemester;
     }
 
-    public void setExecutionSemester(final ExecutionSemester input) {
+    public void setExecutionSemester(final ExecutionInterval input) {
         this.executionSemester = input;
     }
 
@@ -232,7 +232,7 @@ public class EvaluationSeasonPeriodBean implements IBean {
         // semesters
         final List<TupleDataSourceBean> semesters = Lists.newArrayList();
         for (ExecutionYear executionYear : years) {
-            for (ExecutionSemester semester : executionYear.getExecutionPeriodsSet()) {
+            for (ExecutionInterval semester : executionYear.getExecutionPeriodsSet()) {
                 semesters.add(new TupleDataSourceBean(semester.getExternalId(), semester.getQualifiedName()));
             }
         }

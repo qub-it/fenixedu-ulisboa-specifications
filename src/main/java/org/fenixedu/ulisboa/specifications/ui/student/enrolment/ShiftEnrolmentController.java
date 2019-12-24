@@ -43,7 +43,6 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentType;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
@@ -353,7 +352,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
     @RequestMapping(value = "currentSchedule.json/{registrationOid}/{executionSemesterOid}",
             produces = "application/json; charset=utf-8")
     public @ResponseBody String schedule(@PathVariable("registrationOid") Registration registration,
-            @PathVariable("executionSemesterOid") ExecutionSemester executionSemester) {
+            @PathVariable("executionSemesterOid") ExecutionInterval executionSemester) {
 
         checkUser(registration);
 

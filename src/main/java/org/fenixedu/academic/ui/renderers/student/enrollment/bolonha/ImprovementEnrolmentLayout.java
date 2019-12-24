@@ -25,7 +25,7 @@
  */
 package org.fenixedu.academic.ui.renderers.student.enrollment.bolonha;
 
-import org.fenixedu.academic.domain.ExecutionSemester;
+import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.BolonhaStudentEnrollmentBean;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.StudentCurriculumGroupBean;
@@ -89,7 +89,7 @@ public class ImprovementEnrolmentLayout extends EnrolmentLayout {
     }
 
     private void generate(final HtmlBlockContainer blockContainer, final StudentCurricularPlan studentCurricularPlan,
-            final StudentCurriculumGroupBean studentCurriculumGroupBean, final ExecutionSemester executionSemester,
+            final StudentCurriculumGroupBean studentCurriculumGroupBean, final ExecutionInterval executionInterval,
             final int depth) {
 
         // createTable
@@ -106,29 +106,29 @@ public class ImprovementEnrolmentLayout extends EnrolmentLayout {
         titleCell.setBody(createDegreeCurricularPlanLink(studentCurriculumGroupBean));
 
         final HtmlTable coursesTable = createCoursesTable(blockContainer, depth);
-        generateAllEnrolments(coursesTable, studentCurriculumGroupBean, executionSemester);
-        generateAllCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, executionSemester);
+        generateAllEnrolments(coursesTable, studentCurriculumGroupBean, executionInterval);
+        generateAllCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, executionInterval);
 
         //TODO - review this
-        generateCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, null, executionSemester);
+        generateCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, null, executionInterval);
     }
 
     private void generateAllEnrolments(final HtmlTable coursesTable, final StudentCurriculumGroupBean bean,
-            final ExecutionSemester executionSemester) {
+            final ExecutionInterval executionInterval) {
 
-        for (final StudentCurriculumGroupBean iter : bean.getEnrolledCurriculumGroupsSortedByOrder(executionSemester)) {
+        for (final StudentCurriculumGroupBean iter : bean.getEnrolledCurriculumGroupsSortedByOrder(executionInterval)) {
             generateEnrolments(iter, coursesTable);
-            generateAllEnrolments(coursesTable, iter, executionSemester);
+            generateAllEnrolments(coursesTable, iter, executionInterval);
         }
     }
 
     private void generateAllCurricularCoursesToEnrol(final HtmlTable coursesTable, final StudentCurriculumGroupBean bean,
-            final ExecutionSemester executionSemester) {
+            final ExecutionInterval executionInterval) {
 
-        for (final StudentCurriculumGroupBean iter : bean.getEnrolledCurriculumGroupsSortedByOrder(executionSemester)) {
+        for (final StudentCurriculumGroupBean iter : bean.getEnrolledCurriculumGroupsSortedByOrder(executionInterval)) {
             //TODO - review this
-            generateCurricularCoursesToEnrol(coursesTable, iter, null, executionSemester);
-            generateAllCurricularCoursesToEnrol(coursesTable, iter, executionSemester);
+            generateCurricularCoursesToEnrol(coursesTable, iter, null, executionInterval);
+            generateAllCurricularCoursesToEnrol(coursesTable, iter, executionInterval);
         }
     }
 

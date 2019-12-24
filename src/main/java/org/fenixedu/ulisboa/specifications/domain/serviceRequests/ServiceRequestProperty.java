@@ -12,7 +12,6 @@ import java.util.stream.Stream;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -109,7 +108,7 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
 
     public ExecutionYear getExecutionYear() {
         ExecutionInterval executionInterval = getExecutionInterval();
-        if (executionInterval != null && executionInterval instanceof ExecutionSemester) {
+        if (!(executionInterval instanceof ExecutionYear)) {
             throw new ULisboaSpecificationsDomainException("error.ServiceRequestProperty.executionInterval.wrong.getter",
                     "getExecutionSemester");
         }
@@ -120,16 +119,16 @@ public class ServiceRequestProperty extends ServiceRequestProperty_Base {
         setExecutionInterval(executionYear);
     }
 
-    public ExecutionSemester getExecutionSemester() {
+    public ExecutionInterval getExecutionSemester() {
         ExecutionInterval executionInterval = getExecutionInterval();
         if (executionInterval != null && executionInterval instanceof ExecutionYear) {
             throw new ULisboaSpecificationsDomainException("error.ServiceRequestProperty.executionInterval.wrong.getter",
                     "getExecutionYear");
         }
-        return (ExecutionSemester) executionInterval;
+        return executionInterval;
     }
 
-    public void setExecutionSemester(final ExecutionSemester executionSemester) {
+    public void setExecutionSemester(final ExecutionInterval executionSemester) {
         setExecutionInterval(executionSemester);
     }
 

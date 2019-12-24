@@ -26,7 +26,6 @@
 package org.fenixedu.ulisboa.specifications.domain.curricularRules.executors.verifyExecutors;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.ICurricularRule;

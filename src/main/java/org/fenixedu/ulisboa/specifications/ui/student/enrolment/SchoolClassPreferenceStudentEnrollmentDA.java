@@ -38,7 +38,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.enrolment.schoolClass.SchoolClassEnrolmentPreference;
 import org.fenixedu.academic.domain.exceptions.DomainException;
@@ -182,7 +181,7 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
 
         final RegistrationDataByExecutionInterval registrationData =
                 getDomainObject(request, "registrationDataByExecutionIntervalID");
-        final ExecutionSemester semester = registrationData.getExecutionInterval().convert(ExecutionSemester.class);
+        final ExecutionInterval semester = registrationData.getExecutionInterval();
         final Registration registration = registrationData.getRegistration();
 
         try {
@@ -212,7 +211,7 @@ public class SchoolClassPreferenceStudentEnrollmentDA extends FenixDispatchActio
             atomic(() -> {
                 registrationData.getSchoolClassEnrolmentPreferencesSet().forEach(p -> p.delete());
                 enrollInSchoolClassWithSameNameAsPrevious(registrationData.getRegistration(),
-                        registrationData.getExecutionInterval().convert(ExecutionSemester.class));
+                        registrationData.getExecutionInterval());
             });
             final String successMessage = "message.schoolClassPreferenceStudentEnrollment.clearEnrolmentPreferences.success";
             addActionMessage("success", request, successMessage);

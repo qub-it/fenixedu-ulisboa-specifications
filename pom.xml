@@ -52,17 +52,17 @@
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-learning</artifactId>
-			<version>3.6.1-FORK</version>
+			<version>3.9.0-FORK</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
 			<artifactId>fenixedu-academic-core</artifactId>
-			<version>25.4.0</version>
+			<version>25.7.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-extensions</artifactId>
-			<version>4.0.2</version>
+			<version>4.3.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>

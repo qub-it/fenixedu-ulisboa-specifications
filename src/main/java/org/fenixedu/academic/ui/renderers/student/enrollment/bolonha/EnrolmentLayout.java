@@ -35,7 +35,6 @@ import org.fenixedu.academic.FenixEduAcademicExtensionsConfiguration;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.GradeScale;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -100,7 +99,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         return getBolonhaStudentEnrollmentBean().getStudentCurricularPlan();
     }
 
-    private ExecutionSemester getExecutionSemester() {
+    private ExecutionInterval getExecutionSemester() {
         return getBolonhaStudentEnrollmentBean().getExecutionPeriod();
     }
 
@@ -109,8 +108,8 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension
-    static private ExecutionInterval getExecutionInterval(final StudentCurricularPlan input, final ExecutionSemester semester) {
-        return isToEvaluateRulesByYear(input) ? semester.getExecutionYear() : semester;
+    static private ExecutionInterval getExecutionInterval(final StudentCurricularPlan input, final ExecutionInterval interval) {
+        return isToEvaluateRulesByYear(input) ? interval.getExecutionYear() : interval;
     }
 
     // qubExtension
@@ -121,7 +120,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     @Override
     protected void generateGroup(final HtmlBlockContainer blockContainer,
             final List<IDegreeModuleToEvaluate> degreeModulesToSelect, final StudentCurricularPlan studentCurricularPlan,
-            final StudentCurriculumGroupBean studentCurriculumGroupBean, final ExecutionSemester executionSemester,
+            final StudentCurriculumGroupBean studentCurriculumGroupBean, final ExecutionInterval executionInterval,
             final int depth) {
 
         if (isCycleExternal(studentCurriculumGroupBean)) {
@@ -133,14 +132,14 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
 
         final HtmlTable groupTable = createGroupTable(blockContainer, depth);
-        addGroupHeaderRow(groupTable, studentCurriculumGroupBean, executionSemester);
+        addGroupHeaderRow(groupTable, studentCurriculumGroupBean, executionInterval);
 
         // init
         setEmptyGroup(studentCurriculumGroupBean, !studentCurriculumGroupBean.getCurriculumModule().isBranchCurriculumGroup());
 
         // qubExtension, don't GENERATE concluded groups
         if (canPerformStudentEnrolments
-                || !isConcluded(studentCurriculumGroupBean.getCurriculumModule(), executionSemester.getExecutionYear())) {
+                || !isConcluded(studentCurriculumGroupBean.getCurriculumModule(), executionInterval.getExecutionYear())) {
 
             if (getRenderer().isEncodeGroupRules()) {
                 encodeCurricularRules(groupTable, studentCurriculumGroupBean.getCurriculumModule());
@@ -148,10 +147,10 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
             final HtmlTable coursesTable = createCoursesTable(blockContainer, depth);
             generateEnrolments(studentCurriculumGroupBean, coursesTable);
-            generateCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, degreeModulesToSelect, executionSemester);
+            generateCurricularCoursesToEnrol(coursesTable, studentCurriculumGroupBean, degreeModulesToSelect, executionInterval);
 
             generateGroups(blockContainer, degreeModulesToSelect, studentCurriculumGroupBean, studentCurricularPlan,
-                    executionSemester, depth);
+                    executionInterval, depth);
         }
 
         // qubExtension, don't SHOW empty groups
@@ -163,7 +162,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         }
 
         if (studentCurriculumGroupBean.isRoot()) {
-            generateCycleCourseGroupsToEnrol(blockContainer, executionSemester, studentCurricularPlan, depth);
+            generateCycleCourseGroupsToEnrol(blockContainer, executionInterval, studentCurricularPlan, depth);
         }
 
     }
@@ -202,7 +201,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
     @Override
     protected void addGroupHeaderRow(final HtmlTable groupTable, final StudentCurriculumGroupBean studentCurriculumGroupBean,
-            final ExecutionSemester executionSemester) {
+            final ExecutionInterval executionInterval) {
 
         final HtmlTableRow groupHeaderRow = groupTable.createRow();
         groupHeaderRow.setClasses(getRenderer().getGroupRowClasses());
@@ -211,11 +210,11 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         if (studentCurriculumGroupBean.getCurriculumModule().isRoot()) {
             titleCell.setBody(createDegreeCurricularPlanLink(studentCurriculumGroupBean));
         } else if (studentCurriculumGroupBean.getCurriculumModule().isCycleCurriculumGroup()) {
-            setTitleCellInformation(groupHeaderRow, titleCell, studentCurriculumGroupBean, executionSemester);
+            setTitleCellInformation(groupHeaderRow, titleCell, studentCurriculumGroupBean, executionInterval);
 
         } else {
             titleCell.setBody(new HtmlText(
-                    buildCurriculumGroupLabel(studentCurriculumGroupBean.getCurriculumModule(), executionSemester), false));
+                    buildCurriculumGroupLabel(studentCurriculumGroupBean.getCurriculumModule(), executionInterval), false));
         }
 
         final HtmlTableCell checkBoxCell = groupHeaderRow.createCell();
@@ -247,7 +246,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
     // qubExtension, more credits info
     @Override
-    protected String buildCurriculumGroupLabel(final CurriculumGroup curriculumGroup, final ExecutionSemester executionSemester) {
+    protected String buildCurriculumGroupLabel(final CurriculumGroup curriculumGroup, final ExecutionInterval executionInterval) {
         if (curriculumGroup.isNoCourseGroupCurriculumGroup()) {
             return curriculumGroup.getName().getContent();
         }
@@ -257,12 +256,12 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
         result.append(" [");
 
         if (getRenderer().isEncodeGroupRules()) {
-            addCreditsConcluded(curriculumGroup, executionSemester, result);
-            addEnroledEcts(curriculumGroup, executionSemester, result);
-            addSumEcts(curriculumGroup, executionSemester, result);
+            addCreditsConcluded(curriculumGroup, executionInterval, result);
+            addEnroledEcts(curriculumGroup, executionInterval, result);
+            addSumEcts(curriculumGroup, executionInterval, result);
         } else {
             final CreditsLimit creditsLimit = (CreditsLimit) curriculumGroup
-                    .getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionSemester);
+                    .getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, executionInterval);
 
             if (creditsLimit != null) {
                 result.append(" <span title=\"");
@@ -272,9 +271,9 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 result.append(")</span>, ");
             }
 
-            addCreditsConcluded(curriculumGroup, executionSemester, result);
-            addEnroledEcts(curriculumGroup, executionSemester, result);
-            addSumEcts(curriculumGroup, executionSemester, result);
+            addCreditsConcluded(curriculumGroup, executionInterval, result);
+            addEnroledEcts(curriculumGroup, executionInterval, result);
+            addSumEcts(curriculumGroup, executionInterval, result);
             if (creditsLimit != null) {
                 result.append(", <span title=\"");
                 result.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.maxCredits"));
@@ -284,11 +283,11 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             }
         }
         result.append(" ]");
-        if (isConcluded(curriculumGroup, executionSemester.getExecutionYear())) {
+        if (isConcluded(curriculumGroup, executionInterval.getExecutionYear())) {
             result.append(" - <span class=\"curriculumGroupConcluded\">")
                     .append(i18n(Bundle.APPLICATION, "label.curriculumGroup.concluded")).append("</span>");
         } else if (!isStudentLogged(curriculumGroup.getStudentCurricularPlan())
-                && hasMinimumCredits(curriculumGroup, executionSemester)) {
+                && hasMinimumCredits(curriculumGroup, executionInterval)) {
             result.append(" - <span class=\"minimumCreditsConcludedInCurriculumGroup\">")
                     .append(i18n(Bundle.APPLICATION, "label.curriculumGroup.minimumCreditsConcluded")).append("</span>");
         }
@@ -297,18 +296,18 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())
                 || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
                         curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())) {
-            addCreditsDistributionMessage(curriculumGroup, executionSemester, result);
+            addCreditsDistributionMessage(curriculumGroup, executionInterval, result);
         }
 
         return result.toString();
     }
 
     // qubExtension, more credits info
-    static public void addCreditsDistributionMessage(final CurriculumGroup group, final ExecutionSemester semester,
+    static public void addCreditsDistributionMessage(final CurriculumGroup group, final ExecutionInterval interval,
             final StringBuilder result) {
 
         final Double approved = group.getAprovedEctsCredits();
-        final Double concluded = CurriculumModuleServices.getCreditsConcluded(group, semester.getExecutionYear()).doubleValue();
+        final Double concluded = CurriculumModuleServices.getCreditsConcluded(group, interval.getExecutionYear()).doubleValue();
 
         if (approved.doubleValue() != concluded.doubleValue()) {
             result.append(" <span class=\"wrongCreditsDistributionError\" title=\"");
@@ -319,28 +318,29 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    static public boolean hasMinimumCredits(final CurriculumGroup group, final ExecutionSemester semester) {
+    static public boolean hasMinimumCredits(final CurriculumGroup group, final ExecutionInterval interval) {
         final CreditsLimit creditsRule =
-                (CreditsLimit) group.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, semester);
+                (CreditsLimit) group.getMostRecentActiveCurricularRule(CurricularRuleType.CREDITS_LIMIT, interval);
         return creditsRule != null && creditsRule.getMinimumCredits().doubleValue() > 0d
-                && CurriculumModuleServices.getCreditsConcluded(group, semester.getExecutionYear()).doubleValue() >= creditsRule
+                && CurriculumModuleServices.getCreditsConcluded(group, interval.getExecutionYear()).doubleValue() >= creditsRule
                         .getMinimumCredits().doubleValue();
     }
 
     // qubExtension, more credits info
-    static public void addCreditsConcluded(final CurriculumGroup group, final ExecutionSemester semester,
+    static public void addCreditsConcluded(final CurriculumGroup group, final ExecutionInterval interval,
             final StringBuilder result) {
         result.append(" <span title=\"");
         result.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.creditsConcluded",
-                semester.getExecutionYear().getQualifiedName()));
+                interval.getExecutionYear().getQualifiedName()));
         result.append(" \"> " + i18n(Bundle.APPLICATION, "label.curriculum.credits.concludedCredits") + " (");
-        result.append(CurriculumModuleServices.getCreditsConcluded(group, semester.getExecutionYear()));
+        result.append(CurriculumModuleServices.getCreditsConcluded(group, interval.getExecutionYear()));
         result.append(")</span>");
     }
 
     // qubExtension, more credits info
-    static public void addEnroledEcts(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
-        final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), semester);
+    static public void addEnroledEcts(final CurriculumGroup group, final ExecutionInterval childInterval,
+            final StringBuilder result) {
+        final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), childInterval);
 
         result.append(", <span title=\"");
         result.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.enroledCredits", interval.getQualifiedName()));
@@ -350,10 +350,11 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     // qubExtension, more credits info
-    static public void addSumEcts(final CurriculumGroup group, final ExecutionSemester semester, final StringBuilder result) {
-        final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), semester);
+    static public void addSumEcts(final CurriculumGroup group, final ExecutionInterval childInterval,
+            final StringBuilder result) {
+        final ExecutionInterval interval = getExecutionInterval(group.getStudentCurricularPlan(), childInterval);
 
-        final BigDecimal total = CurriculumModuleServices.getCreditsConcluded(group, semester.getExecutionYear())
+        final BigDecimal total = CurriculumModuleServices.getCreditsConcluded(group, childInterval.getExecutionYear())
                 .add(CurriculumModuleServices.getEnroledAndNotApprovedEctsCreditsFor(group, interval));
         result.append(", <span title=\"");
         result.append(i18n(Bundle.APPLICATION, "label.curriculum.credits.legend.totalCredits", interval.getQualifiedName()));
@@ -373,7 +374,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     @Override
     protected void generateCurricularCoursesToEnrol(final HtmlTable groupTable,
             final StudentCurriculumGroupBean studentCurriculumGroupBean,
-            final List<IDegreeModuleToEvaluate> degreeModulesToSelect, final ExecutionSemester executionSemester) {
+            final List<IDegreeModuleToEvaluate> degreeModulesToSelect, final ExecutionInterval executionInterval) {
 
         final List<IDegreeModuleToEvaluate> coursesToEvaluate = filterCurricularCoursesToEvaluate(studentCurriculumGroupBean);
 
@@ -386,7 +387,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             HtmlTableCell cellName = htmlTableRow.createCell();
             cellName.setClasses(getRenderer().getCurricularCourseToEnrolNameClasses());
 
-            String degreeModuleName = degreeModuleToEvaluate.getDegreeModule().getNameI18N(executionSemester).getContent();
+            String degreeModuleName = degreeModuleToEvaluate.getDegreeModule().getNameI18N(executionInterval).getContent();
 
             if (degreeModuleToEvaluate.getDegreeModule().isLeaf() && !degreeModuleToEvaluate.isOptionalCurricularCourse()) {
 
@@ -409,7 +410,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
             // qubExtension, Aggregation Info
             final HtmlTableCell aggregationCell = htmlTableRow.createCell();
             aggregationCell.setBody(
-                    generateAggregationInfo(degreeModuleToEvaluate.getContext(), getStudentCurricularPlan(), executionSemester));
+                    generateAggregationInfo(degreeModuleToEvaluate.getContext(), getStudentCurricularPlan(), executionInterval));
 
             // qubExtension, Curricular Period
             final HtmlTableCell curricularPeriodCell = htmlTableRow.createCell();
@@ -519,15 +520,15 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
     }
 
     private boolean filterByAggregationApproval(final CurricularCourse input) {
-        final ExecutionSemester semester = getExecutionSemester();
-        if (!CurriculumAggregatorServices.isAggregationsActive(semester.getExecutionYear())) {
+        final ExecutionInterval interval = getExecutionSemester();
+        if (!CurriculumAggregatorServices.isAggregationsActive(interval.getExecutionYear())) {
             return false;
         }
 
         final StudentCurricularPlan scp = getStudentCurricularPlan();
-        final Context context = CurriculumAggregatorServices.getContext(input, semester, (CourseGroup) null);
+        final Context context = CurriculumAggregatorServices.getContext(input, interval, (CourseGroup) null);
         final CurriculumAggregator aggregator =
-                CurriculumAggregatorServices.getAggregationRoot(context, semester.getExecutionYear());
+                CurriculumAggregatorServices.getAggregationRoot(context, interval.getExecutionYear());
 
         return aggregator != null && aggregator.isAggregationConcluded(scp);
     }
@@ -593,7 +594,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 final CourseGroup parentCourseGroup = input.getCurriculumGroup().getDegreeModule();
 
                 // check self rules
-                final ExecutionSemester executionInterval = getExecutionSemester();
+                final ExecutionInterval executionInterval = getExecutionSemester();
                 List<? extends ICurricularRule> rules = CurricularRuleServices.getCurricularRules(input.getDegreeModule(),
                         parentCourseGroup, curricularRuleClass, executionInterval);
 
@@ -623,7 +624,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
                 final CourseGroup parentCourseGroup = parentCurriculumGroup.getDegreeModule();
 
                 // check self rules
-                final ExecutionSemester executionInterval = getExecutionSemester();
+                final ExecutionInterval executionInterval = getExecutionSemester();
                 List<? extends ICurricularRule> rules = CurricularRuleServices.getCurricularRules(input.getDegreeModule(),
                         parentCourseGroup, curricularRuleClass, executionInterval);
 
@@ -733,13 +734,13 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
     @Override
     protected void generateGroups(final HtmlBlockContainer container, final List<IDegreeModuleToEvaluate> degreeModulesToSelect,
-            final StudentCurriculumGroupBean bean, final StudentCurricularPlan plan, final ExecutionSemester executionSemester,
+            final StudentCurriculumGroupBean bean, final StudentCurricularPlan plan, final ExecutionInterval executionInterval,
             final int depth) {
 
         // first enroled
-        final List<StudentCurriculumGroupBean> enroledGroups = bean.getEnrolledCurriculumGroupsSortedByOrder(executionSemester);
+        final List<StudentCurriculumGroupBean> enroledGroups = bean.getEnrolledCurriculumGroupsSortedByOrder(executionInterval);
         for (final StudentCurriculumGroupBean iter : enroledGroups) {
-            generateGroup(container, degreeModulesToSelect, plan, iter, executionSemester,
+            generateGroup(container, degreeModulesToSelect, plan, iter, executionInterval,
                     depth + getRenderer().getWidthDecreasePerLevel());
         }
 

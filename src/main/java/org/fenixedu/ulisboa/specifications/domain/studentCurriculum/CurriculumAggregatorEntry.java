@@ -32,7 +32,6 @@ import java.util.function.Predicate;
 import org.fenixedu.academic.domain.CurricularCourse;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.ExecutionSemester;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.GradeScale;
@@ -75,7 +74,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
                     CurriculumAggregatorApproval.class, context.getBeginExecutionPeriod());
             if (curricularRules.isEmpty()) {
                 new CurriculumAggregatorApproval(degreeModule, context.getParentCourseGroup(), context.getBeginExecutionPeriod(),
-                        (ExecutionSemester) null);
+                        null);
             }
         }
 
