@@ -59,7 +59,7 @@
 <fr:form action="<%=action.toString()%>">
 	<input type="hidden" name="method" />
 
-	<bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.semester" />
+	<bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.childOrder" />
 	<bean:define id="executionYearName" name="bolonhaStudentEnrollmentBean" property="executionPeriod.executionYear.year" />
 	<bean:define id="studentCurricularPlan" name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan" type="org.fenixedu.academic.domain.StudentCurricularPlan" />
 

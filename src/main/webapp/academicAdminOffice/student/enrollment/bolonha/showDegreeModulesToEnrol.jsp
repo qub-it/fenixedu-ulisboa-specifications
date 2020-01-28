@@ -35,7 +35,7 @@
 	<bean:write name="bolonhaStudentEnrollmentBean"  property="funcionalityTitle" />
 </h2>
 
-<bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.semester" />
+<bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.childOrder" />
 <bean:define id="executionYear" name="bolonhaStudentEnrollmentBean" property="executionPeriod.executionYear" type="org.fenixedu.academic.domain.ExecutionYear" />
 <bean:define id="executionYearName" name="executionYear" property="year" />
 <bean:define id="registration" name="bolonhaStudentEnrollmentBean" property="studentCurricularPlan.registration" type="org.fenixedu.academic.domain.student.Registration" />

@@ -41,7 +41,7 @@
 </h2>
 
 <bean:define id="executionSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod" />
-<bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.semester" />
+<bean:define id="periodSemester" name="bolonhaStudentEnrollmentBean" property="executionPeriod.childOrder" />
 <bean:define id="executionYearName" name="bolonhaStudentEnrollmentBean" property="executionPeriod.executionYear.year" />
 
 
