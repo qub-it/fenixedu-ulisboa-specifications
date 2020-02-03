@@ -57,17 +57,17 @@
 		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
 			<artifactId>fenixedu-academic-core</artifactId>
-			<version>25.7.0</version>
+			<version>25.9.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-extensions</artifactId>
-			<version>4.3.0</version>
+			<version>4.3.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-treasury</artifactId>
-			<version>4.3.0</version>
+			<version>4.3.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
