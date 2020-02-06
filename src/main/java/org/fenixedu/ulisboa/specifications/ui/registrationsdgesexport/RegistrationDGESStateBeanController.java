@@ -48,12 +48,8 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.candidacy.AdmittedCandidacySituation;
-import org.fenixedu.academic.domain.candidacy.CancelledCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.IngressionType;
-import org.fenixedu.academic.domain.candidacy.RegisteredCandidacySituation;
-import org.fenixedu.academic.domain.candidacy.StandByCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.contacts.PartyContact;
 import org.fenixedu.academic.domain.contacts.PartyContactType;
@@ -81,7 +77,6 @@ import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
 import org.fenixedu.ulisboa.specifications.domain.UniversityChoiceMotivationAnswer;
 import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer;
-import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
@@ -210,8 +205,10 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         if (executionYear == null) {
             return Collections.emptyList();
         }
-        return Bennu.getInstance().getCandidaciesSet().stream().filter(c -> c instanceof FirstTimeCandidacy)
-                .map(StudentCandidacy.class::cast).filter(c -> c.getRegistration() != null).collect(Collectors.toList());
+        return Bennu.getInstance().getCandidaciesSet().stream().filter(c -> c instanceof StudentCandidacy)
+                .map(StudentCandidacy.class::cast)
+                .filter(c -> Boolean.TRUE.equals(c.getFirstTimeCandidacy()) && c.getRegistration() != null)
+                .collect(Collectors.toList());
     }
 
     private List<TupleDataSourceBean> getExecutionYearDataSource() {
@@ -297,7 +294,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
                     }
                 }
 
-                new CancelledCandidacySituation(candidacy);
+                candidacy.setState(CandidacySituationType.CANCELLED);
             }
         }
 
@@ -378,7 +375,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
         if (errors.isEmpty()) {
             for (StudentCandidacy candidacy : candidacies) {
-                new StandByCandidacySituation(candidacy);
+                candidacy.setState(CandidacySituationType.STAND_BY);
             }
         }
 
@@ -428,10 +425,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
         if (errors.isEmpty()) {
             for (StudentCandidacy candidacy : candidacies) {
-                AdmittedCandidacySituation situation = new AdmittedCandidacySituation(candidacy, AccessControl.getPerson());
-                situation.setSituationDate(situation.getSituationDate().minusMinutes(1));
-
-                new RegisteredCandidacySituation(candidacy, AccessControl.getPerson());
+                candidacy.setState(CandidacySituationType.REGISTERED);
             }
         }
 

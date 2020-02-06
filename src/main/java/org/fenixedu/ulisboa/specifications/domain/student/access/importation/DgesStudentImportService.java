@@ -22,7 +22,6 @@ import org.fenixedu.academic.domain.ExecutionDegree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
-import org.fenixedu.academic.domain.candidacy.StandByCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.contacts.PartyContactType;
 import org.fenixedu.academic.domain.contacts.PhysicalAddress;
@@ -41,7 +40,6 @@ import org.fenixedu.spaces.domain.Space;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
-import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.student.access.DegreeCandidateDTO;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.joda.time.DateTime;
@@ -395,10 +393,10 @@ public class DgesStudentImportService {
     private Registration createRegistration(final DegreeCandidateDTO entry, final Person person) {
 
         final StudentCandidacy studentCandidacy = createCandidacy(entry, person);
-        new StandByCandidacySituation(studentCandidacy, AccessControl.getPerson());
 
-        final Registration registration = Registration.create(person, studentCandidacy.getDegreeCurricularPlan(), studentCandidacy,
-                ULisboaSpecificationsRoot.getInstance().getDefaultRegistrationProtocol(), CycleType.FIRST_CYCLE, executionYear);
+        final Registration registration = Registration.create(person, studentCandidacy.getDegreeCurricularPlan(),
+                studentCandidacy, ULisboaSpecificationsRoot.getInstance().getDefaultRegistrationProtocol(), CycleType.FIRST_CYCLE,
+                executionYear);
 
         final PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation() != null ? studentCandidacy
                 .getPrecedentDegreeInformation() : new PrecedentDegreeInformation();
@@ -423,12 +421,15 @@ public class DgesStudentImportService {
 
         final ExecutionDegree executionDegree = degreeCurricularPlan.getExecutionDegreeByYear(executionYear);
 
-        //TODOJN: remove firsttimecandidacysubclass
-        final StudentCandidacy candidacy =
-                new FirstTimeCandidacy(person, executionDegree, AccessControl.getPerson(), entry.getEntryGrade(),
-                        entry.getContigent(), entry.getIngression(), entry.getEntryPhase(), entry.getPlacingOption());
+        final StudentCandidacy candidacy = new StudentCandidacy(person, executionDegree);
+        candidacy.setEntryGrade(entry.getEntryGrade());
+        candidacy.setContigent(entry.getContigent());
+        candidacy.setIngressionType(entry.getIngression());
+        candidacy.setEntryPhase(entry.getEntryPhase());
+        candidacy.setPlacingOption(entry.getPlacingOption());
 
         candidacy.setFirstTimeCandidacy(true);
+        candidacy.setState(CandidacySituationType.STAND_BY);
 
         return candidacy;
     }

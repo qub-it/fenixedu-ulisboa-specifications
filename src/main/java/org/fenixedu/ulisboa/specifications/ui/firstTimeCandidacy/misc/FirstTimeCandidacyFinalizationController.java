@@ -283,10 +283,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
 
     @Atomic
     private void concludeStudentCandidacy(final Person person, final StudentCandidacy candidacy) {
-        AdmittedCandidacySituation situation = new AdmittedCandidacySituation(candidacy, person);
-        situation.setSituationDate(situation.getSituationDate().minusMinutes(1));
-
-        new RegisteredCandidacySituation(candidacy, person);
+        candidacy.setState(CandidacySituationType.REGISTERED);
     }
 
     @Override
