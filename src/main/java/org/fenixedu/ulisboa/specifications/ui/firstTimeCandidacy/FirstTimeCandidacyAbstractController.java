@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.candidacy.Candidacy;
+import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
@@ -61,7 +62,8 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         // Create personal ingression data with one precedentDegreeInformation from candidacy if possible
         final Set<PrecedentDegreeInformation> pdiSetFromCandidacy = Sets.newHashSet();
         for (final Candidacy candidacy : student.getPerson().getCandidaciesSet()) {
-            if (!candidacy.getActiveCandidacySituation().getCandidacySituationType().isActive()) {
+            final CandidacySituationType activeCandidacySituationType = candidacy.getActiveCandidacySituationType();
+            if (activeCandidacySituationType == null || !activeCandidacySituationType.isActive()) {
                 continue;
             }
 
