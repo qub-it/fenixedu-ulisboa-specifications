@@ -7,7 +7,6 @@ import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.http.HttpHeaders;
@@ -29,8 +28,10 @@ public class FirstTimeCandidacyDocumentsController extends FenixeduUlisboaSpecif
     @RequestMapping
     public String home(Model model, RedirectAttributes redirectAttributes) {
         model.addAttribute("controllerURL", CONTROLLER_URL);
-        model.addAttribute("registrationsSet", AccessControl.getPerson().getStudent().getRegistrationsSet().stream()
-                .filter(r -> r.getStudentCandidacy() instanceof FirstTimeCandidacy).collect(Collectors.toList()));
+        model.addAttribute("registrationsSet",
+                AccessControl.getPerson().getStudent().getRegistrationsSet().stream()
+                        .filter(r -> r.getStudentCandidacy() != null && r.getStudentCandidacy().getFirstTimeCandidacy())
+                        .collect(Collectors.toList()));
         return "fenixedu-ulisboa-specifications/firsttimecandidacy/student/download";
     }
 

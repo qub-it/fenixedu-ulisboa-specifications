@@ -8,19 +8,20 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.candidacy.Candidacy;
+import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.ulisboa.specifications.authentication.IULisboaRedirectionHandler;
 import org.fenixedu.ulisboa.specifications.domain.bluerecord.BlueRecordConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEntryPoint;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.CgdDataAuthorizationControllerBlueRecord;
@@ -164,9 +165,14 @@ public class BlueRecordRedirector implements IULisboaRedirectionHandler {
     }
 
     private boolean isFirstTimeCandidacies(final User user, final HttpServletRequest request) {
+
+        final Predicate<StudentCandidacy> isCandidacyFirstTime = StudentCandidacy::getFirstTimeCandidacy;
+        final Predicate<StudentCandidacy> isCandidacyOpen = c -> CandidacySituationType.STAND_BY.equals(c.getState());
+
         String path = request.getRequestURL().toString();
-        Optional<Candidacy> candidacy = user.getPerson().getCandidaciesSet().stream().filter(FirstTimeCandidacy.isFirstTime)
-                .filter(FirstTimeCandidacy.isOpen).findAny();
+        Optional<StudentCandidacy> candidacy =
+                user.getPerson().getCandidaciesSet().stream().filter(c -> c instanceof StudentCandidacy)
+                        .map(StudentCandidacy.class::cast).filter(isCandidacyFirstTime).filter(isCandidacyOpen).findAny();
 
         return candidacy.isPresent() || path.contains(FIRST_TIME_START_URL);
     }

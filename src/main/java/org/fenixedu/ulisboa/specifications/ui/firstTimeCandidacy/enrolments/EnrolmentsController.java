@@ -12,6 +12,7 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.curricularPeriod.CurricularPeriod;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.curriculum.EnrollmentCondition;
@@ -25,7 +26,6 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.mobility.MobilityFormControler;
@@ -57,7 +57,7 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     @Override
     protected String enrolScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes, final HttpServletRequest request) {
-        FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         Registration registration = candidacy.getRegistration();
         StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(candidacy.getDegreeCurricularPlan());
 
@@ -111,7 +111,7 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     }
 
     private List<AcademicEnrolmentPeriodBean> getAllAcademicEnrolmentPeriods(final Model model,
-            final FirstTimeCandidacy candidacy) {
+            final StudentCandidacy candidacy) {
         return AcademicEnrolmentPeriodBean
                 .getEnrolmentPeriodsOpenOrUpcoming(getStudent(model), candidacy.getDegreeCurricularPlan()).stream()
                 .filter(p -> p.isOpen() && p.isFirstTimeRegistration()).collect(Collectors.toList());

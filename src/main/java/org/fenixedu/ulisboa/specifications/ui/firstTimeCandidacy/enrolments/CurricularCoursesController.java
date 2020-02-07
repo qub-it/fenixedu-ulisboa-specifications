@@ -40,13 +40,13 @@ import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleValidationType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.motivations.MotivationsExpectationsFormController;
@@ -115,7 +115,7 @@ public class CurricularCoursesController extends FirstTimeCandidacyAbstractContr
 
     protected String showScreen(ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes,
             HttpServletRequest request) {
-        FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         Registration registration = candidacy.getRegistration();
         StudentCurricularPlan studentCurricularPlan = registration.getStudentCurricularPlan(candidacy.getDegreeCurricularPlan());
 

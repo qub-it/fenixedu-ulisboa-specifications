@@ -14,10 +14,8 @@ import javax.servlet.ServletContext;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.candidacy.AdmittedCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.CandidacySummaryFile;
-import org.fenixedu.academic.domain.candidacy.RegisteredCandidacySituation;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.student.Registration;

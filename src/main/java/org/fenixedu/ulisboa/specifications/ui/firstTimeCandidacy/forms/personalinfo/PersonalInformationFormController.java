@@ -8,12 +8,9 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.FenixEduAcademicConfiguration;
-import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.organizationalStructure.Party;
-import org.fenixedu.academic.domain.organizationalStructure.PartySocialSecurityNumber;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.person.IDDocumentType;
 import org.fenixedu.academic.domain.person.MaritalStatus;
@@ -21,14 +18,11 @@ import org.fenixedu.academic.domain.raides.DegreeDesignation;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
-import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.CandidancyForm;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
@@ -70,7 +64,7 @@ public class PersonalInformationFormController extends FormAbstractController {
 
         model.addAttribute("partial", isPartialUpdate());
 
-        FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         if (candidacy != null) {
             model.addAttribute("placingOption", candidacy.getPlacingOption());
         }
@@ -288,7 +282,7 @@ public class PersonalInformationFormController extends FormAbstractController {
                     documentIdExpirationDate != null ? new YearMonthDay(documentIdExpirationDate.toDate()) : null);
         }
 
-        FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy();
         if (candidacy != null) {
             if (1 < candidacy.getPlacingOption()) {
                 personUl.setFirstOptionInstitution(form.getFirstOptionInstitution());

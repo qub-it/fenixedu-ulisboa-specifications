@@ -3,9 +3,9 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.candidacy.Candidacy;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
@@ -61,23 +61,19 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
 
         // Create personal ingression data with one precedentDegreeInformation from candidacy if possible
         final Set<PrecedentDegreeInformation> pdiSetFromCandidacy = Sets.newHashSet();
-        for (final Candidacy candidacy : student.getPerson().getCandidaciesSet()) {
-            final CandidacySituationType activeCandidacySituationType = candidacy.getActiveCandidacySituationType();
-            if (activeCandidacySituationType == null || !activeCandidacySituationType.isActive()) {
+        final Set<StudentCandidacy> candidacies = student.getPerson().getCandidaciesSet().stream()
+                .filter(c -> c instanceof StudentCandidacy).map(StudentCandidacy.class::cast).collect(Collectors.toSet());
+        for (final StudentCandidacy candidacy : candidacies) {
+            final CandidacySituationType candidacyState = candidacy.getState();
+            if (candidacyState == null || !candidacyState.isActive()) {
                 continue;
             }
 
-            if (!(candidacy instanceof StudentCandidacy)) {
+            if (candidacy.getExecutionYear() != executionYear) {
                 continue;
             }
 
-            final StudentCandidacy studentCandidacy = (StudentCandidacy) candidacy;
-
-            if (studentCandidacy.getExecutionYear() != executionYear) {
-                continue;
-            }
-
-            pdiSetFromCandidacy.add(studentCandidacy.getPrecedentDegreeInformation());
+            pdiSetFromCandidacy.add(candidacy.getPrecedentDegreeInformation());
         }
 
         if (!pdiSetFromCandidacy.isEmpty()) {

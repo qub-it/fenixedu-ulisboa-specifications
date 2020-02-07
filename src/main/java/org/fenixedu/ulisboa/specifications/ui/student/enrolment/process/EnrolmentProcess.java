@@ -12,6 +12,7 @@ import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -315,7 +316,8 @@ public class EnrolmentProcess implements IBean {
             final EnrolmentStepTemplate lastEnrolmentStep;
             final String afterProcessURL;
 
-            if (candidacy.isConcluded()) {
+            final CandidacySituationType state = candidacy.getState();
+            if (CandidacySituationType.REGISTERED.equals(state) || CandidacySituationType.CANCELLED.equals(state)) { // candidacy.isConcluded
                 beforeProcessURL = EnrolmentManagementDA.getEntryPointURL();
                 lastEnrolmentStep = EnrolmentManagementDA.createEnrolmentStepEndProcess();
                 afterProcessURL = StudentPortalRedirectController.getEntryPointURL();

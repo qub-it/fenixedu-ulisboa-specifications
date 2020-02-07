@@ -3,9 +3,9 @@ package org.fenixedu.ulisboa.specifications.domain;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
-import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 
 import pt.ist.fenixframework.Atomic;
@@ -36,7 +36,7 @@ public class FirstYearRegistrationConfiguration extends FirstYearRegistrationCon
     }
 
     public static boolean requiresVaccination(final Person person) {
-        FirstTimeCandidacy candidacy = FirstTimeCandidacyController.getCandidacy(person);
+        StudentCandidacy candidacy = FirstTimeCandidacyController.getCandidacy(person);
         if (candidacy != null && requiresVaccination(candidacy.getDegreeCurricularPlan().getDegree())) {
             return true;
         }

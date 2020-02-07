@@ -180,10 +180,10 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         Predicate<? super StudentCandidacy> hasDgesImportationForCurrentIngress =
                 sc -> ingressType == null || sc.getIngressionType() != null && sc.getIngressionType().equals(ingressType);
         Predicate<? super StudentCandidacy> hasDgesImportationForBeforeEnd = sc -> endDate == null
-                || sc.getCandidacyDate().toLocalDate().isEqual(endDate) || sc.getCandidacyDate().toLocalDate().isBefore(endDate);
+                || sc.getStartDate().toLocalDate().isEqual(endDate) || sc.getStartDate().toLocalDate().isBefore(endDate);
         Predicate<? super StudentCandidacy> hasDgesImportationForAfterBegin =
-                sc -> beginDate == null || sc.getCandidacyDate().toLocalDate().isEqual(beginDate)
-                        || sc.getCandidacyDate().toLocalDate().isAfter(beginDate);
+                sc -> beginDate == null || sc.getStartDate().toLocalDate().isEqual(beginDate)
+                        || sc.getStartDate().toLocalDate().isAfter(beginDate);
         Predicate<? super StudentCandidacy> hasDgesImportationForCurrentExecutionYear =
                 sc -> executionYear == null || sc.getExecutionYear() == executionYear;
         return getAllStudentCandidacies(executionYear).stream().filter(hasDgesImportationForCurrentExecutionYear)

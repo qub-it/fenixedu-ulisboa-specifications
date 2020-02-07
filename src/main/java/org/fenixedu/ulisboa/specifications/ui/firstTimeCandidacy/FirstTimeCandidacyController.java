@@ -28,23 +28,21 @@
 package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.candidacy.Candidacy;
+import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
+import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.domain.candidacy.FirstTimeCandidacy;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
@@ -62,6 +60,10 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
     public static final String FIRST_TIME_START_URL = "/fenixedu-ulisboa-specifications/firsttimecandidacy";
 
     public static final String CONTROLLER_URL = FIRST_TIME_START_URL + "/home";
+
+    private static Predicate<StudentCandidacy> isCandidacyFirstTime = StudentCandidacy::getFirstTimeCandidacy;
+
+    private static Predicate<StudentCandidacy> isCandidacyOpen = c -> CandidacySituationType.STAND_BY.equals(c.getState());
 
     @RequestMapping
     public String home(final Model model) {
@@ -84,30 +86,21 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
                 PersonalInformationFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
-    public static FirstTimeCandidacy getCandidacy() {
+    public static StudentCandidacy getCandidacy() {
         return getCandidacy(AccessControl.getPerson());
     }
 
-    public static FirstTimeCandidacy getCandidacy(final Person person) {
-        Set<FirstTimeCandidacy> candidacies = new HashSet<>();
-        for (Candidacy candidacy : person.getCandidaciesSet()) {
-            if (candidacy instanceof FirstTimeCandidacy) {
-                candidacies.add((FirstTimeCandidacy) candidacy);
-            }
-        }
-
-        Stream<FirstTimeCandidacy> firstTimeCandidacies = candidacies.stream().filter(FirstTimeCandidacy.isFirstTime)
-                .filter(FirstTimeCandidacy.isOpen).sorted(FirstTimeCandidacy.COMPARATOR_BY_DATE);
-        return firstTimeCandidacies.findFirst().orElse(null);
+    public static StudentCandidacy getCandidacy(final Person person) {
+        return person.getCandidaciesSet().stream().filter(c -> c instanceof StudentCandidacy).map(StudentCandidacy.class::cast)
+                .filter(isCandidacyFirstTime).filter(isCandidacyOpen).sorted(Comparator.comparing(StudentCandidacy::getStartDate))
+                .findFirst().orElse(null);
     }
 
     public static List<String> isValidForFirstTimeCandidacy() {
         List<String> errorMessages = new ArrayList<>();
-        Person person = AccessControl.getPerson();
-        Stream<Candidacy> firstTimeCandidacies =
-                person.getCandidaciesSet().stream().filter(FirstTimeCandidacy.isFirstTime).filter(FirstTimeCandidacy.isOpen);
-        long count = firstTimeCandidacies.count();
-        if (count == 0) {
+        Person person = AccessControl.getPerson();;
+        if (person.getCandidaciesSet().stream().filter(c -> c instanceof StudentCandidacy).map(StudentCandidacy.class::cast)
+                .noneMatch(isCandidacyFirstTime.and(isCandidacyOpen))) {
             errorMessages.add("Students with no open FirstTimeCandidacies are not supported in the first time registration flow");
         }
 
@@ -127,7 +120,7 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         Predicate<AcademicEnrolmentPeriodBean> isFirstTime = p -> p.isFirstTimeRegistration();
 
         Student student = AccessControl.getPerson().getStudent();
-        FirstTimeCandidacy candidacy = getCandidacy();
+        StudentCandidacy candidacy = getCandidacy();
         if (candidacy == null) {
             return false;
         }
