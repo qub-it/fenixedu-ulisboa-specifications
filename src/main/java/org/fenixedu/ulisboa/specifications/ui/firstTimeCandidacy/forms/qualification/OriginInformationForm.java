@@ -113,7 +113,7 @@ public class OriginInformationForm implements CandidancyForm {
                         .collect(Collectors.toSet()));
                 setRaidesInstitutionValues(units);
                 setRaidesDegreeDesignationValues(
-                        possibleDesignations.stream().filter(matchesName).limit(50).collect(Collectors.toList()));
+                        possibleDesignations.stream().filter(matchesName)/*.limit(50)*/.collect(Collectors.toList()));
                 //put raides designation
                 setDegreeDesignation("");
             } else {

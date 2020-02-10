@@ -73,7 +73,7 @@ public class PreviousDegreeInformationForm implements CandidancyForm {
                         .map(i -> i.getUnit()).filter(i -> !i.getDegreeDesignationSet().isEmpty()).collect(Collectors.toSet()));
                 setRaidesInstitutionValues(units);
                 setRaidesDegreeDesignationValues(
-                        possibleDesignations.stream().filter(matchesName).limit(50).collect(Collectors.toList()));
+                        possibleDesignations.stream().filter(matchesName)/*.limit(50)*/.collect(Collectors.toList()));
                 setPrecedentDegreeDesignation("");
                 if (raidesPrecedentDegreeDesignation != null) {
                     setDegreeNamePart(getFullDescription(raidesPrecedentDegreeDesignation));
