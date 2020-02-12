@@ -1,6 +1,7 @@
 package org.fenixedu.ulisboa.specifications.domain.tuitionpenalty.debtGeneration.strategies;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -15,6 +16,7 @@ import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
 import org.fenixedu.academictreasury.domain.exceptions.AcademicTreasuryDomainException;
 import org.fenixedu.academictreasury.domain.settings.AcademicTreasurySettings;
 import org.fenixedu.academictreasury.services.EmolumentServices;
+import org.fenixedu.academictreasury.util.AcademicTreasuryConstants;
 import org.fenixedu.treasury.domain.document.DebitEntry;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestProperty;
@@ -23,6 +25,8 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaService
 import org.fenixedu.ulisboa.specifications.domain.tuitionpenalty.TuitionPenaltyConfiguration;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
+import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +35,7 @@ import com.google.common.collect.Lists;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
+import pt.ist.fenixframework.FenixFramework;
 
 public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDebtGenerationRuleStrategy {
 
@@ -195,26 +200,26 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
             return;
         }
 
-        outer: for (final DebitEntry debitEntry : DebitEntry.find(tuitionEvent).collect(Collectors.<DebitEntry> toSet())) {
-            if (debitEntry.getProduct().getProductGroup() != AcademicTreasurySettings.getInstance().getTuitionProductGroup()) {
+        outer: for (final DebitEntry tuitionInstallmentDebitEntry : DebitEntry.find(tuitionEvent).collect(Collectors.<DebitEntry> toSet())) {
+            if (tuitionInstallmentDebitEntry.getProduct().getProductGroup() != AcademicTreasurySettings.getInstance().getTuitionProductGroup()) {
                 continue;
             }
 
-            if (debitEntry.getProduct().getTuitionInstallmentOrder() <= 0) {
+            if (tuitionInstallmentDebitEntry.getProduct().getTuitionInstallmentOrder() <= 0) {
                 continue;
             }
 
-            if (debitEntry.isInDebt()) {
+            if (tuitionInstallmentDebitEntry.isInDebt()) {
                 continue;
             }
 
-            final DateTime lastPaymentDate = debitEntry.getLastPaymentDate();
+            final DateTime lastPaymentDate = tuitionInstallmentDebitEntry.getLastPaymentDate();
 
             if (lastPaymentDate == null) {
                 continue;
             }
 
-            if (!debitEntry.getDueDate().isBefore(lastPaymentDate.toLocalDate())) {
+            if (!tuitionInstallmentDebitEntry.getDueDate().isBefore(lastPaymentDate.toLocalDate())) {
                 continue;
             }
 
@@ -246,7 +251,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
                         continue;
                     }
 
-                    if (!property.getInteger().equals(debitEntry.getProduct().getTuitionInstallmentOrder())) {
+                    if (!property.getInteger().equals(tuitionInstallmentDebitEntry.getProduct().getTuitionInstallmentOrder())) {
                         continue;
                     }
 
@@ -276,7 +281,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
                         continue;
                     }
 
-                    if (!property.getInteger().equals(debitEntry.getProduct().getTuitionInstallmentOrder())) {
+                    if (!property.getInteger().equals(tuitionInstallmentDebitEntry.getProduct().getTuitionInstallmentOrder())) {
                         continue;
                     }
 
@@ -292,12 +297,12 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
                 }
             }
 
-            createPenaltyRule(rule, registration, debitEntry, type, installmentOrderSlot, executionYearSlot);
+            createPenaltyRule(rule, registration, tuitionInstallmentDebitEntry, type, installmentOrderSlot, executionYearSlot);
         }
     }
 
     private ULisboaServiceRequest createPenaltyRule(final AcademicDebtGenerationRule rule, final Registration registration,
-            final DebitEntry debitEntry, final ServiceRequestType type, final ServiceRequestSlot installmentOrderSlot,
+            final DebitEntry tuitionInstallmentDebitEntry, final ServiceRequestType type, final ServiceRequestSlot installmentOrderSlot,
             final ServiceRequestSlot executionYearSlot) {
         ULisboaServiceRequestBean bean = new ULisboaServiceRequestBean();
 
@@ -319,7 +324,7 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
         installmentOrderPropertyBean.setUiComponentType(installmentOrderSlot.getUiComponentType());
         installmentOrderPropertyBean.setLabel(installmentOrderSlot.getLabel());
         installmentOrderPropertyBean.setRequired(false);
-        installmentOrderPropertyBean.setIntegerValue(debitEntry.getProduct().getTuitionInstallmentOrder());
+        installmentOrderPropertyBean.setIntegerValue(tuitionInstallmentDebitEntry.getProduct().getTuitionInstallmentOrder());
         bean.getServiceRequestPropertyBeans().add(installmentOrderPropertyBean);
 
         ULisboaServiceRequest serviceRequest = ULisboaServiceRequest.create(bean);
@@ -329,6 +334,26 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
                     "error.CreatePenaltyTaxOnLateTuitionPaymentStrategy.serviceRequest.without.installmentOrderSlot.on.creation");
         }
 
+        FenixFramework.atomic(() -> {
+            if(AcademicTreasuryEvent.findUnique(serviceRequest).isPresent()) {
+                AcademicTreasuryEvent academicTreasuryEvent = AcademicTreasuryEvent.findUnique(serviceRequest).get();
+                Map<String, String> eventPropertiesMap = academicTreasuryEvent.getPropertiesMap();
+                
+                eventPropertiesMap.put(ULisboaSpecificationsUtil.bundle("label.CreatePenaltyTaxOnLateTuitionPaymentStrategy.created.by.academicDebtGenerationRule"), 
+                        ULisboaSpecificationsUtil.bundle("label.true"));
+                academicTreasuryEvent.editPropertiesMap(eventPropertiesMap);
+                
+                if(academicTreasuryEvent.isCharged()) {
+                    final DebitEntry penaltyDebitEntry = DebitEntry.findActive(academicTreasuryEvent).iterator().next();
+                    
+                    Map<String, String> debitEntryPropertiesMap = penaltyDebitEntry.getPropertiesMap();
+                    debitEntryPropertiesMap.put(ULisboaSpecificationsUtil.bundle("label.CreatePenaltyTaxOnLateTuitionPaymentStrategy.created.by.academicDebtGenerationRule"), 
+                            ULisboaSpecificationsUtil.bundle("label.true"));
+                    penaltyDebitEntry.editPropertiesMap(debitEntryPropertiesMap);
+                }
+            }
+        });
+        
         return serviceRequest;
     }
 

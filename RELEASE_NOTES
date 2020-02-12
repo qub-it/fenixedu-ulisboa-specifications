@@ -1,3 +1,5 @@
+- Improvement: Add mark that tuition penalty was created by academic debt generation rule instead of academic service request in the Registration details 
+
 6.5.1 (10-02-2020)
 6.5.0 (07-02-2020)
 - Refactor: Removed deprecated FirstTimeCandidacy subclass
