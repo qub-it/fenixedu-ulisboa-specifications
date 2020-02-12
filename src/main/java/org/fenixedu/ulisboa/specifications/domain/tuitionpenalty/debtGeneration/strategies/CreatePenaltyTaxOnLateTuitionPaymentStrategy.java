@@ -270,11 +270,22 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
                     }
 
                     // Found! Get academic treasury event to check if it is charged
-                    Optional<? extends AcademicTreasuryEvent> academicServiceRequest = AcademicTreasuryEvent.findUnique(request);
+                    Optional<? extends AcademicTreasuryEvent> academicTreasuryEvent = AcademicTreasuryEvent.findUnique(request);
 
-                    if (!academicServiceRequest.isPresent() || !academicServiceRequest.get().isCharged()) {
+                    if (!academicTreasuryEvent.isPresent() || !academicTreasuryEvent.get().isCharged()) {
                         // Charge
                         EmolumentServices.createAcademicServiceRequestEmolumentForDefaultFinantialEntity(request);
+                        
+                        FenixFramework.atomic(() -> {
+                            if(academicTreasuryEvent.get().isCharged()) {
+                                final DebitEntry penaltyDebitEntry = DebitEntry.findActive(academicTreasuryEvent.get()).iterator().next();
+                                
+                                Map<String, String> debitEntryPropertiesMap = penaltyDebitEntry.getPropertiesMap();
+                                debitEntryPropertiesMap.put(ULisboaSpecificationsUtil.bundle("label.CreatePenaltyTaxOnLateTuitionPaymentStrategy.created.by.academicDebtGenerationRule"), 
+                                        ULisboaSpecificationsUtil.bundle("label.true"));
+                                penaltyDebitEntry.editPropertiesMap(debitEntryPropertiesMap);
+                            }
+                        });
                     }
 
                     continue outer;
