@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.DegreeCurricularPlan;
+import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academictreasury.domain.debtGeneration.AcademicDebtGenerationProcessingResult;
@@ -98,26 +99,18 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
             return Lists.newArrayList();
         }
 
-        if (TuitionPenaltyConfiguration.getInstance().getTuitionPenaltyServiceRequestType() == null) {
-            return Lists.newArrayList();
-        }
-
         final List<AcademicDebtGenerationProcessingResult> resultList = Lists.newArrayList();
         
         for (final DegreeCurricularPlan degreeCurricularPlan : rule.getDegreeCurricularPlansSet()) {
-            for (final Registration registration : degreeCurricularPlan.getRegistrations()) {
-
+            for (final StudentCurricularPlan scp : degreeCurricularPlan.getStudentCurricularPlansSet()) {
+                final Registration registration = scp.getRegistration();
+                
                 if (registration.getStudentCurricularPlan(rule.getExecutionYear()) == null) {
                     continue;
                 }
 
                 if (!rule.getDegreeCurricularPlansSet()
                         .contains(registration.getStudentCurricularPlan(rule.getExecutionYear()).getDegreeCurricularPlan())) {
-                    continue;
-                }
-
-                // Discard registrations not active and with no enrolments
-                if (!registration.hasAnyActiveState(rule.getExecutionYear())) {
                     continue;
                 }
 
@@ -149,10 +142,6 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
             return Lists.newArrayList();
         }
 
-        if (TuitionPenaltyConfiguration.getInstance().getTuitionPenaltyServiceRequestType() == null) {
-            return Lists.newArrayList();
-        }
-
         if (TuitionPenaltyConfiguration.getInstance().getExecutionYearSlot() == null) {
             return Lists.newArrayList();
         }
@@ -163,11 +152,6 @@ public class CreatePenaltyTaxOnLateTuitionPaymentStrategy implements IAcademicDe
 
         if (!rule.getDegreeCurricularPlansSet()
                 .contains(registration.getStudentCurricularPlan(rule.getExecutionYear()).getDegreeCurricularPlan())) {
-            return Lists.newArrayList();
-        }
-
-        // Discard registrations not active and with no enrolments
-        if (!registration.hasAnyActiveState(rule.getExecutionYear())) {
             return Lists.newArrayList();
         }
 
