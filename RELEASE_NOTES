@@ -1,3 +1,6 @@
+- Refactor: Rename enum type GradeScale to GradeScaleEnum
+- Refactor: Remove references to GradeScaleEnum values
+
 6.5.2 (12-02-2020)
 - Improvement: Add mark that tuition penalty was created by academic debt generation rule instead of academic service request in the Registration details 
 - Bug Fix: Check all registrations associated with degree curricular plan, instead of active registrations only
