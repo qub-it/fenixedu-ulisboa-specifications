@@ -57,12 +57,12 @@
 		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
 			<artifactId>fenixedu-academic-core</artifactId>
-			<version>26.2.3</version>
+			<version>26.2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-extensions</artifactId>
-			<version>4.3.3</version>
+			<version>4.3.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
