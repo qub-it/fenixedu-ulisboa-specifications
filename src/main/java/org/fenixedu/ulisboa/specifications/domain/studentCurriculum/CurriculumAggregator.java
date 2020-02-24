@@ -122,7 +122,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
                 getEvaluationType(), getEvaluationSeason(), getGradeCalculator(), getGradeValueScale(), getOptionalConcluded());
 
         for (final CurriculumAggregatorEntry entry : getEntriesSet()) {
-            if (entry.getContext().isValid(targetYear)) {
+            if (entry.getContext().isValidForExecutionAggregation(targetYear)) {
                 CurriculumAggregatorEntry.create(result, entry.getContext(), entry.getSupportsTeacherConfirmation(),
                         entry.getGradeFactor(), entry.getGradeValueScale(), entry.getOptional());
             }
@@ -160,7 +160,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
             throw new DomainException("error.CurriculumAggregator.duplicate");
         }
 
-        if (!getContext().isValid(getSince())) {
+        if (!getContext().isValidForExecutionAggregation(getSince())) {
             throw new DomainException("error.CurriculumAggregator.invalid.Context");
         }
 

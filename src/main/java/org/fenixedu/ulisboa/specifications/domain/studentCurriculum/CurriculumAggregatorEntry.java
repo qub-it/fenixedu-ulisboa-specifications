@@ -115,7 +115,7 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
             throw new DomainException("error.CurriculumAggregatorEntry.duplicate");
         }
 
-        if (!getContext().isValid(getSince())) {
+        if (!getContext().isValidForExecutionAggregation(getSince())) {
             throw new DomainException("error.CurriculumAggregatorEntry.invalid.Context");
         }
 
@@ -149,9 +149,10 @@ public class CurriculumAggregatorEntry extends CurriculumAggregatorEntry_Base {
         final String since = getAggregator().getSince().getQualifiedName();
 
         final String gradeFactor =
-                ", " + (getGradeFactor() == null || BigDecimal.ZERO.compareTo(getGradeFactor()) == 0 ? 
-                            getAggregator().getCurricularCourse().getDegree().getQualitativeGradeScale().getName().getContent() : 
-                                getGradeFactor().multiply(BigDecimal.valueOf(100d)).stripTrailingZeros().toPlainString() + "%");
+                ", " + (getGradeFactor() == null || BigDecimal.ZERO.compareTo(getGradeFactor()) == 0 ? getAggregator()
+                        .getCurricularCourse().getDegree().getQualitativeGradeScale().getName()
+                        .getContent() : getGradeFactor().multiply(BigDecimal.valueOf(100d)).stripTrailingZeros().toPlainString()
+                                + "%");
 
         final GradeScale gradeScale = getGradeScale();
         String gradeScaleDescription = " " + gradeScale.getName().getContent();
