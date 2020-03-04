@@ -155,7 +155,7 @@ public class OriginInformationFormController extends FormAbstractController {
         form.setDistrictWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrict());
         form.setDistrictSubdivisionWhereFinishedPreviousCompleteDegree(precedentDegreeInformation.getDistrictSubdivision());
 
-        form.setHighSchoolType(precedentDegreeInformation.getPersonalIngressionData().getHighSchoolType());
+        form.setHighSchoolType(precedentDegreeInformation.getInstitutionType());
 
         return form;
     }
@@ -360,7 +360,7 @@ public class OriginInformationFormController extends FormAbstractController {
     protected void writeData(final Registration registration, final OriginInformationForm form) {
         final PrecedentDegreeInformation precedentDegreeInformation =
                 registration.getStudentCandidacy().getPrecedentDegreeInformation();
-        final PersonalIngressionData personalData = precedentDegreeInformation.getPersonalIngressionData();
+//        final PersonalIngressionData personalData = precedentDegreeInformation.getPersonalIngressionData();
 
         precedentDegreeInformation.setConclusionGrade(form.getConclusionGrade());
         precedentDegreeInformation.setDegreeDesignation(form.getDegreeDesignation());
@@ -416,7 +416,8 @@ public class OriginInformationFormController extends FormAbstractController {
             precedentDegreeInformation.setCountryHighSchool(form.getCountryWhereFinishedPreviousCompleteDegree());
         }
 
-        personalData.setHighSchoolType(form.getHighSchoolType());
+        precedentDegreeInformation.setInstitutionType(form.getHighSchoolType());
+//        personalData.setHighSchoolType(form.getHighSchoolType());
     }
 
     public static String resolveAcronym(final String acronym, final String name) {

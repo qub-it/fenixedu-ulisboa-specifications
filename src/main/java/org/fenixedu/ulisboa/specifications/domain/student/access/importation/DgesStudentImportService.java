@@ -400,8 +400,10 @@ public class DgesStudentImportService {
 
         final PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation() != null ? studentCandidacy
                 .getPrecedentDegreeInformation() : new PrecedentDegreeInformation();
-        pdi.setPersonalIngressionData(findOrCreatePersonalIngressionData(registration));
+//        pdi.setPersonalIngressionData(findOrCreatePersonalIngressionData(registration));
         pdi.setRegistration(registration);
+        
+        findOrCreatePersonalIngressionData(registration);
 
         markRegistrationAsInactive(registration);
 

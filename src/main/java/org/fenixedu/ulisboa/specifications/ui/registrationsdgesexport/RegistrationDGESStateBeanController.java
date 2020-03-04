@@ -995,9 +995,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
 
             precedentConclusionGrade = information.getConclusionGrade();
             precedentConclusionYear = "" + information.getConclusionYear();
-            if (information.getPersonalIngressionData() != null
-                    && information.getPersonalIngressionData().getHighSchoolType() != null) {
-                AcademicalInstitutionType highSchoolType = information.getPersonalIngressionData().getHighSchoolType();
+            if (information.getInstitutionType() != null) {
+                AcademicalInstitutionType highSchoolType = information.getInstitutionType();
                 precedentHighSchoolType = BundleUtil.getString(BUNDLE, highSchoolType.getName());
             }
         }

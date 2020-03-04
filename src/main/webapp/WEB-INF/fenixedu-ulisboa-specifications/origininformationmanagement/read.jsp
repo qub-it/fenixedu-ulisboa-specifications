@@ -167,8 +167,8 @@ ${portal.toolkit()}
 							<spring:message code="label.OriginInformationForm.highSchoolType" />
 						</th>
 						<td>
-							<c:if test="${not empty registration.studentCandidacy.precedentDegreeInformation.personalIngressionData.highSchoolType}">
-								<spring:message code="label.AcademicalInstitutionType.${registration.studentCandidacy.precedentDegreeInformation.personalIngressionData.highSchoolType}" />
+							<c:if test="${not empty registration.studentCandidacy.precedentDegreeInformation.institutionType}">
+								<spring:message code="label.AcademicalInstitutionType.${registration.studentCandidacy.precedentDegreeInformation.institutionType}" />
 							</c:if>
 						</td>
 					</tr>

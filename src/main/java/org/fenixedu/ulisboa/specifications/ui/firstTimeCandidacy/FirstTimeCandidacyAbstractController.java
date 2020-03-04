@@ -58,37 +58,38 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         if (!create) {
             return null;
         }
+        
+        return new PersonalIngressionData(student, executionYear);
 
-        // Create personal ingression data with one precedentDegreeInformation from candidacy if possible
-        final Set<PrecedentDegreeInformation> pdiSetFromCandidacy = Sets.newHashSet();
-        final Set<StudentCandidacy> candidacies = student.getPerson().getCandidaciesSet().stream()
-                .filter(c -> c instanceof StudentCandidacy).map(StudentCandidacy.class::cast).collect(Collectors.toSet());
-        for (final StudentCandidacy candidacy : candidacies) {
-            final CandidacySituationType candidacyState = candidacy.getState();
-            if (candidacyState == null || !candidacyState.isActive()) {
-                continue;
-            }
-
-            if (candidacy.getExecutionYear() != executionYear) {
-                continue;
-            }
-
-            pdiSetFromCandidacy.add(candidacy.getPrecedentDegreeInformation());
-        }
-
-        if (!pdiSetFromCandidacy.isEmpty()) {
-            return new PersonalIngressionData(student, executionYear, pdiSetFromCandidacy.iterator().next());
-        }
-
-        if (!student.getRegistrationsSet().isEmpty()) {
-            final PrecedentDegreeInformation pid = new PrecedentDegreeInformation();
-            pid.setRegistration(student.getRegistrationsSet().iterator().next());
-
-            return new PersonalIngressionData(student, executionYear, pid);
-        }
-
-        // Cannot create personal ingression data
-        return null;
+//        // Create personal ingression data with one precedentDegreeInformation from candidacy if possible
+//        final Set<PrecedentDegreeInformation> pdiSetFromCandidacy = Sets.newHashSet();
+//        final Set<StudentCandidacy> candidacies = student.getPerson().getCandidaciesSet();
+//        for (final StudentCandidacy candidacy : candidacies) {
+//            final CandidacySituationType candidacyState = candidacy.getState();
+//            if (candidacyState == null || !candidacyState.isActive()) {
+//                continue;
+//            }
+//
+//            if (candidacy.getExecutionYear() != executionYear) {
+//                continue;
+//            }
+//
+//            pdiSetFromCandidacy.add(candidacy.getPrecedentDegreeInformation());
+//        }
+//
+//        if (!pdiSetFromCandidacy.isEmpty()) {
+//            return new PersonalIngressionData(student, executionYear /*, pdiSetFromCandidacy.iterator().next()*/);
+//        }
+//
+//        if (!student.getRegistrationsSet().isEmpty()) {
+////            final PrecedentDegreeInformation pid = new PrecedentDegreeInformation();
+////            pid.setRegistration(student.getRegistrationsSet().iterator().next());
+//
+//            return new PersonalIngressionData(student, executionYear /*, pid*/);
+//        }
+//
+//        // Cannot create personal ingression data
+//        return null;
     }
 
     protected List<PrecedentDegreeInformation> findCompletePrecedentDegreeInformationsToFill(final ExecutionYear executionYear,
