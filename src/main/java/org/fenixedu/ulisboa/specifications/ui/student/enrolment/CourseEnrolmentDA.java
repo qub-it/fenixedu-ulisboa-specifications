@@ -84,15 +84,6 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
         return CurricularRuleLevel.ENROLMENT_WITH_RULES; // student use case
     }
 
-    /**
-     * @deprecated All implementations return null
-     */
-    @Deprecated
-    @Override
-    protected int[] getCurricularYearForCurricularCourses() {
-        return null; // all years
-    }
-
     @Override
     protected String getAction() {
         return ACTION.replace(MAPPING_MODULE, "");

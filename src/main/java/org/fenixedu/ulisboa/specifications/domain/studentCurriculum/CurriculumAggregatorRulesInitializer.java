@@ -94,7 +94,8 @@ abstract public class CurriculumAggregatorRulesInitializer {
 
         for (final Context iter : courseGroup.getChildContexts(CurricularCourse.class)) {
 
-            if (enrolmentContext.isToEvaluateRulesByYear() ? !iter.isValid(year) : !iter.isValid(interval)) {
+            if (enrolmentContext
+                    .isToEvaluateRulesByYear() ? !iter.isValidForExecutionAggregation(year) : !iter.isValid(interval)) {
                 continue;
             }
 
