@@ -398,10 +398,10 @@ public class DgesStudentImportService {
                 studentCandidacy, ULisboaSpecificationsRoot.getInstance().getDefaultRegistrationProtocol(), CycleType.FIRST_CYCLE,
                 executionYear);
 
-        final PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation() != null ? studentCandidacy
-                .getPrecedentDegreeInformation() : new PrecedentDegreeInformation();
+//        final PrecedentDegreeInformation pdi = studentCandidacy.getPrecedentDegreeInformation() != null ? studentCandidacy
+//                .getPrecedentDegreeInformation() : new PrecedentDegreeInformation();
 //        pdi.setPersonalIngressionData(findOrCreatePersonalIngressionData(registration));
-        pdi.setRegistration(registration);
+//        pdi.setRegistration(registration);
         
         findOrCreatePersonalIngressionData(registration);
 
