@@ -93,7 +93,9 @@ public class CurriculumAggregatorMarkSheetServices {
     private static BiPredicate<GradeScaleValidator, CompetenceCourseMarkSheet> getAggregationGradeValidator() {
 
         return (validator, markSheet) -> {
-            if (hasCurriculumAggregationData(markSheet)) {
+            //TODO: Ugly hack to check non-root
+            final boolean isCurriculumAggregatorChildCandidate = markSheet.getCompetenceCourse().getEctsCredits() == 0.0;
+            if (isCurriculumAggregatorChildCandidate && hasCurriculumAggregationData(markSheet)) {
 
                 if (!validator.getAppliesToCurriculumAggregatorEntry()) {
                     return false;
@@ -179,7 +181,7 @@ public class CurriculumAggregatorMarkSheetServices {
 
             // try to find aggregation context for each associated curricular course
             final Set<Context> contexts = markSheet.getExecutionCourse().getAssociatedCurricularCoursesSet().stream()
-                    .filter(c -> !c.getEnrolmentsByExecutionPeriod(markSheet.getExecutionSemester()).isEmpty())
+//                    .filter(c -> !c.getEnrolmentsByExecutionPeriod(markSheet.getExecutionSemester()).isEmpty())
                     .map(i -> CurriculumAggregatorServices.getContext(i, markSheet.getExecutionSemester(), (CourseGroup) null))
                     .filter(i -> i != null).collect(Collectors.toSet());
 
