@@ -1,3 +1,5 @@
+- New feature: Support for Java 11
+
 6.8.1 (10-03-2020)
 - Fix: Root aggregators should not use grade scale validators for curriculum aggregator entry
 - Fix: Allow improvement evaluations of curriculum aggregator childs
