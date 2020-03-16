@@ -1350,3 +1350,12 @@ relation CourseGroupDegreeInfoCourseGroup {
         multiplicity 0..1;
     }
 }
+
+// ========================= Migration classes ==============================
+
+package org.fenixedu.learning.domain;
+
+class executionCourse.ExecutionCourseSite extends .org.fenixedu.cms.domain.Site {}
+class degree.DegreeSite extends .org.fenixedu.cms.domain.Site {}
+
+
