@@ -96,8 +96,8 @@ public class OriginInformationFormControllerBlueRecord extends OriginInformation
 
     @Override
     protected Registration getRegistration(final ExecutionYear executionYear, final Model model) {
-        return findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0).getStudentCandidacy()
-                .getRegistration();
+        return findCompletePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0)
+                .getCompletedStudentCandidacy().getRegistration();
     }
 
     @Override

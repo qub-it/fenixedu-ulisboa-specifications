@@ -96,8 +96,8 @@ public class PreviousDegreeOriginInformationFormControllerBlueRecord extends Pre
 
     @Override
     protected Registration getRegistration(final ExecutionYear executionYear, final Model model) {
-        return findPreviousDegreePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0).getStudentCandidacy()
-                .getRegistration();
+        return findPreviousDegreePrecedentDegreeInformationsToFill(executionYear, getStudent(model)).get(0)
+                .getPreviousStudentCandidacy().getRegistration();
     }
 
     @Override

@@ -99,27 +99,27 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
         final PreviousDegreeInformationForm form = new PreviousDegreeInformationForm();
 
         final PrecedentDegreeInformation precedentDegreeInformation =
-                registration.getStudentCandidacy().getPrecedentDegreeInformation();
+                registration.getStudentCandidacy().getPreviousDegreeInformation();
 
-        form.setPrecedentSchoolLevel(precedentDegreeInformation.getPrecedentSchoolLevel());
+        form.setPrecedentSchoolLevel(precedentDegreeInformation.getSchoolLevel());
         if (form.getPrecedentSchoolLevel() == SchoolLevelType.OTHER) {
-            form.setOtherPrecedentSchoolLevel(precedentDegreeInformation.getOtherPrecedentSchoolLevel());
+            form.setOtherPrecedentSchoolLevel(precedentDegreeInformation.getOtherSchoolLevel());
         }
 
-        Unit institution = precedentDegreeInformation.getPrecedentInstitution();
+        Unit institution = precedentDegreeInformation.getInstitution();
         if (institution != null) {
             form.setPrecedentInstitutionOid(institution.getExternalId());
             form.setPrecedentInstitutionName(institution.getName());
         }
 
-        String precedentDegreeDesignationName = precedentDegreeInformation.getPrecedentDegreeDesignation();
-        if (form.getPrecedentSchoolLevel() != null && precedentDegreeInformation.getPrecedentCountry() != null
-                && precedentDegreeInformation.getPrecedentCountry().isDefaultCountry()
+        String precedentDegreeDesignationName = precedentDegreeInformation.getDegreeDesignation();
+        if (form.getPrecedentSchoolLevel() != null && precedentDegreeInformation.getCountry() != null
+                && precedentDegreeInformation.getCountry().isDefaultCountry()
                 && form.getPrecedentSchoolLevel().isHigherEducation()) {
             DegreeDesignation precedentDegreeDesignation;
             if (institution != null) {
-                Predicate<DegreeDesignation> matchesName = dd -> precedentDegreeInformation.getPrecedentSchoolLevel() != null
-                        && precedentDegreeInformation.getPrecedentSchoolLevel().getEquivalentDegreeClassifications()
+                Predicate<DegreeDesignation> matchesName = dd -> precedentDegreeInformation.getSchoolLevel() != null
+                        && precedentDegreeInformation.getSchoolLevel().getEquivalentDegreeClassifications()
                                 .contains(dd.getDegreeClassification().getCode())
                         && StringNormalizer.normalize(dd.getDescription())
                                 .equals(StringNormalizer.normalize(precedentDegreeDesignationName));
@@ -135,7 +135,7 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
             form.setPrecedentDegreeDesignation(precedentDegreeDesignationName);
         }
 
-        form.setPrecedentCountry(precedentDegreeInformation.getPrecedentCountry());
+        form.setPrecedentCountry(precedentDegreeInformation.getCountry());
         if (form.getPrecedentCountry() == null) {
             form.setPrecedentCountry(Country.readDefault());
         }
@@ -280,12 +280,12 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
     @Atomic
     protected void writeData(final Registration registration, final PreviousDegreeInformationForm form) {
         final PrecedentDegreeInformation precedentDegreeInformation =
-                registration.getStudentCandidacy().getPrecedentDegreeInformation();
+                registration.getStudentCandidacy().getPreviousDegreeInformation();
 
-        precedentDegreeInformation.setPrecedentDegreeDesignation(form.getPrecedentDegreeDesignation());
-        precedentDegreeInformation.setPrecedentSchoolLevel(form.getPrecedentSchoolLevel());
+        precedentDegreeInformation.setDegreeDesignation(form.getPrecedentDegreeDesignation());
+        precedentDegreeInformation.setSchoolLevel(form.getPrecedentSchoolLevel());
         if (form.getPrecedentSchoolLevel() == SchoolLevelType.OTHER) {
-            precedentDegreeInformation.setOtherPrecedentSchoolLevel(form.getOtherPrecedentSchoolLevel());
+            precedentDegreeInformation.setOtherSchoolLevel(form.getOtherPrecedentSchoolLevel());
         }
 
         String institution = form.getPrecedentInstitutionOid();
@@ -302,9 +302,9 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
                         null, null, null, null);
             }
         }
-        precedentDegreeInformation.setPrecedentInstitution((Unit) institutionObject);
+        precedentDegreeInformation.setInstitution((Unit) institutionObject);
 
-        precedentDegreeInformation.setPrecedentCountry(form.getPrecedentCountry());
+        precedentDegreeInformation.setCountry(form.getPrecedentCountry());
         precedentDegreeInformation.setNumberOfEnrolmentsInPreviousDegrees(form.getNumberOfEnrolmentsInPreviousDegrees());
 
     }

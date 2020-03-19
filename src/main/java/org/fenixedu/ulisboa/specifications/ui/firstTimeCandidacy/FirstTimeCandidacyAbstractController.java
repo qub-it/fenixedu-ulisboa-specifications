@@ -100,7 +100,7 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
         final List<PrecedentDegreeInformation> result = Lists.newArrayList();
         for (final Registration registration : activeRegistrationsWithEnrolments) {
             if (IngressionServices.isCompletePrecedentDegreeInformationMissing(registration)) {
-                result.add(registration.getStudentCandidacy().getPrecedentDegreeInformation());
+                result.add(registration.getStudentCandidacy().getCompletedDegreeInformation());
             }
         }
 
@@ -115,7 +115,7 @@ public abstract class FirstTimeCandidacyAbstractController extends FenixeduUlisb
 
         for (final Registration registration : activeRegistrationsWithEnrolments) {
             if (IngressionServices.isUnfinishedSourceDegreeInformationMissing(registration)) {
-                result.add(registration.getStudentCandidacy().getPrecedentDegreeInformation());
+                result.add(registration.getStudentCandidacy().getPreviousDegreeInformation());
             }
         }
 

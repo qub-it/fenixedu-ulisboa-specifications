@@ -965,8 +965,8 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         String precedentConclusionGrade = "";
         String precedentConclusionYear = "";
         String precedentHighSchoolType = "";
-        if (studentCandidacy.getPrecedentDegreeInformation() != null) {
-            PrecedentDegreeInformation information = studentCandidacy.getPrecedentDegreeInformation();
+        if (studentCandidacy.getCompletedDegreeInformation() != null) {
+            PrecedentDegreeInformation information = studentCandidacy.getCompletedDegreeInformation();
             if (information.getCountry() != null) {
                 precedentCountry = information.getCountry().getLocalizedName().getContent();
             }

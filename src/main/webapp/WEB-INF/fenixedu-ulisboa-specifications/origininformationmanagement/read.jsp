@@ -84,7 +84,7 @@ ${portal.toolkit()}
 							<spring:message code="label.OriginInformationForm.countryWhereFinishedPreviousCompleteDegree" />
 						</th>
 						<td>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.country.localizedName.content}' />
+							<c:out value='${registration.studentCandidacy.completedDegreeInformation.country.localizedName.content}' />
 						</td>
 					</tr>
 
@@ -93,17 +93,17 @@ ${portal.toolkit()}
 							<spring:message code="label.OriginInformationForm.schoolLevel" />
 						</th>
 						<td>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.schoolLevel.localizedName}' />
+							<c:out value='${registration.studentCandidacy.completedDegreeInformation.schoolLevel.localizedName}' />
 						</td>
 					</tr>
 					
-					<c:if test='${registration.studentCandidacy.precedentDegreeInformation.schoolLevel.name == "OTHER"}'>
+					<c:if test='${registration.studentCandidacy.completedDegreeInformation.schoolLevel.name == "OTHER"}'>
 					<tr>
 						<th scope="row" class="col-xs-3">
 							<spring:message code="label.OriginInformationForm.otherSchoolLevel" />
 						</th>
 						<td>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.otherSchoolLevel}' />
+							<c:out value='${registration.studentCandidacy.completedDegreeInformation.otherSchoolLevel}' />
 						</td>
 					</tr>
 					</c:if>
@@ -113,11 +113,11 @@ ${portal.toolkit()}
 							<spring:message code="label.OriginInformationForm.institution" />
 						</th>
 						<td>
-							<c:if test="${not empty registration.studentCandidacy.precedentDegreeInformation.institution.code}">
-								[<c:out value='${registration.studentCandidacy.precedentDegreeInformation.institution.code}' />]
+							<c:if test="${not empty registration.studentCandidacy.completedDegreeInformation.institution.code}">
+								[<c:out value='${registration.studentCandidacy.completedDegreeInformation.institution.code}' />]
 								-
 							</c:if>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.institution.nameI18n.content}' />
+							<c:out value='${registration.studentCandidacy.completedDegreeInformation.institution.nameI18n.content}' />
 						</td>
 					</tr>
 
@@ -143,11 +143,11 @@ ${portal.toolkit()}
 							<spring:message code="label.OriginInformationForm.conclusionYear" />
 						</th>
 						<td>
-                            <c:if test="${ registration.studentCandidacy.precedentDegreeInformation.conclusionYear == '0' }">
+                            <c:if test="${ registration.studentCandidacy.completedDegreeInformation.conclusionYear == '0' }">
                                 <c:out value='0000' />
                             </c:if>
-                            <c:if test="${ registration.studentCandidacy.precedentDegreeInformation.conclusionYear != '0' }">
-    							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.conclusionYear}' />
+                            <c:if test="${ registration.studentCandidacy.completedDegreeInformation.conclusionYear != '0' }">
+    							<c:out value='${registration.studentCandidacy.completedDegreeInformation.conclusionYear}' />
                             </c:if>
 						</td>
 					</tr>
@@ -157,18 +157,18 @@ ${portal.toolkit()}
 							<spring:message code="label.OriginInformationForm.conclusionGrade" />
 						</th>
 						<td>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.conclusionGrade}' />
+							<c:out value='${registration.studentCandidacy.completedDegreeInformation.conclusionGrade}' />
 						</td>
 					</tr>
 					
-					<c:if test='${registration.studentCandidacy.precedentDegreeInformation.schoolLevel.name == "HIGH_SCHOOL_OR_EQUIVALENT"}'>
+					<c:if test='${registration.studentCandidacy.completedDegreeInformation.schoolLevel.name == "HIGH_SCHOOL_OR_EQUIVALENT"}'>
 					<tr>
 						<th scope="row" class="col-xs-3">
 							<spring:message code="label.OriginInformationForm.highSchoolType" />
 						</th>
 						<td>
-							<c:if test="${not empty registration.studentCandidacy.precedentDegreeInformation.institutionType}">
-								<spring:message code="label.AcademicalInstitutionType.${registration.studentCandidacy.precedentDegreeInformation.institutionType}" />
+							<c:if test="${not empty registration.studentCandidacy.completedDegreeInformation.institutionType}">
+								<spring:message code="label.AcademicalInstitutionType.${registration.studentCandidacy.completedDegreeInformation.institutionType}" />
 							</c:if>
 						</td>
 					</tr>

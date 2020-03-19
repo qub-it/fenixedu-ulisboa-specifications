@@ -85,7 +85,7 @@ ${portal.toolkit()}
 							<spring:message code="label.PreviousDegreeInformationForm.precedentCountry" />
 						</th>
 						<td>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.precedentCountry.localizedName}' />
+							<c:out value='${registration.studentCandidacy.previousDegreeInformation.country.localizedName}' />
 						</td>
 					</tr>
 
@@ -94,17 +94,17 @@ ${portal.toolkit()}
 							<spring:message code="label.PreviousDegreeInformationForm.precedentSchoolLevel" />
 						</th>
 						<td>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.precedentSchoolLevel.localizedName}' />
+							<c:out value='${registration.studentCandidacy.previousDegreeInformation.schoolLevel.localizedName}' />
 						</td>
 					</tr>
 					
-					<c:if test='${registration.studentCandidacy.precedentDegreeInformation.precedentSchoolLevel.name == "OTHER"}'>
+					<c:if test='${registration.studentCandidacy.previousDegreeInformation.schoolLevel.name == "OTHER"}'>
 					<tr>
 						<th scope="row" class="col-xs-3">
 							<spring:message code="label.PreviousDegreeInformationForm.otherPrecedentSchoolLevel" />
 						</th>
 						<td>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.otherPrecedentSchoolLevel}' />
+							<c:out value='${registration.studentCandidacy.previousDegreeInformation.otherSchoolLevel}' />
 						</td>
 					</tr>
 					</c:if>
@@ -114,11 +114,11 @@ ${portal.toolkit()}
 							<spring:message code="label.PreviousDegreeInformationForm.precedentInstitution" />
 						</th>
 						<td>
-							<c:if test="${not empty registration.studentCandidacy.precedentDegreeInformation.precedentInstitution.code}">
-								[<c:out value='${registration.studentCandidacy.precedentDegreeInformation.precedentInstitution.code}' />]
+							<c:if test="${not empty registration.studentCandidacy.previousDegreeInformation.institution.code}">
+								[<c:out value='${registration.studentCandidacy.previousDegreeInformation.institution.code}' />]
 								-
 							</c:if>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.precedentInstitution.nameI18n.content}' />
+							<c:out value='${registration.studentCandidacy.previousDegreeInformation.institution.nameI18n.content}' />
 						</td>
 					</tr>
 
@@ -144,7 +144,7 @@ ${portal.toolkit()}
 							<spring:message code="label.PreviousDegreeInformationForm.numberOfEnrolmentsInPreviousDegrees" />
 						</th>
 						<td>
-							<c:out value='${registration.studentCandidacy.precedentDegreeInformation.numberOfEnrolmentsInPreviousDegrees}' />
+							<c:out value='${registration.studentCandidacy.previousDegreeInformation.numberOfEnrolmentsInPreviousDegrees}' />
 						</td>
 					</tr>
 					

@@ -106,7 +106,7 @@ public class OriginInformationFormController extends FormAbstractController {
         form.setDistrictAndSubdivisionRequired(isDistrictAndSubdivisionRequired());
 
         final PrecedentDegreeInformation precedentDegreeInformation =
-                registration.getStudentCandidacy().getPrecedentDegreeInformation();
+                registration.getStudentCandidacy().getCompletedDegreeInformation();
 
         form.setSchoolLevel(precedentDegreeInformation.getSchoolLevel());
         if (form.getSchoolLevel() == SchoolLevelType.OTHER) {
@@ -359,7 +359,7 @@ public class OriginInformationFormController extends FormAbstractController {
     @Atomic
     protected void writeData(final Registration registration, final OriginInformationForm form) {
         final PrecedentDegreeInformation precedentDegreeInformation =
-                registration.getStudentCandidacy().getPrecedentDegreeInformation();
+                registration.getStudentCandidacy().getCompletedDegreeInformation();
 //        final PersonalIngressionData personalData = precedentDegreeInformation.getPersonalIngressionData();
 
         precedentDegreeInformation.setConclusionGrade(form.getConclusionGrade());

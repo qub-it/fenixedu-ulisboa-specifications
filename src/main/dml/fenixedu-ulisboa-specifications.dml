@@ -265,16 +265,6 @@ relation PersonUlUniversityChoiceMotivationAnswer {
 	}
 }
 
-relation PrecedentDegreeInformationDistrict{
-	.org.fenixedu.academic.domain.student.PrecedentDegreeInformation playsRole precedentDegreeInformation;
-	.org.fenixedu.academic.domain.District playsRole district;
-}
-
-relation PrecedentDegreeInformationDistrictSubdivision{
-	.org.fenixedu.academic.domain.student.PrecedentDegreeInformation playsRole precedentDegreeInformation;
-	.org.fenixedu.academic.domain.DistrictSubdivision playsRole districtSubdivision;
-}
-
 class PersonUlisboaSpecificationsByExecutionYear {
     Boolean remuneratedActivityInPast;
     String remuneratedActivityInPastDescription;
