@@ -269,61 +269,6 @@ function openDeletionModal (url, oids) {
 
 <div class="panel panel-default">
 	<div class="panel-heading">
-		<h3 class="panel-title"><spring:message code="label.gradingTables.instituionTable" /></h3>
-	</div>
-	<div class="panel-body">
-		<div class="row">
-			<div class="col-xs-2">
-				<a id="instituionTableGenButton" class="btn btn-primary" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.CREATE_INSTITUTIONAL_URL%>${selectedYear.externalId}/${sectoken}"><spring:message code='label.gradingTables.generateTable'/></a>
-			</div>
-		</div>
-		<div class="row ects-row">
-			<div class="col-xs-12">
-				<c:choose>
-				    <c:when test="${institutionGradeTable != null}">
-						<table id="institutionGradeTable" class="table responsive table-bordered table-hover">
-							<thead>
-								<tr>
-									<th><!-- School Name  --></th>
-									<th><spring:message code='label.gradingTables.copied'/></th>
-									<c:forEach var="conversion" items="${institutionGradeTable.data.table}" varStatus="loop">
-										<th><c:out value='${conversion.mark}'/></th>
-									</c:forEach>
-						            <th><!-- Row actions  --></th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<td><%= Unit.getInstitutionName().getContent() %></td>
-									<td><c:if test="${institutionGradeTable.copied}"><spring:message code="label.true" /></c:if><c:if test="${not institutionGradeTable.copied}"><spring:message code="label.false" /></c:if></td>
-									<c:forEach var="conversion" items="${institutionGradeTable.data.table}" varStatus="loop">
-										<td><c:out value='${conversion.ectsGrade}'/></td>
-									</c:forEach>
-									<td>
-										<a class="btn btn-danger btn-xs" href="${pageContext.request.contextPath}<%= EctsGradingTableBackofficeController.DELETE_TABLES_URL%>${selectedYear.externalId}/${institutionGradeTable.externalId}/${sectoken}"><spring:message code='label.gradingTables.delete'/></a>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</c:when>
-				    <c:otherwise>
-				        <div class="alert alert-warning" role="alert">
-				            <p>
-				                <span class="glyphicon glyphicon-exclamation-sign"
-				                    aria-hidden="true">&nbsp;</span>
-				                <spring:message code="label.noResultsFound" />
-				            </p>
-				        </div>
-				    </c:otherwise>
-				</c:choose>
-			</div>
-		</div>
-	</div>
-</div>
-
-
-<div class="panel panel-default">
-	<div class="panel-heading">
 		<h3 class="panel-title"><spring:message code="label.gradingTables.degreeTables" /></h3>
 	</div>
 	<div class="panel-body">

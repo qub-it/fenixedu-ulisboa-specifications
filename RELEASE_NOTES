@@ -1,3 +1,5 @@
+- Improvement: Remove ECTS Institution Grading Tables information from view
+
 6.10.0 (19-03-2020)
 - Refactor: Upgraded dependency of fenixedu-academic-core (PrecedentDegreeInformation split into 'completed' and 'previous')
 
