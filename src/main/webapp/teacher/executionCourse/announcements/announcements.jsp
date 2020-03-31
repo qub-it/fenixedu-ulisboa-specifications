@@ -172,7 +172,7 @@
                             <spring:message code="label.announcement.content" />
                         </label>
 
-                        <input bennu-localized-string bennu-html-editor toolbar="size,style,lists,align,links,table,undo,fullscreen,source" required-any name="body" id="body"
+                        <input bennu-localized-string bennu-html-editor toolbar="size,style,lists,align,colors,links,table,image,components,undo,fullscreen,source" required-any name="body" id="body"
                                    placeholder="<spring:message code="label.announcement.content" />">
                     </div>
                     <div class="form-group">
@@ -283,7 +283,7 @@ ${portal.toolkit()}
     }
     $("[data-post-slug]").map(function(i,e){
         e = $(e);
-        
+
         e.data("fileHandler", function(f,cb){
             submitFiles(f,cb,e.data("post-slug"));
         });
