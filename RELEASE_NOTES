@@ -1,3 +1,5 @@
+- Bug fix: Announcements menu is now consistent in Create/Edit
+
 6.10.1 (28-03-2020)
 - Improvement: Remove ECTS Institution Grading Tables information from view
 
@@ -57,7 +59,6 @@
 6.3.1 (29-11-2019)
 - Fix: Degree types on optional curricular course enrolment should only be restricted if they are defined on curricular rule
  
-
 6.3.0 (23-11-2019)
 - Refactor: Upgraded dependency of fenixedu-academic-core
 
@@ -179,7 +180,6 @@
 2.16.0 (16-05-2019)
 - Improvement: AverageEntry API cleanup  
 - Bug Fix: Collecting target curriculum lines for ICurriculumEntry requires curricular plan because this information is specific to calculated curriculum / curricular plan
-
 
 2.15.0 (11-05-2019)
 - Improvement: added accepted values implementation to qualitative grades
