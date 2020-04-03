@@ -172,7 +172,7 @@
                             <spring:message code="label.announcement.content" />
                         </label>
 
-                        <input bennu-localized-string bennu-html-editor toolbar="size,style,lists,align,colors,links,table,image,components,undo,fullscreen,source" required-any name="body" id="body"
+                        <input bennu-localized-string bennu-html-editor toolbar="size,style,colors,align,lists,links,table,image,media,undo,fullscreen,source" required-any name="body" id="body"
                                    placeholder="<spring:message code="label.announcement.content" />">
                     </div>
                     <div class="form-group">

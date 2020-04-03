@@ -59,7 +59,7 @@
                                 </div>
 
                                 <textarea bennu-localized-html-editor="selected.body" on-image-added="onImageAdded"
-                                          id="body" toolbar="size,style,colors,lists,align,links,table,image,undo,fullscreen,source" class="form-control"></textarea>
+                                          id="body" toolbar="size,style,colors,align,lists,links,table,image,media,undo,fullscreen,source" class="form-control"></textarea>
 
                                 <div>
                                     <div class="pull-left">
