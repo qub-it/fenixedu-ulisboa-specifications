@@ -71,7 +71,6 @@ external class .org.fenixedu.academic.domain.DegreeCurricularPlan;
 external class .org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 external class .org.fenixedu.academic.domain.Degree;
 external class .org.fenixedu.academic.domain.Country;
-external class .org.fenixedu.academic.domain.organizationalStructure.CountryUnit;
 
 class UsernameSequenceGenerator {
 	String prefix;
@@ -1342,6 +1341,24 @@ relation CourseGroupDegreeInfoCourseGroup {
 }
 
 // ========================= Migration classes ==============================
+
+package org.fenixedu.academic.domain;
+
+class organizationalStructure.AdministrativeOfficeUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.AggregateUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.CompetenceCourseGroupUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.CountryUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.DegreeUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.DepartmentUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.PedagogicalCouncilUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.PlanetUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.ManagementCouncilUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.ScientificAreaUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.ScientificCouncilUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.SectionUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.SchoolUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+class organizationalStructure.UniversityUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
+            
 
 package org.fenixedu.learning.domain;
 
