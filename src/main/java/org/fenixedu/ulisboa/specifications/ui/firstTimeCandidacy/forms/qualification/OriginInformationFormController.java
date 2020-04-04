@@ -18,7 +18,6 @@ import org.fenixedu.academic.domain.organizationalStructure.AccountabilityTypeEn
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
 import org.fenixedu.academic.domain.raides.DegreeDesignation;
-import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
@@ -35,7 +34,6 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.household
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.ProfessionalInformationFormController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
-import org.joda.time.YearMonthDay;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -379,10 +377,10 @@ public class OriginInformationFormController extends FormAbstractController {
                     Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
                     Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
                     Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
-                    institution = Unit.createNewUnit(new LocalizedString(I18N.getLocale(), form.getInstitutionName()), null, null,
-                            resolveAcronym(null, form.getInstitutionName()), new YearMonthDay(), null, adhocHighschools,
-                            AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null,
-                            null, null);
+                    institution =
+                            Unit.createNewUnit(Optional.empty(), new LocalizedString(I18N.getLocale(), form.getInstitutionName()),
+                                    resolveAcronym(null, form.getInstitutionName()), adhocHighschools,
+                                    AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE));
                 }
             }
 
@@ -393,10 +391,10 @@ public class OriginInformationFormController extends FormAbstractController {
                 Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
                 Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
                 Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
-                institution = Unit.createNewUnit(new LocalizedString(I18N.getLocale(), form.getInstitutionName()), null, null,
-                        resolveAcronym(null, form.getInstitutionName()), new YearMonthDay(), null, adhocHighschools,
-                        AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null, null, null, null,
-                        null);
+                institution =
+                        Unit.createNewUnit(Optional.empty(), new LocalizedString(I18N.getLocale(), form.getInstitutionName()),
+                                resolveAcronym(null, form.getInstitutionName()), adhocHighschools,
+                                AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE));
             }
 
             precedentDegreeInformation.setInstitution(institution);

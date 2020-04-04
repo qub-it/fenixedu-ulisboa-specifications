@@ -3,6 +3,7 @@ package org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.qualific
 import static org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE;
 import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController.FIRST_TIME_START_URL;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 
@@ -30,7 +31,6 @@ import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.Candidanc
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.FormAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.householdinfo.HouseholdInformationUlisboaFormController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
-import org.joda.time.YearMonthDay;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -296,10 +296,9 @@ public class PreviousDegreeOriginInformationFormController extends FormAbstractC
                 Unit externalInstitutionUnit = Bennu.getInstance().getExternalInstitutionUnit();
                 Unit highschools = externalInstitutionUnit.getChildUnitByAcronym("highschools");
                 Unit adhocHighschools = highschools.getChildUnitByAcronym("adhoc-highschools");
-                institutionObject = Unit.createNewUnit(new LocalizedString(I18N.getLocale(), institution), null, null,
-                        OriginInformationFormController.resolveAcronym(null, institution), new YearMonthDay(), null,
-                        adhocHighschools, AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE), null,
-                        null, null, null, null);
+                institutionObject = Unit.createNewUnit(Optional.empty(), new LocalizedString(I18N.getLocale(), institution),
+                        OriginInformationFormController.resolveAcronym(null, institution), adhocHighschools,
+                        AccountabilityType.readByType(AccountabilityTypeEnum.ORGANIZATIONAL_STRUCTURE));
             }
         }
         precedentDegreeInformation.setInstitution((Unit) institutionObject);
