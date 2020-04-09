@@ -62,12 +62,17 @@
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-extensions</artifactId>
-			<version>4.6.0</version>
+			<version>4.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
-			<artifactId>fenixedu-academic-treasury</artifactId>
-			<version>4.5.0</version>
+			<artifactId>fenixedu-academic-treasury-base</artifactId>
+			<version>5.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.fenixedu</groupId>
+			<artifactId>fenixedu-academic-treasury-ui</artifactId>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
