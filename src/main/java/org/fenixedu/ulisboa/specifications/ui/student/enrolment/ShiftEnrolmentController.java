@@ -268,7 +268,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
         final JsonArray result = new JsonArray();
         for (final Shift shift : shifts) {
-            if (shift.getLotacao().intValue() > shift.getStudentsSet().size()) {
+            if (shift.getVacancies() > 0) {
                 JsonObject jsonShift = new JsonObject();
                 jsonShift.addProperty("name", shift.getNome());
                 jsonShift.addProperty("type", shift.getShiftTypesPrettyPrint());
@@ -282,7 +282,8 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
     }
 
     public static PossibleShiftsToEnrolProvider getPossibleShiftsToEnrolDefaultProvider() {
-        return (ExecutionCourse ec, ShiftType st, Registration r) -> ec.getShiftsByTypeOrderedByShiftName(st);
+        return (ExecutionCourse ec, ShiftType st, Registration r) -> Shift.findPossibleShiftsToEnrol(r, ec, st)
+                .map(sc -> sc.getShift()).sorted(Shift.SHIFT_COMPARATOR_BY_NAME).collect(Collectors.toList());
     }
 
     public static void setPossibleShiftsToEnrolProvider(PossibleShiftsToEnrolProvider possibleShiftsToEnrolProvider) {
@@ -317,7 +318,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
     @Atomic
     protected void addShiftService(Registration registration, Shift shift) {
-        if (!shift.reserveForStudent(registration)) {
+        if (!shift.enrol(registration)) {
             throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(), shift.getShiftTypesPrettyPrint(),
                     shift.getExecutionCourse().getName());
         }
@@ -346,7 +347,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
     @Atomic
     private void removeShiftService(Registration registration, Shift shift) {
-        registration.removeShifts(shift);
+        shift.unenrol(registration);
     }
 
     @RequestMapping(value = "currentSchedule.json/{registrationOid}/{executionSemesterOid}",

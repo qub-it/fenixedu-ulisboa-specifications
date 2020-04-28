@@ -20,13 +20,9 @@ public class AlmostFilledClassesComparator implements Comparator<SchoolClass> {
     }
 
     public static Integer getFreeVacancies(SchoolClass schoolClass) {
-        final Optional<Shift> minShift = schoolClass.getAssociatedShiftsSet().stream()
-                .min((s1, s2) -> getShiftVacancies(s1).compareTo(getShiftVacancies(s2)));
-        return minShift.isPresent() ? getShiftVacancies(minShift.get()) : 0;
-    }
-
-    public static Integer getShiftVacancies(final Shift shift) {
-        return shift.getLotacao() - shift.getStudentsSet().size();
+        final Optional<Shift> minShift =
+                schoolClass.getAssociatedShiftsSet().stream().min((s1, s2) -> s1.getVacancies().compareTo(s2.getVacancies()));
+        return minShift.map(s -> s.getVacancies()).orElse(0);
     }
 
 }

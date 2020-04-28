@@ -50,11 +50,13 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Lesson;
 import org.fenixedu.academic.domain.SchoolClass;
 import org.fenixedu.academic.domain.Shift;
+import org.fenixedu.academic.domain.ShiftEnrolment;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriod;
 import org.fenixedu.academic.domain.enrolment.period.AutomaticEnrolment;
 import org.fenixedu.academic.domain.enrolment.schoolClass.SchoolClassEnrolmentPreference;
 import org.fenixedu.academic.domain.exceptions.DomainException;
+import org.fenixedu.academic.domain.schedule.shiftCapacity.ShiftCapacity;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationDataByExecutionInterval;
 import org.fenixedu.academic.domain.student.RegistrationServices;
@@ -280,8 +282,8 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
 
     private static Integer getMinShiftEnrolmentsCount(SchoolClass schoolClass) {
         final Optional<Shift> minShift = schoolClass.getAssociatedShiftsSet().stream()
-                .min((s1, s2) -> Integer.compare(s1.getStudentsSet().size(), s2.getStudentsSet().size()));
-        return minShift.isPresent() ? minShift.get().getStudentsSet().size() : 0;
+                .min((s1, s2) -> Integer.compare(ShiftEnrolment.getTotalEnrolments(s1), ShiftEnrolment.getTotalEnrolments(s2)));
+        return minShift.map(s -> ShiftEnrolment.getTotalEnrolments(s)).orElse(0);
     }
 
     public ActionForward viewSchoolClass(ActionMapping mapping, ActionForm form, HttpServletRequest request,
@@ -330,7 +332,7 @@ public class SchoolClassStudentEnrollmentDA extends FenixDispatchAction {
         final Registration registration = scp.getRegistration();
 
         try {
-            atomic(() -> registration.removeShifts(shift));
+            atomic(() -> shift.unenrol(registration));
             addActionMessage("success", request, "message.schoolClassStudentEnrollment.removeShift.success");
         } catch (DomainException e) {
             addActionMessage("error", request, e.getKey(), e.getArgs());

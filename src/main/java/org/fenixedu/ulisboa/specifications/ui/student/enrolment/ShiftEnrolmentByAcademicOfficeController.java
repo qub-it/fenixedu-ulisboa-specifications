@@ -122,12 +122,12 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
         checkUser();
 
-        final List<Shift> shifts = executionCourse.getAssociatedShifts().stream().filter(s -> s.containsType(shiftType))
-                .sorted(Shift.SHIFT_COMPARATOR_BY_NAME).collect(Collectors.toList());
+        final List<Shift> shifts = Shift.findPossibleShiftsToEnrol(registration, executionCourse, shiftType)
+                .map(sc -> sc.getShift()).sorted(Shift.SHIFT_COMPARATOR_BY_NAME).collect(Collectors.toList());
 
         final JsonArray result = new JsonArray();
         for (final Shift shift : shifts) {
-            if (shift.getLotacao().intValue() > shift.getStudentsSet().size()) {
+            if (shift.getVacancies() > 0) {
                 JsonObject jsonShift = new JsonObject();
                 jsonShift.addProperty("name", shift.getNome());
                 jsonShift.addProperty("type", shift.getShiftTypesPrettyPrint());
@@ -160,7 +160,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
     @Atomic
     protected void addShiftService(Registration registration, Shift shift) {
-        if (!shift.reserveForStudent(registration)) {
+        if (!shift.enrol(registration)) {
             throw new DomainException("error.shiftEnrolment.shiftFull", shift.getNome(), shift.getShiftTypesPrettyPrint(),
                     shift.getExecutionCourse().getName());
         }
@@ -186,7 +186,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
     @Atomic
     private void removeShiftService(Registration registration, Shift shift) {
-        registration.removeShifts(shift);
+        shift.unenrol(registration);
     }
 
     @RequestMapping(value = "currentSchedule.json/{registrationOid}/{executionSemesterOid}",
