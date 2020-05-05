@@ -34,18 +34,14 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
-import org.fenixedu.academic.FenixeduAcademicExtensionsInitializer;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
-import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
 import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.academic.servlet.AuthenticationRedirector;
-import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.servlet.ExceptionHandlerFilter;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -60,7 +56,6 @@ import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
-import org.fenixedu.ulisboa.specifications.domain.UsernameSequenceGenerator;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestOutputType;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
@@ -82,7 +77,6 @@ import org.slf4j.LoggerFactory;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
-import pt.ist.fenixframework.dml.DeletionListener;
 
 @WebListener
 public class FenixeduUlisboaSpecificationsInitializer implements ServletContextListener {
@@ -115,13 +109,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         StudentCurricularPlanLayout.register();
         CurriculumLayout.register();
 
-        UsernameSequenceGenerator usernameSequenceGenerator =
-                ULisboaSpecificationsRoot.getInstance().getUsernameSequenceGenerator();
-        if (usernameSequenceGenerator == null) {
-            usernameSequenceGenerator = new UsernameSequenceGenerator();
-            ULisboaSpecificationsRoot.getInstance().setUsernameSequenceGenerator(usernameSequenceGenerator);
-        }
-        User.setUsernameGenerator(usernameSequenceGenerator);
         DynamicGroup dynamicGroup = org.fenixedu.bennu.core.groups.DynamicGroup.get("employees");
         if (!dynamicGroup.isDefined()) {
             dynamicGroup.toPersistentGroup();
@@ -196,17 +183,14 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     static private Comparator<PaymentReferenceCode> COMPARATOR_BY_PAYMENT_SEQUENTIAL_DIGITS =
-            new Comparator<PaymentReferenceCode>() {
-                @Override
-                public int compare(final PaymentReferenceCode leftPaymentCode, final PaymentReferenceCode rightPaymentCode) {
-                    final String leftSequentialNumber = getSequentialNumber(leftPaymentCode);
-                    final String rightSequentialNumber = getSequentialNumber(rightPaymentCode);
+            (leftPaymentCode, rightPaymentCode) -> {
+                final String leftSequentialNumber = getSequentialNumber(leftPaymentCode);
+                final String rightSequentialNumber = getSequentialNumber(rightPaymentCode);
 
-                    int comparationResult = leftSequentialNumber.compareTo(rightSequentialNumber);
+                int comparationResult = leftSequentialNumber.compareTo(rightSequentialNumber);
 
-                    return comparationResult == 0 ? leftPaymentCode.getExternalId()
-                            .compareTo(rightPaymentCode.getExternalId()) : comparationResult;
-                }
+                return comparationResult == 0 ? leftPaymentCode.getExternalId()
+                        .compareTo(rightPaymentCode.getExternalId()) : comparationResult;
             };
 
     static private String getSequentialNumber(final PaymentReferenceCode paymentCode) {
@@ -217,16 +201,12 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         //we need to delete FirstTime Configuration when a degree is deleted
 //        Degree.getRelationDegreeFirstYearRegistrationConfiguration().removeListener(new Relation
 
-        FenixFramework.getDomainModel().registerDeletionListener(Degree.class, new DeletionListener<Degree>() {
+        FenixFramework.getDomainModel().registerDeletionListener(Degree.class, degree -> {
+            degree.getFirstYearRegistrationConfigurationsSet().forEach(c -> c.delete());
 
-            @Override
-            public void deleting(final Degree degree) {
-                degree.getFirstYearRegistrationConfigurationsSet().forEach(c -> c.delete());
-
-                Site site = degree.getSite();
-                if (site != null) {
-                    site.delete();
-                }
+            Site site = degree.getSite();
+            if (site != null) {
+                site.delete();
             }
         });
     }
@@ -270,14 +250,10 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     }
 
     private void setupDeleteListenerForPrecedentDegreeInformation() {
-        FenixFramework.getDomainModel().registerDeletionListener(PrecedentDegreeInformation.class,
-                new DeletionListener<PrecedentDegreeInformation>() {
-                    @Override
-                    public void deleting(PrecedentDegreeInformation precedentDegreeInformation) {
-                        precedentDegreeInformation.setDistrictSubdivision(null);
-                        precedentDegreeInformation.setDistrict(null);
-                    }
-                });
+        FenixFramework.getDomainModel().registerDeletionListener(PrecedentDegreeInformation.class, precedentDegreeInformation -> {
+            precedentDegreeInformation.setDistrictSubdivision(null);
+            precedentDegreeInformation.setDistrict(null);
+        });
     }
 
 }

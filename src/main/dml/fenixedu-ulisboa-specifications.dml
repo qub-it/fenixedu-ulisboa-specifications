@@ -72,11 +72,6 @@ external class .org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 external class .org.fenixedu.academic.domain.Degree;
 external class .org.fenixedu.academic.domain.Country;
 
-class UsernameSequenceGenerator {
-	String prefix;
-	protected Integer currentValue;
-}
-
 class idcards.CgdCard {
 	String mifareCode;
 	String cardNumber;
@@ -347,11 +342,6 @@ relation ULisboaSpecificationsRootContingentToIngressions {
 	ContingentToIngression playsRole contingentToIngressions {
 		multiplicity *;
 	}
-}
-
-relation ULisboaSpecificationsRootUsernameSequenceGenerator {
-	UsernameSequenceGenerator playsRole usernameSequenceGenerator;
-	ULisboaSpecificationsRoot playsRole uLisboaSpecificationsRoot;
 }
 
 // ==================== DGES Student Import ====================
