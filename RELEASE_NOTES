@@ -1,3 +1,5 @@
+- Bug fix: Export to moodle: escape quotes of courses names; allow export to csv / excel
+
 6.13.0 (05-05-2020)
 - Refactor: Moved authenticationRedirector to academic core
 
