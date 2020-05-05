@@ -48,11 +48,6 @@ public class ULisboaPortalConfiguration extends ULisboaPortalConfiguration_Base 
         return showFuncs != null ? showFuncs : false;
     }
 
-    public boolean isDocumentationActive() {
-        Boolean documentationActive = ULisboaConfiguration.getConfiguration().getDocumentationActive();
-        return documentationActive != null ? documentationActive : false;
-    }
-
     @Override
     public Boolean getTeacherEvaluationSectionAvailable() {
         return super.getTeacherEvaluationSectionAvailable() == null || super.getTeacherEvaluationSectionAvailable();

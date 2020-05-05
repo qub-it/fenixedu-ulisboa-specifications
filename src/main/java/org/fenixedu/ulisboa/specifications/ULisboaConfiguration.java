@@ -35,9 +35,6 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "executionCourse.more.funcs", defaultValue = "false")
         public Boolean getShowAllExecutionCourseFuncs();
 
-        @ConfigurationProperty(key = "documentation.active", defaultValue = "false")
-        public Boolean getDocumentationActive();
-
         @ConfigurationProperty(key = "ldap.integration.useCustomGivenNames", defaultValue = "false")
         public Boolean getUseCustomGivenNames();
 
