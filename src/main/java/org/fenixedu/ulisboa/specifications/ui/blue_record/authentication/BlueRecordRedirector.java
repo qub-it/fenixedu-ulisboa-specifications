@@ -19,8 +19,8 @@ import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.servlet.RedirectionHandler;
 import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.ulisboa.specifications.authentication.IULisboaRedirectionHandler;
 import org.fenixedu.ulisboa.specifications.domain.bluerecord.BlueRecordConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEntryPoint;
@@ -42,7 +42,7 @@ import org.fenixedu.ulisboa.specifications.ui.student.enrolment.ShiftEnrolmentCo
 
 import com.google.common.collect.Lists;
 
-public class BlueRecordRedirector implements IULisboaRedirectionHandler {
+public class BlueRecordRedirector implements RedirectionHandler {
 
     @Override
     public boolean isToRedirect(final User user, final HttpServletRequest request) {

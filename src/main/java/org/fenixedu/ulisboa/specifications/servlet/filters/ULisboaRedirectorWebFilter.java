@@ -12,9 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.fenixedu.academic.servlet.AuthenticationRedirector;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.ulisboa.specifications.authentication.ULisboaAuthenticationRedirector;
 
 public class ULisboaRedirectorWebFilter implements Filter {
 
@@ -47,7 +47,7 @@ public class ULisboaRedirectorWebFilter implements Filter {
         final User user = Authenticate.getUser();
 
         if (user != null) {
-            final String redirectionPath = ULisboaAuthenticationRedirector.getRedirectionPath(user, httpServletRequest);
+            final String redirectionPath = AuthenticationRedirector.getRedirectionPath(user, httpServletRequest);
             if (StringUtils.isNotBlank(redirectionPath) && !path.contains(redirectionPath)) {
                 String contextPath = httpServletRequest.getContextPath();
                 if (contextPath.endsWith("/")) {
