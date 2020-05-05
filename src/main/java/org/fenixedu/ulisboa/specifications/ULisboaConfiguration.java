@@ -35,12 +35,6 @@ public class ULisboaConfiguration {
         @ConfigurationProperty(key = "executionCourse.more.funcs", defaultValue = "false")
         public Boolean getShowAllExecutionCourseFuncs();
 
-        @ConfigurationProperty(key = "support.active", defaultValue = "true")
-        public Boolean getSupportActive();
-
-        @ConfigurationProperty(key = "support.accessExpression", defaultValue = "anyone")
-        public String getSupportAccessControlExpression();
-
         @ConfigurationProperty(key = "documentation.active", defaultValue = "false")
         public Boolean getDocumentationActive();
 
