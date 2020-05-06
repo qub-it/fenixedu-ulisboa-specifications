@@ -48,21 +48,6 @@ public class ULisboaPortalConfiguration extends ULisboaPortalConfiguration_Base 
         return showFuncs != null ? showFuncs : false;
     }
 
-    public boolean isSupportActive() {
-        Boolean supportActive = ULisboaConfiguration.getConfiguration().getSupportActive();
-        return supportActive != null ? supportActive : false;
-    }
-
-    public boolean isDocumentationActive() {
-        Boolean documentationActive = ULisboaConfiguration.getConfiguration().getDocumentationActive();
-        return documentationActive != null ? documentationActive : false;
-    }
-
-    public boolean isSupportAccessibleToUser() {
-        String supportAccessControlExpression = ULisboaConfiguration.getConfiguration().getSupportAccessControlExpression();
-        return Group.parse(supportAccessControlExpression).isMember(AccessControl.getPerson().getUser());
-    }
-    
     @Override
     public Boolean getTeacherEvaluationSectionAvailable() {
         return super.getTeacherEvaluationSectionAvailable() == null || super.getTeacherEvaluationSectionAvailable();
