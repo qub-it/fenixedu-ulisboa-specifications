@@ -1,4 +1,5 @@
 - Refactor: Moved HelpDesk to fenixedu-base
+- Refactor: Moved UsernameSequenceGenerator to fenixedu-base
 
 6.13.1 (06-05-2020)
 - Bug fix: Export to moodle: escape quotes of courses names; allow export to csv / excel
