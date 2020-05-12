@@ -29,7 +29,6 @@ import org.fenixedu.academic.domain.contacts.PhysicalAddressData;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.person.RoleType;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
-import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
@@ -138,6 +137,14 @@ public class DgesStudentImportService {
         return sb.toString();
     }
 
+    public String getLog() {
+        return transformReport();
+    }
+
+    public void resetLog() {
+        this.reportMessages.clear();
+    }
+
     public String importStudents(final byte[] file) {
 
         try {
@@ -239,7 +246,7 @@ public class DgesStudentImportService {
             final Runnable runnable = () -> {
                 try {
                     FenixFramework.atomic(() -> {
-                        processEntry(entry);
+                        processEntry(entry, false);
                     });
                 } catch (RuntimeException e) {
                     addToReport(e.getMessage());
@@ -262,7 +269,11 @@ public class DgesStudentImportService {
 
     }
 
-    protected void processEntry(final DegreeCandidateDTO entry) {
+    public Registration importCandidate(final DegreeCandidateDTO entry) {
+        return processEntry(entry, true);
+    }
+
+    protected Registration processEntry(final DegreeCandidateDTO entry, boolean throwException) {
         //TODO: adicionar a uma lista de erros os casos para se analisar depois pelo relatório
 
         final Degree degree = getDegreeConfiguration(entry).getDegree();
@@ -273,9 +284,13 @@ public class DgesStudentImportService {
 
             if (person.getStudent().getRegistrationsFor(degree).stream().anyMatch(
                     x -> x.getStudentCandidacy().getActiveCandidacySituationType() == CandidacySituationType.STAND_BY)) {
-                addToReport(
-                        formatMessageWithLineNumber(entry, "[ERROR]Já existe um candidatura a decorrer para o curso escolhido"));
-                return;
+                String message =
+                        formatMessageWithLineNumber(entry, "[ERROR]Já existe um candidatura a decorrer para o curso escolhido");
+                if (throwException) {
+                    throw new IllegalArgumentException(message);
+                }
+                addToReport(message);
+                return null;
             }
 
             if (person.getStudent().getRegistrationsFor(degree).stream().anyMatch(x -> x.isActive())) {
@@ -295,11 +310,13 @@ public class DgesStudentImportService {
 
         RoleType.CANDIDATE.actualGroup().grant(person.getUser());
 
-        createRegistration(entry, person);
+        Registration result = createRegistration(entry, person, throwException);
 
         candidaciesCreated++;
 
         StudentAccessServices.triggerSyncPersonToExternal(person);
+
+        return result;
     }
 
     private Person findOrCreatePersonAndUser(final DegreeCandidateDTO entry) {
@@ -390,7 +407,7 @@ public class DgesStudentImportService {
         return degreeConfig.get();
     }
 
-    private Registration createRegistration(final DegreeCandidateDTO entry, final Person person) {
+    private Registration createRegistration(final DegreeCandidateDTO entry, final Person person, boolean throwException) {
 
         final StudentCandidacy studentCandidacy = createCandidacy(entry, person);
 
@@ -402,7 +419,7 @@ public class DgesStudentImportService {
 //                .getPrecedentDegreeInformation() : new PrecedentDegreeInformation();
 //        pdi.setPersonalIngressionData(findOrCreatePersonalIngressionData(registration));
 //        pdi.setRegistration(registration);
-        
+
         findOrCreatePersonalIngressionData(registration);
 
         markRegistrationAsInactive(registration);
