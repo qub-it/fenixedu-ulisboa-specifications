@@ -21,6 +21,7 @@ import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.servlet.RedirectionHandler;
 import org.fenixedu.bennu.core.domain.User;
+import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecificationsByExecutionYear;
 import org.fenixedu.ulisboa.specifications.domain.bluerecord.BlueRecordConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
 import org.fenixedu.ulisboa.specifications.ui.blue_record.BlueRecordEntryPoint;
@@ -72,7 +73,9 @@ public class BlueRecordRedirector implements RedirectionHandler {
 
         for (final ExecutionYear executionYear : getExecutionYearsToProcess()) {
 
-            if (!hasSomeBlueRecordFormToFill(executionYear, user.getPerson().getStudent())) {
+            PersonUlisboaSpecificationsByExecutionYear personUlByExcutionYear =
+                    PersonUlisboaSpecificationsByExecutionYear.findOrCreate(user.getPerson(), executionYear);
+            if (!hasSomeBlueRecordFormToFill(personUlByExcutionYear, executionYear, user.getPerson().getStudent())) {
                 continue;
             }
 
@@ -98,7 +101,8 @@ public class BlueRecordRedirector implements RedirectionHandler {
         return result;
     }
 
-    private boolean hasSomeBlueRecordFormToFill(final ExecutionYear executionYear, final Student student) {
+    private boolean hasSomeBlueRecordFormToFill(final PersonUlisboaSpecificationsByExecutionYear personUlByExcutionYear,
+            final ExecutionYear executionYear, final Student student) {
         boolean result = false;
         result |= !new DisabilitiesFormControllerBlueRecord().isFormIsFilled(executionYear, student);
         result |= !new HouseholdInformationFormControllerBlueRecord().isFormIsFilled(executionYear, student);
@@ -117,8 +121,9 @@ public class BlueRecordRedirector implements RedirectionHandler {
     @Override
     public String redirectionPath(final User user, final HttpServletRequest request) {
         for (final ExecutionYear executionYear : getExecutionYearsToProcess()) {
-
-            if (!hasSomeBlueRecordFormToFill(executionYear, user.getPerson().getStudent())) {
+            PersonUlisboaSpecificationsByExecutionYear personUlByExcutionYear =
+                    PersonUlisboaSpecificationsByExecutionYear.findOrCreate(user.getPerson(), executionYear);
+            if (!hasSomeBlueRecordFormToFill(personUlByExcutionYear, executionYear, user.getPerson().getStudent())) {
                 continue;
             }
 

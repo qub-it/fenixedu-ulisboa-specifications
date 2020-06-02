@@ -35,10 +35,16 @@ public class HouseholdInformationUlisboaForm implements CandidancyForm {
     private List<TupleDataSourceBean> countryHighSchoolValues;
 
     public HouseholdInformationUlisboaForm() {
-        setGrantOwnerTypeValues(Arrays.asList(GrantOwnerType.values()));
-        setCountryHighSchoolValues(Lists.newArrayList(Country.readDistinctCountries()));
+        this(true);
+    }
 
-        updateLists();
+    public HouseholdInformationUlisboaForm(boolean initDTOs) {
+        if (initDTOs) {
+            setGrantOwnerTypeValues(Arrays.asList(GrantOwnerType.values()));
+            setCountryHighSchoolValues(Lists.newArrayList(Country.readDistinctCountries()));
+
+            updateLists();
+        }
     }
 
     @Override

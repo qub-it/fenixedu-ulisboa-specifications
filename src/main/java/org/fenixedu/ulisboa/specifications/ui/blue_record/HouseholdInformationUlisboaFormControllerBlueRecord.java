@@ -66,7 +66,7 @@ public class HouseholdInformationUlisboaFormControllerBlueRecord extends Househo
     public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
         PersonUlisboaSpecificationsByExecutionYear personUl =
                 PersonUlisboaSpecificationsByExecutionYear.findOrCreate(student.getPerson(), executionYear);
-        boolean result = validateForm(createHouseholdInformationForm(student, executionYear)).isEmpty();
+        boolean result = validateForm(createHouseholdInformationForm(student, executionYear, false)).isEmpty();
         return result && personUl.isFormAnswered(HouseholdInformationUlisboaFormControllerBlueRecord.class.getSimpleName());
     }
 

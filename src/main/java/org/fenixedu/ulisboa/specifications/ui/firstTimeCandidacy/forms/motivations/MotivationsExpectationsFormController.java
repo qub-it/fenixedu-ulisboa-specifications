@@ -70,7 +70,12 @@ public class MotivationsExpectationsFormController extends FormAbstractControlle
 
     protected MotivationsExpectationsForm createMotivationsExpectationsForm(final ExecutionYear executionYear,
             final Student student) {
-        MotivationsExpectationsForm form = new MotivationsExpectationsForm();
+        return createMotivationsExpectationsForm(executionYear, student, true);
+    }
+
+    protected MotivationsExpectationsForm createMotivationsExpectationsForm(final ExecutionYear executionYear,
+            final Student student, final boolean initDTOs) {
+        MotivationsExpectationsForm form = new MotivationsExpectationsForm(initDTOs);
         PersonUlisboaSpecifications personUlisboa = student.getPerson().getPersonUlisboaSpecifications();
         if (personUlisboa != null) {
             form.getUniversityDiscoveryMeansAnswers().addAll(personUlisboa.getUniversityDiscoveryMeansAnswersSet());

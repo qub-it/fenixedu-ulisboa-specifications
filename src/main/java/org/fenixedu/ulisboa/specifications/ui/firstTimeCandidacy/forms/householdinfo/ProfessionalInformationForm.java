@@ -25,12 +25,18 @@ public class ProfessionalInformationForm implements CandidancyForm {
     private boolean professionRequired;
 
     public ProfessionalInformationForm() {
-        setProfessionRequired(false);
-        setProfessionalConditionValues(Arrays.asList(ProfessionalSituationConditionType.values()));
-        setProfessionTypeValues(Arrays.asList(ProfessionType.values()));
-        setProfessionTimeTypeValues(ProfessionTimeType.readAll().collect(Collectors.toList()));
+        this(true);
+    }
 
-        updateLists();
+    public ProfessionalInformationForm(boolean initDTOs) {
+        if (initDTOs) {
+            setProfessionRequired(false);
+            setProfessionalConditionValues(Arrays.asList(ProfessionalSituationConditionType.values()));
+            setProfessionTypeValues(Arrays.asList(ProfessionType.values()));
+            setProfessionTimeTypeValues(ProfessionTimeType.readAll().collect(Collectors.toList()));
+
+            updateLists();
+        }
     }
 
     @Override

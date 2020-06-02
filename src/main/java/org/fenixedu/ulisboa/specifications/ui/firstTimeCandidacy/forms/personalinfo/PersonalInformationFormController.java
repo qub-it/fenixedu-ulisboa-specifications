@@ -104,9 +104,14 @@ public class PersonalInformationFormController extends FormAbstractController {
     }
 
     protected PersonalInformationForm createPersonalInformationForm(final ExecutionYear executionYear, final Student student) {
+        return createPersonalInformationForm(executionYear, student, true);
+    }
+
+    protected PersonalInformationForm createPersonalInformationForm(final ExecutionYear executionYear, final Student student,
+            final boolean initDTOs) {
         final Person person = student.getPerson();
         PersonalInformationForm form;
-        form = new PersonalInformationForm();
+        form = new PersonalInformationForm(initDTOs);
         final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, true);
 
         form.setDocumentIdEmissionLocation(person.getEmissionLocationOfDocumentId());

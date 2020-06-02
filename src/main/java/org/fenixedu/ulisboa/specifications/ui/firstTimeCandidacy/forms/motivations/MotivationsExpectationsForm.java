@@ -28,12 +28,20 @@ public class MotivationsExpectationsForm implements CandidancyForm {
     private List<String> otherUniversityChoiceMotivationAnswerValues;
 
     public MotivationsExpectationsForm() {
-        setUniversityDiscoveryMeansAnswerValues(UniversityDiscoveryMeansAnswer.readAll().sorted().collect(Collectors.toList()));
-        setUniversityChoiceMotivationAnswerValues(
-                UniversityChoiceMotivationAnswer.readAll().sorted().collect(Collectors.toList()));
-        setOtherUniversityDiscoveryMeansAnswerValues(UniversityDiscoveryMeansAnswer.readAll().collect(Collectors.toList()));
-        setOtherUniversityChoiceMotivationAnswerValues(UniversityChoiceMotivationAnswer.readAll().collect(Collectors.toList()));
-        updateLists();
+        this(true);
+    }
+
+    public MotivationsExpectationsForm(boolean initDTOs) {
+        if (initDTOs) {
+            setUniversityDiscoveryMeansAnswerValues(
+                    UniversityDiscoveryMeansAnswer.readAll().sorted().collect(Collectors.toList()));
+            setUniversityChoiceMotivationAnswerValues(
+                    UniversityChoiceMotivationAnswer.readAll().sorted().collect(Collectors.toList()));
+            setOtherUniversityDiscoveryMeansAnswerValues(UniversityDiscoveryMeansAnswer.readAll().collect(Collectors.toList()));
+            setOtherUniversityChoiceMotivationAnswerValues(
+                    UniversityChoiceMotivationAnswer.readAll().collect(Collectors.toList()));
+            updateLists();
+        }
     }
 
     @Override

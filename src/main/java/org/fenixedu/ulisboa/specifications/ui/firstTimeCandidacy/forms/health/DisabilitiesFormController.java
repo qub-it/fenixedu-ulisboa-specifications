@@ -68,7 +68,12 @@ public class DisabilitiesFormController extends FormAbstractController {
     }
 
     protected DisabilitiesForm createDisabilitiesForm(final ExecutionYear executionYear, final Student student) {
-        DisabilitiesForm form = new DisabilitiesForm();
+        return createDisabilitiesForm(executionYear, student, true);
+    }
+
+    protected DisabilitiesForm createDisabilitiesForm(final ExecutionYear executionYear, final Student student,
+            final boolean initDTOs) {
+        DisabilitiesForm form = new DisabilitiesForm(initDTOs);
         PersonUlisboaSpecifications personUlisboa = student.getPerson().getPersonUlisboaSpecifications();
         if (personUlisboa != null) {
             form.setHasDisabilities(personUlisboa.getHasDisabilities());

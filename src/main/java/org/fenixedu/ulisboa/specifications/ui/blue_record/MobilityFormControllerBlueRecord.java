@@ -26,7 +26,7 @@ public class MobilityFormControllerBlueRecord extends MobilityFormControler {
     @Override
     protected String nextScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        
+
         if (!BlueRecordConfiguration.getInstance().getIsCgdFormToFill()) {
             return redirect(urlWithExecutionYear(BlueRecordEnd.CONTROLLER_URL, executionYear), model, redirectAttributes);
         }
@@ -76,7 +76,7 @@ public class MobilityFormControllerBlueRecord extends MobilityFormControler {
                         .compare(o1.getExecutionYear(), o2.getExecutionYear())).collect(Collectors.toList());
         for (PersonUlisboaSpecificationsByExecutionYear personUlByExecutionYear : allPersonUlByEY) {
             if (personUlByExecutionYear.isFormAnswered(MobilityFormControllerBlueRecord.class.getSimpleName())) {
-                return validateForm(createMobilityForm(personUlByExecutionYear.getExecutionYear(), student)).isEmpty();
+                return validateForm(createMobilityForm(personUlByExecutionYear.getExecutionYear(), student, false)).isEmpty();
             }
         }
 

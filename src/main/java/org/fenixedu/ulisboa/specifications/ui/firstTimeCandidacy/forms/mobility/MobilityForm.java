@@ -21,18 +21,14 @@ import org.joda.time.LocalDate;
 
 public class MobilityForm implements CandidancyForm {
 
-    private static final Comparator<TupleDataSourceBean> COMPARE_BY_ID_AND_TEXT = new Comparator<TupleDataSourceBean>() {
-
-        @Override
-        public int compare(final TupleDataSourceBean o1, final TupleDataSourceBean o2) {
-            if (o1.getId() == "") {
-                return -1;
-            } else if (o2.getId() == "") {
-                return 1;
-            }
-
-            return TupleDataSourceBean.COMPARE_BY_TEXT.compare(o1, o2);
+    private static final Comparator<TupleDataSourceBean> COMPARE_BY_ID_AND_TEXT = (o1, o2) -> {
+        if (o1.getId() == "") {
+            return -1;
+        } else if (o2.getId() == "") {
+            return 1;
         }
+
+        return TupleDataSourceBean.COMPARE_BY_TEXT.compare(o1, o2);
     };
 
     protected ExecutionInterval begin;
@@ -67,8 +63,14 @@ public class MobilityForm implements CandidancyForm {
 
     private List<TupleDataSourceBean> countryDataSource;
 
+    public MobilityForm(boolean initDTOs) {
+        if (initDTOs) {
+            updateLists();
+        }
+    }
+
     public MobilityForm() {
-        updateLists();
+        this(true);
     }
 
     @Override

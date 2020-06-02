@@ -83,9 +83,14 @@ public class ProfessionalInformationFormController extends FormAbstractControlle
 
     protected ProfessionalInformationForm createProfissionalInformationForm(final Student student,
             final ExecutionYear executionYear, final boolean create) {
+        return createProfissionalInformationForm(student, executionYear, create, true);
+    }
+
+    protected ProfessionalInformationForm createProfissionalInformationForm(final Student student,
+            final ExecutionYear executionYear, final boolean create, final boolean initDTOs) {
         final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, create);
 
-        final ProfessionalInformationForm form = new ProfessionalInformationForm();
+        final ProfessionalInformationForm form = new ProfessionalInformationForm(initDTOs);
 
         if (personalData != null) {
             form.setProfessionType(personalData.getProfessionType());

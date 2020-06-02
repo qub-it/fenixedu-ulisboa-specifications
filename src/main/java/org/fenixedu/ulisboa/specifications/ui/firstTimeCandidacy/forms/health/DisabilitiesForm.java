@@ -19,8 +19,14 @@ public class DisabilitiesForm implements CandidancyForm {
 
     private List<TupleDataSourceBean> disabilityTypeValues;
 
+    public DisabilitiesForm(boolean initDTOs) {
+        if (initDTOs) {
+            updateLists();
+        }
+    }
+
     public DisabilitiesForm() {
-        updateLists();
+        this(true);
     }
 
     @Override

@@ -89,7 +89,7 @@ public class MotivationsExpectationsFormControllerBlueRecord extends Motivations
 
     @Override
     public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
-        final MotivationsExpectationsForm form = createMotivationsExpectationsForm(executionYear, student);
+        final MotivationsExpectationsForm form = createMotivationsExpectationsForm(executionYear, student, false);
 
         if (!form.isFirstYearRegistration()) {
             return true;

@@ -87,9 +87,14 @@ public class HouseholdInformationFormController extends FormAbstractController {
 
     protected HouseholdInformationForm createHouseholdInformationForm(final Student student, final ExecutionYear executionYear,
             final boolean create) {
+        return createHouseholdInformationForm(student, executionYear, create, true);
+    }
+
+    protected HouseholdInformationForm createHouseholdInformationForm(final Student student, final ExecutionYear executionYear,
+            final boolean create, final boolean initDTOs) {
         final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, create);
 
-        final HouseholdInformationForm form = new HouseholdInformationForm();
+        final HouseholdInformationForm form = new HouseholdInformationForm(initDTOs);
 
         if (personalData != null) {
             form.setFatherProfessionalCondition(personalData.getFatherProfessionalCondition());

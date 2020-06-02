@@ -45,14 +45,20 @@ public class HouseholdInformationForm implements CandidancyForm {
     private GrantOwnerType grantOwnerType;
     private List<TupleDataSourceBean> grantOwnerTypeValues;
 
-    public HouseholdInformationForm() {
-        setProfessionalConditionValues(Arrays.asList(ProfessionalSituationConditionType.values()));
-        setProfessionTypeValues(Arrays.asList(ProfessionType.values()));
-        setSchoolLevelValues(Arrays.asList(SchoolLevelType.values()));
-        setSalarySpanValues(SalarySpan.readAll().sorted().collect(Collectors.toList()));
-        setGrantOwnerTypeValues(Arrays.asList(GrantOwnerType.values()));
+    public HouseholdInformationForm(boolean initDTOs) {
+        if (initDTOs) {
+            setProfessionalConditionValues(Arrays.asList(ProfessionalSituationConditionType.values()));
+            setProfessionTypeValues(Arrays.asList(ProfessionType.values()));
+            setSchoolLevelValues(Arrays.asList(SchoolLevelType.values()));
+            setSalarySpanValues(SalarySpan.readAll().sorted().collect(Collectors.toList()));
+            setGrantOwnerTypeValues(Arrays.asList(GrantOwnerType.values()));
 
-        updateLists();
+            updateLists();
+        }
+    }
+
+    public HouseholdInformationForm() {
+        this(true);
     }
 
     @Override

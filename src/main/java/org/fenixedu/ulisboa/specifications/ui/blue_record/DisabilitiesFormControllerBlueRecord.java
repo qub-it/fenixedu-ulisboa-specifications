@@ -89,7 +89,7 @@ public class DisabilitiesFormControllerBlueRecord extends DisabilitiesFormContro
 
     @Override
     public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
-        final DisabilitiesForm form = createDisabilitiesForm(executionYear, student);
+        final DisabilitiesForm form = createDisabilitiesForm(executionYear, student, false);
 
         if (!form.isFirstYearRegistration()) {
             return true;

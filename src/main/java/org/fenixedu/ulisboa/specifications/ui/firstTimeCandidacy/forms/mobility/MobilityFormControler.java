@@ -67,7 +67,11 @@ public class MobilityFormControler extends FormAbstractController {
     }
 
     protected MobilityForm createMobilityForm(final ExecutionYear executionYear, final Student student) {
-        MobilityForm form = new MobilityForm();
+        return createMobilityForm(executionYear, student, true);
+    }
+
+    protected MobilityForm createMobilityForm(final ExecutionYear executionYear, final Student student, final boolean initDTOs) {
+        MobilityForm form = new MobilityForm(initDTOs);
         PersonUlisboaSpecifications personUl = PersonUlisboaSpecifications.findOrCreate(student.getPerson());
         MobilityRegistatrionUlisboaInformation information = personUl.getMobilityRegistatrionUlisboaInformation();
 

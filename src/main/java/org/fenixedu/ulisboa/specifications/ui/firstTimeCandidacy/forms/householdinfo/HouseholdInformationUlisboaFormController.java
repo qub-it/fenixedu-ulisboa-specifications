@@ -90,7 +90,12 @@ public class HouseholdInformationUlisboaFormController extends FormAbstractContr
 
     protected HouseholdInformationUlisboaForm createHouseholdInformationForm(final Student student,
             final ExecutionYear executionYear) {
-        final HouseholdInformationUlisboaForm form = new HouseholdInformationUlisboaForm();
+        return createHouseholdInformationForm(student, executionYear, true);
+    }
+
+    protected HouseholdInformationUlisboaForm createHouseholdInformationForm(final Student student,
+            final ExecutionYear executionYear, final boolean initDTOs) {
+        final HouseholdInformationUlisboaForm form = new HouseholdInformationUlisboaForm(initDTOs);
         final PersonalIngressionData personalData = getPersonalIngressionData(student, executionYear, false);
 
         PersonUlisboaSpecifications personUl = student.getPerson().getPersonUlisboaSpecifications();

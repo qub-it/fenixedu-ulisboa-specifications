@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.FenixEduAcademicConfiguration;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.person.Gender;
@@ -68,25 +67,31 @@ public class PersonalInformationForm implements Serializable, CandidancyForm {
     private String username;
 
     public PersonalInformationForm() {
-        setFiscalCountryValues(Lists.newArrayList(Country.readDistinctCountries()));
-        setCountryHighSchoolValues(Lists.newArrayList(Country.readDistinctCountries()));
-        setForeignStudent(getIsForeignStudent());
+        this(true);
+    }
 
-        List<IDDocumentType> idDocumentTypeValues = new ArrayList<>();
-        idDocumentTypeValues.addAll(Arrays.asList(IDDocumentType.values()));
-        idDocumentTypeValues.remove(IDDocumentType.CITIZEN_CARD);
-        setIdDocumentTypeValues(idDocumentTypeValues);
+    public PersonalInformationForm(boolean initDTOs) {
+        if (initDTOs) {
+            setFiscalCountryValues(Lists.newArrayList(Country.readDistinctCountries()));
+            setCountryHighSchoolValues(Lists.newArrayList(Country.readDistinctCountries()));
+            setForeignStudent(getIsForeignStudent());
 
-        List<MaritalStatus> maritalStatusValues = new ArrayList<>();
-        maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
-        maritalStatusValues.remove(MaritalStatus.UNKNOWN);
-        setMaritalStatusValues(maritalStatusValues);
+            List<IDDocumentType> idDocumentTypeValues = new ArrayList<>();
+            idDocumentTypeValues.addAll(Arrays.asList(IDDocumentType.values()));
+            idDocumentTypeValues.remove(IDDocumentType.CITIZEN_CARD);
+            setIdDocumentTypeValues(idDocumentTypeValues);
 
-        List<Gender> genderValues = new ArrayList<>();
-        genderValues.addAll(Arrays.asList(Gender.values()));
-        setGenderValues(genderValues);
+            List<MaritalStatus> maritalStatusValues = new ArrayList<>();
+            maritalStatusValues.addAll(Arrays.asList(MaritalStatus.values()));
+            maritalStatusValues.remove(MaritalStatus.UNKNOWN);
+            setMaritalStatusValues(maritalStatusValues);
 
-        updateLists();
+            List<Gender> genderValues = new ArrayList<>();
+            genderValues.addAll(Arrays.asList(Gender.values()));
+            setGenderValues(genderValues);
+
+            updateLists();
+        }
     }
 
     @Override

@@ -95,7 +95,7 @@ public class PersonalInformationFormControllerBlueRecord extends PersonalInforma
 
     @Override
     public boolean isFormIsFilled(final ExecutionYear executionYear, final Student student) {
-        final PersonalInformationForm personalInformationForm = createPersonalInformationForm(executionYear, student);
+        final PersonalInformationForm personalInformationForm = createPersonalInformationForm(executionYear, student, false);
 
         if (!personalInformationForm.isFirstYearRegistration()) {
             return true;
