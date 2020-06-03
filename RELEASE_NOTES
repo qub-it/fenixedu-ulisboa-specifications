@@ -1,4 +1,5 @@
 - Improvement: Update blueRecord forms filled algorithm. blue record redirector has a bottleneck for students to login.
+- Bug fix: Manage previous degree information screen didn't show information in the right format (missing conversion LocalizedString to String)
 
 6.14.0 (08-05-2020)
 - Refactor: Moved HelpDesk to fenixedu-base

@@ -76,7 +76,7 @@ ${portal.toolkit()}
 							<spring:message code="label.PreviousDegreeInformationForm.registration.degreeName" />
 						</th>
 						<td>
-							<c:out value='${registration.degree.nameI18N}' />
+							<c:out value='${registration.degree.nameI18N.content}' />
 						</td>
 					</tr>
 					
@@ -85,7 +85,7 @@ ${portal.toolkit()}
 							<spring:message code="label.PreviousDegreeInformationForm.precedentCountry" />
 						</th>
 						<td>
-							<c:out value='${registration.studentCandidacy.previousDegreeInformation.country.localizedName}' />
+							<c:out value='${registration.studentCandidacy.previousDegreeInformation.country.localizedName.content}' />
 						</td>
 					</tr>
 
