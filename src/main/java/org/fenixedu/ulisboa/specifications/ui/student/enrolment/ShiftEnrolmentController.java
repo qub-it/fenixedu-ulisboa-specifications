@@ -283,7 +283,7 @@ public class ShiftEnrolmentController extends FenixeduUlisboaSpecificationsBaseC
 
     public static PossibleShiftsToEnrolProvider getPossibleShiftsToEnrolDefaultProvider() {
         return (ExecutionCourse ec, ShiftType st, Registration r) -> Shift.findPossibleShiftsToEnrol(r, ec, st)
-                .map(sc -> sc.getShift()).sorted(Shift.SHIFT_COMPARATOR_BY_NAME).collect(Collectors.toList());
+                .map(sc -> sc.getShift()).distinct().sorted(Shift.SHIFT_COMPARATOR_BY_NAME).collect(Collectors.toList());
     }
 
     public static void setPossibleShiftsToEnrolProvider(PossibleShiftsToEnrolProvider possibleShiftsToEnrolProvider) {
