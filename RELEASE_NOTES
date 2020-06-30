@@ -1,3 +1,5 @@
+- Improvement: Updated permission service
+
 6.15.0 (26-06-2020)
 - Improvement: Update blueRecord forms filled algorithm. blue record redirector has a bottleneck for students to login.
 - Bug fix: Manage previous degree information screen didn't show information in the right format (missing conversion LocalizedString to String)
