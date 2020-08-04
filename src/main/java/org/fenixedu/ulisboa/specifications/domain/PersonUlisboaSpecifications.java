@@ -34,6 +34,7 @@ import org.fenixedu.academic.domain.Person;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
+import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.consistencyPredicates.ConsistencyPredicate;
 
 public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Base {
@@ -42,6 +43,7 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
         setPerson(person);
     }
 
+    @Atomic
     public static PersonUlisboaSpecifications findOrCreate(final Person person) {
         PersonUlisboaSpecifications personUlisboaSpecifications = person.getPersonUlisboaSpecifications();
         if (personUlisboaSpecifications != null) {
