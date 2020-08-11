@@ -1,3 +1,6 @@
+- Improvement: Added column to registration history report, regarding previous reingressions including precedent registrations
+- Refactor: Updated dependencies
+
 6.16.1 (03-08-2020)
 - Improvement: Update label for spent email when a request is concluded
 
