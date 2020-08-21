@@ -1,3 +1,5 @@
+- Improvement: First name exported to moodle includes all names except last 
+
 6.17.0 (11-08-2020)
 - Improvement: Added column to registration history report, regarding previous reingressions including precedent registrations
 - Refactor: Updated dependencies

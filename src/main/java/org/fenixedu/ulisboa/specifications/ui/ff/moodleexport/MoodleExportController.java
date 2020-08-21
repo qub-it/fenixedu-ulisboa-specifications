@@ -124,11 +124,14 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
     }
 
     private void populatePerson(Person person, MoodleExportBean moodleExportBean) {
-        String firstAndLastName = person.getFirstAndLastName();
-        String firstName = firstAndLastName.split(" ")[0];
-        String lastName = firstAndLastName.split(" ")[1];
-        moodleExportBean.setFirstname(firstName);
-        moodleExportBean.setLastname(lastName);
+        final String fullName = person.getName();
+        int lastSpace = fullName.lastIndexOf(' ');
+        if (lastSpace > -1) {
+            moodleExportBean.setFirstname(fullName.substring(0, lastSpace));
+            moodleExportBean.setLastname(fullName.substring(lastSpace + 1, fullName.length()));
+        } else {
+            moodleExportBean.setFirstname(fullName);
+        }
 
         moodleExportBean.setEmail(person.getInstitutionalEmailAddressValue());
         if (StringUtils.isEmpty(person.getInstitutionalEmailAddressValue())) {
