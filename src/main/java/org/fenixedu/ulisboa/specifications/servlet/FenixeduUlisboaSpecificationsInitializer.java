@@ -52,7 +52,9 @@ import org.fenixedu.cms.domain.Site;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
 import org.fenixedu.treasury.domain.paymentcodes.PaymentReferenceCode;
 import org.fenixedu.treasury.domain.paymentcodes.pool.PaymentCodePool;
+import org.fenixedu.ulisboa.specifications.domain.CgdMod43Template;
 import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
@@ -60,6 +62,8 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
+import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
+import org.fenixedu.ulisboa.specifications.domain.student.access.importation.external.cgd.SyncRegistrationWithCgd;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorMarkSheetServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorRulesInitializer;
@@ -73,6 +77,8 @@ import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.Stude
 import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.qubit.solution.fenixedu.integration.cgd.domain.configuration.CgdIntegrationConfiguration;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
@@ -144,6 +150,30 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         setupDeleteListenerForPrecedentDegreeInformation();
 
+        StudentAccessServices.subscribeSyncRegistration(new SyncRegistrationWithCgd());
+
+        migrateCgdTemplate();
+    }
+
+    private void migrateCgdTemplate() {
+        CgdIntegrationConfiguration cgdIntegrationConfiguration = CgdIntegrationConfiguration.getInstance();
+        FirstYearRegistrationGlobalConfiguration firstYearConf = FirstYearRegistrationGlobalConfiguration.getInstance();
+
+        CgdMod43Template mod43Template = firstYearConf.getMod43Template();
+        if (mod43Template != null && !cgdIntegrationConfiguration.hasMod43Template()) {
+            byte[] content = null;
+            try {
+                content = mod43Template.getContent();
+            } catch (Throwable t) {
+                // in dev machines this will throw an exception since the
+                // file does not exist. Just ignoring it so it doesn't mess
+                // the startup.
+                content = new byte[] {};
+            }
+            cgdIntegrationConfiguration.uploadMod43Template(mod43Template.getFilename(), content);
+            firstYearConf.setMod43Template(null);
+            mod43Template.delete();
+        }
     }
 
     static private void initTreasuryNextReferenceCode() {

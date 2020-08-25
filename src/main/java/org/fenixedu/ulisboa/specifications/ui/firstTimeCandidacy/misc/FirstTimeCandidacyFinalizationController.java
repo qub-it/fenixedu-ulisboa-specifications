@@ -25,7 +25,6 @@ import org.fenixedu.academictreasury.services.reports.DocumentPrinter;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.bluerecord.BlueRecordConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
@@ -37,7 +36,6 @@ import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CGDPdfFiller;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -54,6 +52,8 @@ import com.google.common.collect.Lists;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.pdf.PdfCopyFields;
 import com.lowagie.text.pdf.PdfReader;
+import com.qubit.solution.fenixedu.integration.cgd.domain.configuration.CgdIntegrationConfiguration;
+import com.qubit.solution.fenixedu.integration.cgd.services.CGDPdfFiller;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
@@ -204,9 +204,9 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
         Person person = Authenticate.getUser().getPerson();
 
         InputStream pdfTemplateStream;
-        if (FirstYearRegistrationGlobalConfiguration.getInstance().hasMod43Template()) {
-            pdfTemplateStream = new ByteArrayInputStream(
-                    FirstYearRegistrationGlobalConfiguration.getInstance().getMod43Template().getContent());
+        if (CgdIntegrationConfiguration.getInstance().hasMod43Template()) {
+            pdfTemplateStream =
+                    new ByteArrayInputStream(CgdIntegrationConfiguration.getInstance().getMod43Template().getContent());
         } else {
             pdfTemplateStream = context.getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
         }

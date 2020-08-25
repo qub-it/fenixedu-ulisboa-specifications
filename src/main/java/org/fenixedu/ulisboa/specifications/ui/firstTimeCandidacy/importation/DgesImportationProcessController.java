@@ -42,6 +42,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.qubit.solution.fenixedu.integration.cgd.domain.configuration.CgdIntegrationConfiguration;
+
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.FenixFramework;
 
@@ -401,7 +403,7 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
 		if (!cgdTemplateFile.isEmpty()) {
 			String fileName = cgdTemplateFile.getOriginalFilename();
 			byte[] fileContent = cgdTemplateFile.getBytes();
-			globalConfiguration.uploadMod43Template(fileName, fileContent);
+			CgdIntegrationConfiguration.getInstance().uploadMod43Template(fileName, fileContent);
 		}
 
 	}

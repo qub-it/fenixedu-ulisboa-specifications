@@ -25,7 +25,6 @@ import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalCon
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CGDPdfFiller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,6 +35,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.lowagie.text.DocumentException;
+import com.qubit.solution.fenixedu.integration.cgd.domain.configuration.CgdIntegrationConfiguration;
+import com.qubit.solution.fenixedu.integration.cgd.services.CGDPdfFiller;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.identificationCardServices",
         accessGroup = "logged")
@@ -108,9 +109,9 @@ public class IdentificationCardServicesController extends FenixeduUlisboaSpecifi
     public ResponseEntity<byte[]> downloadCGDMod43(Model model, RedirectAttributes redirectAttributes) {
         Person person = Authenticate.getUser().getPerson();
         InputStream pdfTemplateStream;
-        if (FirstYearRegistrationGlobalConfiguration.getInstance().hasMod43Template()) {
-            pdfTemplateStream = new ByteArrayInputStream(
-                    FirstYearRegistrationGlobalConfiguration.getInstance().getMod43Template().getContent());
+        if (CgdIntegrationConfiguration.getInstance().hasMod43Template()) {
+            pdfTemplateStream =
+                    new ByteArrayInputStream(CgdIntegrationConfiguration.getInstance().getMod43Template().getContent());
         } else {
             pdfTemplateStream = context.getResourceAsStream(CGD_PERSONAL_INFORMATION_PDF_PATH);
         }

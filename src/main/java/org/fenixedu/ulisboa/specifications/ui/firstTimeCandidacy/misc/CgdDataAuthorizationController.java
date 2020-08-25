@@ -19,13 +19,11 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academicextensions.domain.person.dataShare.DataShareAuthorization;
 import org.fenixedu.academicextensions.domain.person.dataShare.DataShareAuthorizationType;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
 import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.util.CGDPdfFiller;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +33,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.lowagie.text.DocumentException;
+import com.qubit.solution.fenixedu.integration.cgd.domain.configuration.CgdIntegrationConfiguration;
+import com.qubit.solution.fenixedu.integration.cgd.services.CGDPdfFiller;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -227,9 +227,9 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
         Person person = AccessControl.getPerson();
 
         InputStream pdfTemplateStream;
-        if (FirstYearRegistrationGlobalConfiguration.getInstance().hasMod43Template()) {
-            pdfTemplateStream = new ByteArrayInputStream(
-                    FirstYearRegistrationGlobalConfiguration.getInstance().getMod43Template().getContent());
+        if (CgdIntegrationConfiguration.getInstance().hasMod43Template()) {
+            pdfTemplateStream =
+                    new ByteArrayInputStream(CgdIntegrationConfiguration.getInstance().getMod43Template().getContent());
 
             ByteArrayOutputStream stream;
             try {
