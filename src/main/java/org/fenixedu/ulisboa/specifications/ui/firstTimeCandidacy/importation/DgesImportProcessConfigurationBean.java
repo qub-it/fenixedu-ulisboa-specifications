@@ -12,11 +12,12 @@ import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.ulisboa.specifications.domain.CgdMod43Template;
 import org.fenixedu.ulisboa.specifications.domain.ContingentToIngression;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+
+import com.qubit.solution.fenixedu.integration.cgd.domain.configuration.CgdMod43Template;
 
 public class DgesImportProcessConfigurationBean implements IBean {
 

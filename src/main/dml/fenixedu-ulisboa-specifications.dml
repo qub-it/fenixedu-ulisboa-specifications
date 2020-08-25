@@ -398,7 +398,7 @@ relation GlobalConfigurationTemplate {
 	FirstYearRegistrationGlobalConfiguration playsRole globalConfiguration {
 		multiplicity 1;
 	}
-	CgdMod43Template playsRole mod43Template;
+	.com.qubit.solution.fenixedu.integration.cgd.domain.configuration.CgdMod43Template playsRole mod43Template;
 }	
 
 //Class to bypass PortalLayoutInjector limitations. Check the java file for more information
