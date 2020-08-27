@@ -352,9 +352,9 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.studentCurricularPlan.count", report.getStudentCurricularPlanCount());
                         addData("RegistrationHistoryReport.schoolClasses", report.getSchoolClasses());
                         addData("RegistrationHistoryReport.isReingression", report.isReingression());
-                        addData("RegistrationHistoryReport.hasPreviousReingression", report.hasPreviousReingression());
+                        addData("RegistrationHistoryReport.hasPreviousReingression", report.getHasPreviousReingression());
                         addData("RegistrationHistoryReport.hasPreviousReingressionIncludingPrecedentRegistrations",
-                                report.hasPreviousReingressionIncludingPrecedentRegistrations());
+                                report.getHasPreviousReingressionIncludingPrecedentRegistrations());
                         addData("RegistrationHistoryReport.curricularYear", report.getCurricularYear());
                         addData("RegistrationHistoryReport.previousYearCurricularYear", report.getPreviousYearCurricularYear());
                         addData("RegistrationHistoryReport.nextYearCurricularYear", report.getNextYearCurricularYear());
@@ -367,23 +367,23 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("RegistrationHistoryReport.enrolmentYearsForPrescription",
                                 report.isPrescriptionConfigured() ? report.getEnrolmentYearsForPrescription().toString() : "-");
                         addData("RegistrationHistoryReport.canPrescribe",
-                                report.isPrescriptionConfigured() ? booleanString(report.canPrescribe()) : "-");
+                                report.isPrescriptionConfigured() ? booleanString(report.getCanPrescribe()) : "-");
                         addData("RegistrationHistoryReport.enrolmentDate", report.getEnrolmentDate());
                         addData("Registration.lastEnrolmentExecutionYear", report.getLastEnrolmentExecutionYear());
                         addData("RegistrationHistoryReport.primaryBranch", report.getPrimaryBranchName());
                         addData("RegistrationHistoryReport.secondaryBranch", report.getSecondaryBranchName());
                         addData("RegistrationHistoryReport.statutes", report.getStudentStatutesNames());
                         addData("RegistrationHistoryReport.regimeType", report.getRegimeTypeName());
-                        addData("RegistrationHistoryReport.enrolmentsWithoutShifts", report.hasEnrolmentsWithoutShifts());
+                        addData("RegistrationHistoryReport.enrolmentsWithoutShifts", report.getHasEnrolmentsWithoutShifts());
                         addData("RegistrationHistoryReport.inactiveRegistrationStateForYear",
-                                report.hasAnyInactiveRegistrationStateForYear());
+                                report.getHasAnyInactiveRegistrationStateForYear());
 
                         addData("RegistrationHistoryReport.lastRegistrationState", report.getLastRegistrationStateType());
                         addData("RegistrationHistoryReport.lastRegistrationStateDate", report.getLastRegistrationStateDate());
                         addData("RegistrationHistoryReport.firstTime", report.isFirstTime());
-                        addData("RegistrationHistoryReport.dismissals", report.hasDismissals());
-                        addData("RegistrationHistoryReport.enroledInImprovement", report.hasImprovementEvaluations());
-                        addData("RegistrationHistoryReport.annulledEnrolments", report.hasAnnulledEnrolments());
+                        addData("RegistrationHistoryReport.dismissals", report.getHasDismissals());
+                        addData("RegistrationHistoryReport.enroledInImprovement", report.getHasImprovementEvaluations());
+                        addData("RegistrationHistoryReport.annulledEnrolments", report.getHasAnnulledEnrolments());
                         addData("RegistrationHistoryReport.enrolmentsCount", report.getEnrolmentsCount());
                         addData("RegistrationHistoryReport.enrolmentsCredits", report.getEnrolmentsCredits());
                         addData("RegistrationHistoryReport.extraCurricularEnrolmentsCount",
@@ -561,7 +561,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
     private byte[] exportApprovalsToXLS(final RegistrationHistoryReportParametersBean bean) {
         final Collection<RegistrationHistoryReport> reports = generateReport(bean);
 
-        // TODO extract all this logic to a future RegistrationHistoryApprovalReport
+        // TODO extract all this logic to a future RegistrationHistoryApprovalEntry
 
         final Collection<ICurriculum> curriculums =
                 reports.stream().map(r -> RegistrationServices.getCurriculum(r.getRegistration(), (ExecutionYear) null))
