@@ -31,6 +31,8 @@ import java.util.Objects;
 import org.fenixedu.academic.domain.Country;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
+import org.fenixedu.academicextensions.domain.person.dataShare.DataShareAuthorization;
+import org.fenixedu.academicextensions.domain.person.dataShare.DataShareAuthorizationType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
@@ -54,7 +56,8 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
     }
 
     public boolean isSharingDataWithCGDAnswered() {
-        return getSharingDataWithCGDAnswered();
+        DataShareAuthorizationType authorizationType = DataShareAuthorizationType.findUnique("CGD_EXTENDED_INFO");
+        return DataShareAuthorization.findLatest(getPerson(), authorizationType) != null ? true : false;
     }
 
     public void delete() {
