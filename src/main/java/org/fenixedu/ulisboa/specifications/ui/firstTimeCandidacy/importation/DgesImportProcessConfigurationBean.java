@@ -25,6 +25,7 @@ public class DgesImportProcessConfigurationBean implements IBean {
     private String cgdTemplateId;
     private String cgdTemplateName;
     private LocalizedString introductionText;
+    private String infoAcademicRequisitionText;
     private List<TupleDataSourceBean> registrationProtocolDataSource;
     private List<ContingentMappingBean> contingentMappings;
     private List<TupleDataSourceBean> ingressionTypeDataSource;
@@ -74,6 +75,14 @@ public class DgesImportProcessConfigurationBean implements IBean {
 
     public void setIntroductionText(final LocalizedString introductionText) {
         this.introductionText = introductionText;
+    }
+
+    public String getInfoAcademicRequisitionText() {
+        return infoAcademicRequisitionText;
+    }
+
+    public void setInfoAcademicRequisitionText(String infoAcademicRequisitionText) {
+        this.infoAcademicRequisitionText = infoAcademicRequisitionText;
     }
 
     public List<TupleDataSourceBean> getRegistrationProtocolDataSource() {
@@ -139,6 +148,7 @@ public class DgesImportProcessConfigurationBean implements IBean {
 
         setDefaultRegistrationProtocol(ULisboaSpecificationsRoot.getInstance().getDefaultRegistrationProtocol());
         setIntroductionText(FirstYearRegistrationGlobalConfiguration.getInstance().getIntroductionText());
+        setInfoAcademicRequisitionText(FirstYearRegistrationGlobalConfiguration.getInstance().getInfoAcademicRequisitionText());
         setContingentMappings(ULisboaSpecificationsRoot.getInstance().getContingentToIngressionsSet());
         setActiveDegrees(FirstYearRegistrationGlobalConfiguration.getInstance().getFirstYearRegistrationConfigurationsSet()
                 .stream().collect(Collectors.toList()));

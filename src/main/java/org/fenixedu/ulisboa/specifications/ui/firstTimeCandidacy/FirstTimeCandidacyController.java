@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
@@ -47,7 +46,6 @@ import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessSe
 import org.fenixedu.ulisboa.specifications.dto.enrolmentperiod.AcademicEnrolmentPeriodBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.forms.personalinfo.PersonalInformationFormController;
 import org.joda.time.LocalDate;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -81,9 +79,11 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         Person person = AccessControl.getPerson();
         StudentAccessServices.requestSyncPersonFromExternal(person);
 
-        final ExecutionYear executionYear = getCandidacy(person).getExecutionYear();
-        return redirect(FirstTimeCandidacyAbstractController.urlWithExecutionYear(
-                PersonalInformationFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
+        return redirect("/dges/academicRequisition/?candidacy=" + getCandidacy(person).getExternalId(), model,
+                redirectAttributes);
+//        final ExecutionYear executionYear = getCandidacy(person).getExecutionYear();
+//        return redirect(FirstTimeCandidacyAbstractController.urlWithExecutionYear(
+//                PersonalInformationFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     public static StudentCandidacy getCandidacy() {
