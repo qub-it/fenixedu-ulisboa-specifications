@@ -120,6 +120,12 @@ ${portal.toolkit()}
                        </a>
                    </td> 
                 </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.FirstYearRegistrationConfiguration.redirectUrl"/></th> 
+                    <td>
+                        <c:out value='${globalConfiguration.redirectUrl}' />
+                    </td> 
+                </tr>
             </tbody>
         </table>
     </div>

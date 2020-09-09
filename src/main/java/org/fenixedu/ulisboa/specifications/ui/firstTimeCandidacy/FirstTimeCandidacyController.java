@@ -79,11 +79,8 @@ public class FirstTimeCandidacyController extends FenixeduUlisboaSpecificationsB
         Person person = AccessControl.getPerson();
         StudentAccessServices.requestSyncPersonFromExternal(person);
 
-        return redirect("/dges/academicRequisition/?candidacy=" + getCandidacy(person).getExternalId(), model,
+        return redirect("/dges/academicRequisition/?candidacy=" + getCandidacy(person).getExternalId() + "&isForward=true", model,
                 redirectAttributes);
-//        final ExecutionYear executionYear = getCandidacy(person).getExecutionYear();
-//        return redirect(FirstTimeCandidacyAbstractController.urlWithExecutionYear(
-//                PersonalInformationFormController.CONTROLLER_URL, executionYear), model, redirectAttributes);
     }
 
     public static StudentCandidacy getCandidacy() {

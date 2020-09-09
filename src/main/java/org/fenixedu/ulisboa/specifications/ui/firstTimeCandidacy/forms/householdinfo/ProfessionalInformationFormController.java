@@ -5,7 +5,6 @@ import static org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTim
 
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.ProfessionType;
 import org.fenixedu.academic.domain.ProfessionalSituationConditionType;
@@ -152,17 +151,19 @@ public class ProfessionalInformationFormController extends FormAbstractControlle
                     BundleUtil.getString(FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE, "error.all.fields.required"));
         }
 
-        if (form.isStudentWorking()) {
-            if (StringUtils.isEmpty(form.getProfession()) && isProfessionRequired()) {
-                messages.add(
-                        BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.profession.required"));
-            }
-
-            if (form.getProfessionTimeType() == null && isProfessionRequired()) {
-                messages.add(BundleUtil.getString(BUNDLE,
-                        "error.candidacy.workflow.PersonalInformationForm.professionTimeType.required"));
-            }
-        }
+        //This questions are not required, therefore we can not force to answered
+        // Joao Amaral 09-09-2020
+//        if (form.isStudentWorking()) {
+//            if (StringUtils.isEmpty(form.getProfession()) && isProfessionRequired()) {
+//                messages.add(
+//                        BundleUtil.getString(BUNDLE, "error.candidacy.workflow.PersonalInformationForm.profession.required"));
+//            }
+//
+//            if (form.getProfessionTimeType() == null && isProfessionRequired()) {
+//                messages.add(BundleUtil.getString(BUNDLE,
+//                        "error.candidacy.workflow.PersonalInformationForm.professionTimeType.required"));
+//            }
+//        }
 
         return messages;
     }

@@ -325,8 +325,8 @@ public class PersonalInformationFormController extends FormAbstractController {
 //        addControllerURLToModel(executionYear, model);
 //        return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
 
-        return redirect("/dges/academicRequisition/?candidacy=" + FirstTimeCandidacyController.getCandidacy().getExternalId(),
-                model, redirectAttributes);
+        return redirect("/dges/academicRequisition/?candidacy=" + FirstTimeCandidacyController.getCandidacy().getExternalId()
+                + "&isForward=false", model, redirectAttributes);
     }
 
     @Override

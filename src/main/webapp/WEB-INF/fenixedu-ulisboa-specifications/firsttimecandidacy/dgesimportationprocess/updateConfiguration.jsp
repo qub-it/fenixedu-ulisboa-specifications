@@ -287,6 +287,18 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
                         </div>
                     </div>                    
                     <div class="form-group row">
+                        <div class="col-sm-2 control-label">
+                            <spring:message code="label.FirstYearRegistrationConfiguration.redirectUrl" />
+                        </div>
+        
+                        <div class="col-sm-10" ng-show="edit.details">
+                            <input id="redirectUrl" class="form-control" type="text" ng-model="object.redirectUrl" name="field" />
+                        </div>
+                        <div class="col-sm-10" ng-hide="edit.details">
+                            <input id="redirectUrl" disabled class="form-control" type="text" ng-model="object.redirectUrl" name="field" />
+                        </div>
+                    </div>  
+                    <div class="form-group row">
                         <div class="col-sm-2 control-label"><spring:message code="label.FirstYearRegistrationConfiguration.mod43TemplateFile"/></div> 
         
                         <div class="col-sm-4" ng-show="edit.details">

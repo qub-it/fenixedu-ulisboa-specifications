@@ -399,6 +399,7 @@ public class DgesImportationProcessController extends FenixeduUlisboaSpecificati
         specificationsRoot.setDefaultRegistrationProtocol(bean.getDefaultRegistrationProtocol());
         globalConfiguration.setIntroductionText(bean.getIntroductionText());
         globalConfiguration.setInfoAcademicRequisitionText(bean.getInfoAcademicRequisitionText());
+        globalConfiguration.setRedirectUrl(bean.getRedirectUrl());
         if (!cgdTemplateFile.isEmpty()) {
             String fileName = cgdTemplateFile.getOriginalFilename();
             byte[] fileContent = cgdTemplateFile.getBytes();
