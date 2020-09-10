@@ -39,6 +39,12 @@
 </c:if>
 
 
+<div class="alert alert-info" role="alert">		
+	<p class="link-same-color"> 
+		<spring:message code="label.identificationCardServices.messageToExternalSite" />
+	</p>
+</div>	
+	
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		<h3 class="panel-title"><spring:message code="label.identificationCardServices.cgd"/></h3>
@@ -71,6 +77,9 @@
 </div>
 
 <style>
+	.link-same-color > a {
+		color: inherit;	
+	}
 	.table > tbody > tr > th.action-label {
 		vertical-align: middle;
 	}
