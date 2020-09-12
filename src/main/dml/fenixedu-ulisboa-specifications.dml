@@ -376,6 +376,8 @@ relation DegreeCurricularPlanFirstYearRegistrationConfiguration{
 
 class FirstYearRegistrationGlobalConfiguration {
 	LocalizedString introductionText;
+	String infoAcademicRequisitionText;
+	String redirectUrl;
 }
 
 relation BennuFirstYearRegistrationGlobalConfiguration {

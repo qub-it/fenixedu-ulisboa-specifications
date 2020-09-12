@@ -322,8 +322,11 @@ public class PersonalInformationFormController extends FormAbstractController {
     @Override
     protected String backScreen(final ExecutionYear executionYear, final Model model,
             final RedirectAttributes redirectAttributes) {
-        addControllerURLToModel(executionYear, model);
-        return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+//        addControllerURLToModel(executionYear, model);
+//        return redirect(FirstTimeCandidacyController.CONTROLLER_URL, model, redirectAttributes);
+
+        return redirect("/dges/academicRequisition/?candidacy=" + FirstTimeCandidacyController.getCandidacy().getExternalId()
+                + "&isForward=false", model, redirectAttributes);
     }
 
     @Override

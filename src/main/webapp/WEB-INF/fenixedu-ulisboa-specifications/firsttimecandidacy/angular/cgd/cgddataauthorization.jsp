@@ -122,7 +122,7 @@ ${portal.toolkit()}
 	<div class="col-md-6">
 		<div class="panel panel-default">
 			<div>
-				<a class="btn btn-primary panel-heading btn-panel-heading cgd-accept-panel-heading" href="${pageContext.request.contextPath}${controllerURL}/unauthorize" >
+				<a class="btn btn-default panel-heading btn-panel-heading cgd-accept-panel-heading" href="${pageContext.request.contextPath}${controllerURL}/unauthorize" >
 					<span class="cgd-accept-title"><spring:message code="label.CgdDataAuthorization.refuse"  htmlEscape="false"/></span>
 					<span class="cgd-accept-icon glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
 					<span class="cgd-accept-action glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
@@ -140,7 +140,7 @@ ${portal.toolkit()}
 			<div>
 				<a class="btn btn-default panel-heading btn-panel-heading cgd-decline-panel-heading" href="${pageContext.request.contextPath}${controllerURL}/authorize" >
 					<span class="cgd-decline-title"><spring:message code="label.CgdDataAuthorization.accept" htmlEscape="false"/></span>
-					<span class="cgd-decline-icon glyphicon glyphicon-remove-circle" aria-hidden="true"></span>
+					<span class="cgd-decline-icon glyphicon glyphicon-ok-circle" aria-hidden="true"></span>
 					<span class="cgd-decline-action glyphicon glyphicon-thumbs-up" aria-hidden="true"></span>
 					<span class="cgd-decline-loader glyphicon glyphicon-refresh" aria-hidden="true"></span>
 				</a>
@@ -307,8 +307,9 @@ $(document).ready( function () {
 		$('.cgd-decline-action').finish();
 		$('.cgd-decline-title,.cgd-decline-icon').hide();
 		$('.cgd-decline-action').fadeIn("200");			
-		$('.cgd-decline-panel-heading').css('background-color','#898989');			
-		$('.cgd-decline-panel-body').css('background-color','#f2f2f2');
+		$('.cgd-decline-panel-heading').css('background-color','#179b43');			
+		$('.cgd-decline-panel-body').css('background-color','#e6ffee');
+
 	}, function () {
 		$('.cgd-decline-action').hide();
 		$('.cgd-decline-title,.cgd-decline-icon').show();
@@ -322,8 +323,8 @@ $(document).ready( function () {
 		$('.cgd-decline-panel-heading').unbind();
 		$('.cgd-decline-title,.cgd-decline-icon,.cgd-decline-action').hide();
 		$('.cgd-decline-loader').show()
-		$('.cgd-decline-panel-heading').css('background-color','#898989');			
-		$('.cgd-decline-panel-body').css('background-color','#f2f2f2');
+		$('.cgd-decline-panel-heading').css('background-color','#179b43');			
+		$('.cgd-decline-panel-body').css('background-color','#e6ffee');
 		$('.cgd-accept-panel-heading').css('cursor','progress');
 		$('.cgd-decline-panel-heading').css('cursor','progress');
 		$('html').css('cursor','progress');

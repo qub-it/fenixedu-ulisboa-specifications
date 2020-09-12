@@ -107,12 +107,24 @@ ${portal.toolkit()}
                     </td> 
                 </tr>
                 <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.FirstYearRegistrationConfiguration.infoAcademicRequisitionText"/></th> 
+                    <td>
+                        <c:out value='${globalConfiguration.infoAcademicRequisitionText}' />
+                    </td> 
+                </tr>
+                <tr>
                    <th scope="row" class="col-xs-3"><spring:message code="label.FirstYearRegistrationConfiguration.mod43TemplateFile"/></th> 
                    <td>
                        <a href="${pageContext.request.contextPath}<%= DgesImportationProcessController.DOWNLOAD_CGD_URL %>/${globalConfiguration.mod43Template.externalId}">
                            <c:out value='${globalConfiguration.mod43Template.displayName}'/>
                        </a>
                    </td> 
+                </tr>
+                <tr>
+                    <th scope="row" class="col-xs-3"><spring:message code="label.FirstYearRegistrationConfiguration.redirectUrl"/></th> 
+                    <td>
+                        <c:out value='${globalConfiguration.redirectUrl}' />
+                    </td> 
                 </tr>
             </tbody>
         </table>

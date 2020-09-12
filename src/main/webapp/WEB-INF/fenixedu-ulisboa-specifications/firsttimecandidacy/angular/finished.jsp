@@ -1,4 +1,5 @@
 <%@page import="pt.ist.fenixWebFramework.servlets.filters.contentRewrite.GenericChecksumRewriter"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
@@ -123,15 +124,21 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     	<span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" ng-click="isPrinted = true;" href="${pageContext.request.contextPath}${controllerURL}/printalldocuments" target="_blank"><spring:message code="label.event.firstTimeCandidacy.printAllDocuments" /></a>
      </div>
     <%
-    if(request.getContextPath().endsWith("/")) {
-        request.setAttribute("path", "");
+    if(FirstYearRegistrationGlobalConfiguration.getInstance().getRedirectUrl() == null || FirstYearRegistrationGlobalConfiguration.getInstance().getRedirectUrl().isBlank()) {
+        if(request.getContextPath().endsWith("/")) {
+            request.setAttribute("path", request.getContextPath());
+        } else {
+            request.setAttribute("path", request.getContextPath() + "/");
+        }
     } else {
-        request.setAttribute("path", "/");          
+        request.setAttribute("path", FirstYearRegistrationGlobalConfiguration.getInstance().getRedirectUrl());
     }
+    
+    
     %>
-    <div class="well well-sm" style="display:inline-block" ng-show="isPrinted">
+    <div class="well well-sm" style="display:inline-block">
         &nbsp;|&nbsp;
-        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" href="<%= request.getContextPath() %>${path}"><spring:message code="label.event.firstTimeCandidacy.finish" /></a>
+        <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" href="${path}"><spring:message code="label.event.firstTimeCandidacy.finish" /></a>
     </div>
 </form>
 

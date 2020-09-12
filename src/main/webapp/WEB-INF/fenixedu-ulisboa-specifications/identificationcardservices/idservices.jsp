@@ -39,6 +39,14 @@
 </c:if>
 
 
+<div class="alert alert-info" role="alert">		
+	<p class="link-same-color"> 
+		<strong>
+			<spring:message code="label.identificationCardServices.explanation" />
+		</strong>
+	</p>
+</div>	
+	
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		<h3 class="panel-title"><spring:message code="label.identificationCardServices.cgd"/></h3>
@@ -48,7 +56,7 @@
 			<table class="table">
 				<tbody>
 					<tr>
-						<th scope="row" class="action-label col-xs-1"><strong><spring:message code="label.identificationCardServices.cgdmod43" /></strong></th> 
+						<th scope="row" class="action-label col-xs-2"><strong><spring:message code="label.identificationCardServices.cgdmod43" /></strong></th> 
 						<td  class="col-xs-11">
 							<c:if test="${empty webserviceSuccess}">
 								<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/sendCGDMod43" ><span class="action-icon  glyphicon glyphicon-cloud-upload" aria-hidden="true"></span><spring:message code="label.event.sendMod43" /></a>
@@ -58,10 +66,11 @@
 									<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/sendCGDMod43" ><span class="action-icon  glyphicon glyphicon-cloud-upload" aria-hidden="true"></span><spring:message code="label.event.sendMod43" /></a>
 								</c:if>
 								<c:if test="${not webserviceSuccess}">
-									<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/downloadCGDMod43"><span class="action-icon  glyphicon glyphicon-download-alt" aria-hidden="true"></span><spring:message code="label.action.downloadCGDMod43" /></a>
+									<a class="btn btn-default download" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/downloadCGDMod43"><span class="action-icon  glyphicon glyphicon-download-alt" aria-hidden="true"></span><spring:message code="label.action.downloadCGDMod43" /></a>
 								</c:if>
 							</c:if>
-							<a class="btn btn-default" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/downloadCGDMod43"><span class="action-icon  glyphicon glyphicon-download-alt" aria-hidden="true"></span><spring:message code="label.action.downloadCGDMod43" /></a>
+							<a class="btn btn-default download" href="${pageContext.request.contextPath}/fenixedu-ulisboa-specifications/identificationcardservices/downloadCGDMod43"><span class="action-icon  glyphicon glyphicon-download-alt" aria-hidden="true"></span><spring:message code="label.action.downloadCGDMod43" /></a>
+							<a class="btn btn-primary <c:if test="${empty webserviceSuccess or not webserviceSuccess}">disabled</c:if>" href="http://caixaonboarding.cgd.pt" target="blank"><spring:message code="label.identificationCardServices.finish" /></a>
 						</td> 
 					</tr>
 				</tbody>
@@ -70,7 +79,14 @@
 	</div>
 </div>
 
+<script>
+$(".btn-default.download").click(function() { $(".btn-primary.disabled").removeClass("disabled")});
+</script>
+
 <style>
+	.link-same-color > a {
+		color: inherit;	
+	}
 	.table > tbody > tr > th.action-label {
 		vertical-align: middle;
 	}
