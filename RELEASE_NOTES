@@ -1,4 +1,4 @@
-6.18.1.20200904_1535 (04-09-2020)
+- Improvement: Add new step in 1Y1T to process academic requisitions before the process
 - Refactor: Refactored the isSharingDataWithCGDAnswered in PersonUlisboaSpecifications to use the DataShareAuthorization
 
 6.18.1 (27-08-2020)
