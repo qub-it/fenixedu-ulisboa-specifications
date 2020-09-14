@@ -136,7 +136,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     
     
     %>
-    <div class="well well-sm" style="display:inline-block">
+    <div class="well well-sm" style="display:inline-block" ng-show="isPrinted">
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" href="${path}"><spring:message code="label.event.firstTimeCandidacy.finish" /></a>
     </div>
