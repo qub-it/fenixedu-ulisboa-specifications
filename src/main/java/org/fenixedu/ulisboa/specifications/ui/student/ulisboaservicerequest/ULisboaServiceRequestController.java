@@ -19,7 +19,7 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.treasury.domain.document.DebitEntry;
-import org.fenixedu.treasury.domain.paymentcodes.PaymentReferenceCode;
+import org.fenixedu.treasury.domain.paymentcodes.SibsPaymentRequest;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequestGeneratedDocument;
@@ -200,10 +200,12 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/read";
     }
 
-    private Collection<PaymentReferenceCode> getAllOpenPaymentCodes(final List<DebitEntry> activeDebitEntries) {
-        return activeDebitEntries.stream().filter(entry -> !AcademicTreasuryConstants.isZero(entry.getOpenAmount()))
-                .flatMap(entry -> entry.getPaymentCodesSet().stream()).map(payCode -> payCode.getPaymentReferenceCode())
-                .collect(Collectors.toList());
+    private Collection<SibsPaymentRequest> getAllOpenPaymentCodes(final List<DebitEntry> activeDebitEntries) {
+        return activeDebitEntries.stream()
+                    .filter(DebitEntry::isInDebt)
+                    .flatMap(e -> e.getSibsPaymentRequestsSet().stream())
+                    .filter(e -> e.isInRequestedState() || e.isInCreatedState())
+                    .collect(Collectors.toList());
     }
 
     private boolean isAnyPaymentLeft(final List<DebitEntry> activeDebitEntries) {

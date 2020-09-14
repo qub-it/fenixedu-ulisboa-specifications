@@ -36,7 +36,7 @@ import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
 import org.fenixedu.treasury.domain.document.DebitEntry;
-import org.fenixedu.treasury.domain.paymentcodes.PaymentReferenceCode;
+import org.fenixedu.treasury.domain.paymentcodes.SibsPaymentRequest;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestProperty;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
@@ -319,9 +319,11 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/read";
     }
 
-    private Collection<PaymentReferenceCode> getAllOpenPaymentCodes(final List<DebitEntry> activeDebitEntries) {
-        return activeDebitEntries.stream().filter(entry -> !AcademicTreasuryConstants.isZero(entry.getOpenAmount()))
-                .flatMap(entry -> entry.getPaymentCodesSet().stream()).map(payCode -> payCode.getPaymentReferenceCode())
+    private Collection<SibsPaymentRequest> getAllOpenPaymentCodes(final List<DebitEntry> activeDebitEntries) {
+        return activeDebitEntries.stream()
+                    .filter(DebitEntry::isInDebt)
+                    .flatMap(e -> e.getSibsPaymentRequestsSet().stream())
+                    .filter(e -> e.isInRequestedState() || e.isInCreatedState())
                 .collect(Collectors.toList());
     }
 
