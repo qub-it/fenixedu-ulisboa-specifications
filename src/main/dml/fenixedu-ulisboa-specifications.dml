@@ -172,8 +172,6 @@ class PersonUlisboaSpecifications {
 	String otherUniversityChoiceMotivation;
 	String otherDislocatedResidenceType;
     String firstOptionDegreeDesignation;
-    boolean authorizeSharingDataWithCGD;
-    boolean sharingDataWithCGDAnswered;
     String dgesTempIdCode;
     String oldInformation;
     boolean disabilitiesFormAnswered;

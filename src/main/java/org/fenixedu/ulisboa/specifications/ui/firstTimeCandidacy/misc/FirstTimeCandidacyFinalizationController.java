@@ -119,7 +119,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
         Student student = registration.getStudent();
         PersonUlisboaSpecifications personSpecifications = student.getPerson().getPersonUlisboaSpecifications();
 
-        if (personSpecifications != null && !personSpecifications.getAuthorizeSharingDataWithCGD()) {
+        if (personSpecifications != null && !personSpecifications.isSharingDataWithCGDAnswered()) {
             addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.noUniversityCard"), model);
         } else {
             addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.deliverDocumentByHand"), model);
