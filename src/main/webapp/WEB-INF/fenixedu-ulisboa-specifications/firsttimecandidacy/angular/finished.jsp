@@ -117,6 +117,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     		<li><spring:message code="label.firstTimeCandidacy.finished.details.model43"/></li>
     		<li><spring:message code="label.firstTimeCandidacy.finished.details.tuitionPayments"/></li>
     	</ul>
+    	<spring:message code="label.firstTimeCandidacy.finished.details.digitalSignature" />
     </div>
     
     <%-- NAVIGATION --%>
