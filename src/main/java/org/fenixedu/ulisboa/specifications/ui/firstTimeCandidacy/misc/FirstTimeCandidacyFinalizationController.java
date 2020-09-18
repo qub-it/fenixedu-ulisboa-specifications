@@ -113,7 +113,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
             return accessControlRedirect.get();
         }
 
-        printToCandidacySummaryFile(model, true);
+        printToCandidacySummaryFile(model, false);
 
         Registration registration = FirstTimeCandidacyController.getCandidacy().getRegistration();
         Student student = registration.getStudent();
@@ -121,9 +121,10 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
 
         if (personSpecifications != null && !personSpecifications.isSharingDataWithCGDAnswered()) {
             addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.noUniversityCard"), model);
-        } else {
-            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.deliverDocumentByHand"), model);
-        }
+        } 
+//        else {
+//            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.deliverDocumentByHand"), model);
+//        }
         return finished(student, model);
     }
 

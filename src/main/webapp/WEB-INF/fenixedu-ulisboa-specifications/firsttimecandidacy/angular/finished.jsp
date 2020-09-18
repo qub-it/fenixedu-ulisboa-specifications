@@ -108,7 +108,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
     <div class="well">
     	<spring:message code="label.firstTimeCandidacy.finished.details" />
-    </div>
+    </div>hehehe
     
     <div class="well">
     	<spring:message code="label.firstTimeCandidacy.finished.details.more" />
@@ -137,8 +137,10 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
     
     
     %>
+    <div class="alert alert-success" role="alert" ng-show="isPrinted">
+	    <spring:message code="label.firstTimeCandidacy.finished.details.documentsPrinted"/>
+   	</div>   
     <div class="well well-sm" style="display:inline-block" ng-show="isPrinted">
-        &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-ok" aria-hidden="true"></span>&nbsp;<a class="" href="${path}"><spring:message code="label.event.firstTimeCandidacy.finish" /></a>
     </div>
 </form>
