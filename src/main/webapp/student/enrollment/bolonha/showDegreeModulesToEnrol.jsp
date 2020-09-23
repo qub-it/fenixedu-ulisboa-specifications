@@ -166,62 +166,71 @@
 			</ul>			
 		</logic:present>
 	
-		<fr:edit id="bolonhaStudentEnrolments" name="bolonhaStudentEnrollmentBean">
-			<fr:layout name="bolonha-student-enrolment">
-				<logic:present name="enrolmentLayoutClassName">
-					<fr:property name="defaultLayout" value="<%=String.valueOf(request.getAttribute("enrolmentLayoutClassName"))%>"/>
-				</logic:present>
-				<logic:notPresent name="enrolmentLayoutClassName">
-					<%-- qubExtension --%>
-					<fr:property name="defaultLayout" value="<%=EnrolmentLayout.class.getName()%>"/>
-				</logic:notPresent>
-				<fr:property name="enrolmentClasses" value="se_enrolled smalltxt,se_enrolled smalltxt aright,se_enrolled smalltxt aright,se_enrolled smalltxt aright,se_enrolled aright" />
-				<fr:property name="temporaryEnrolmentClasses" value="se_temporary smalltxt,se_temporary smalltxt aright,se_temporary smalltxt aright,se_temporary smalltxt aright,se_temporary aright" />
-				<fr:property name="impossibleEnrolmentClasses" value="se_impossible smalltxt,se_impossible smalltxt aright,se_impossible smalltxt aright,se_impossible smalltxt aright,se_impossible aright" />
-				<fr:property name="curricularCourseToEnrolClasses" value="smalltxt, smalltxt aright, smalltxt aright, aright" />				
-				<fr:property name="groupRowClasses" value="se_groups" />
-	
-				<fr:property name="encodeGroupRules" value="true" />
-				<fr:property name="encodeCurricularRules" value="true" />
-				
-				<fr:property name="allowedToChooseAffinityCycle" value="<%= org.fenixedu.academic.domain.student.Registration.getEnrolmentsAllowStudentToChooseAffinityCycle().toString() %>"/>
-				<fr:property name="allowedToEnrolInAffinityCycle" value="<%= org.fenixedu.academic.domain.student.Registration.getEnrolmentsAllowStudentToEnrolInAffinityCycle().toString() %>"/>
-				
-			</fr:layout>
-		</fr:edit>
-		
-		<%-- qubExtension, remove
-		<p class="mtop15 mbottom05"><bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:</p>
-		--%>
-		<p class="mtop05 mbottom1">
-			<button type="submit" class="btn btn-primary" onclick="this.form.method.value='enrolInDegreeModules'; openPleaseWaitDialog();"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
-		</p>
-	
-		<p class="mtop2 mbottom0"><em><bean:message bundle="APPLICATION_RESOURCES"  key="label.legend"/>:</em></p>
-		
-		<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.minCredits" bundle="APPLICATION_RESOURCES"/></em></p>
-		<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.creditsConcluded" bundle="APPLICATION_RESOURCES"/></em></p>
-		<p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.maxCredits" bundle="APPLICATION_RESOURCES"/></em></p>
-		
-		<%-- qubExtension, remove
-		<table class="mtop0">
-		<tr>
-			<td><div style="width: 10px; height: 10px; border: 1px solid #84b181; background: #eff9ee; float:left;"></div></td>
-			<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.confirmedEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.greenLines"/>)</span></td>
-		</tr>
-		<tr>
-			<td><div style="width: 10px; height: 10px; border: 1px solid #b9b983; background: #fafce6; float:left;"></div></td>
-			<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.temporaryEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.yellowLines"/>)</span></td>
-		</tr>
-		<tr>
-			<td><div style="width: 10px; height: 10px; border: 1px solid #be5a39; background: #ffe9e2; float:left;"></div></td>
-			<td><bean:message bundle="APPLICATION_RESOURCES"  key="label.impossibleEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.redLines"/>)</span></td>
-		</tr>
-		 --%>
-		</table>
-		
-		<%-- qubExtension --%>
-		<jsp:include page="<%= "/layout/pleasewait.jsp"%>"/>
+	    <logic:equal name="hideDegreeModulesToEnrol" value="true">
+            <div class="warning0" style="padding: 0.5em;">
+                <ul class="mvert05">
+                    <li><bean:message bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" key="label.warning.cant.edit.ucs"/></li>
+                </ul>
+            </div>
+        </logic:equal>
+        <logic:notEqual name="hideDegreeModulesToEnrol" value="true">
+            <fr:edit id="bolonhaStudentEnrolments" name="bolonhaStudentEnrollmentBean">
+                <fr:layout name="bolonha-student-enrolment">
+                    <logic:present name="enrolmentLayoutClassName">
+                        <fr:property name="defaultLayout" value="<%=String.valueOf(request.getAttribute("enrolmentLayoutClassName"))%>"/>
+                    </logic:present>
+                    <logic:notPresent name="enrolmentLayoutClassName">
+                        <%-- qubExtension --%>
+                        <fr:property name="defaultLayout" value="<%=EnrolmentLayout.class.getName()%>"/>
+                    </logic:notPresent>
+                    <fr:property name="enrolmentClasses" value="se_enrolled smalltxt,se_enrolled smalltxt aright,se_enrolled smalltxt aright,se_enrolled smalltxt aright,se_enrolled aright" />
+                    <fr:property name="temporaryEnrolmentClasses" value="se_temporary smalltxt,se_temporary smalltxt aright,se_temporary smalltxt aright,se_temporary smalltxt aright,se_temporary aright" />
+                    <fr:property name="impossibleEnrolmentClasses" value="se_impossible smalltxt,se_impossible smalltxt aright,se_impossible smalltxt aright,se_impossible smalltxt aright,se_impossible aright" />
+                    <fr:property name="curricularCourseToEnrolClasses" value="smalltxt, smalltxt aright, smalltxt aright, aright" />
+                    <fr:property name="groupRowClasses" value="se_groups" />
+
+                    <fr:property name="encodeGroupRules" value="true" />
+                    <fr:property name="encodeCurricularRules" value="true" />
+
+                    <fr:property name="allowedToChooseAffinityCycle" value="<%= org.fenixedu.academic.domain.student.Registration.getEnrolmentsAllowStudentToChooseAffinityCycle().toString() %>"/>
+                    <fr:property name="allowedToEnrolInAffinityCycle" value="<%= org.fenixedu.academic.domain.student.Registration.getEnrolmentsAllowStudentToEnrolInAffinityCycle().toString() %>"/>
+
+                </fr:layout>
+            </fr:edit>
+
+            <%-- qubExtension, remove
+            <p class="mtop15 mbottom05"><bean:message bundle="APPLICATION_RESOURCES"  key="label.saveChanges.message"/>:</p>
+            --%>
+            <p class="mtop05 mbottom1">
+                <button type="submit" class="btn btn-primary" onclick="this.form.method.value='enrolInDegreeModules'; openPleaseWaitDialog();"><bean:message bundle="APPLICATION_RESOURCES"  key="label.save"/></button>
+            </p>
+
+            <p class="mtop2 mbottom0"><em><bean:message bundle="APPLICATION_RESOURCES"  key="label.legend"/>:</em></p>
+
+            <p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.minCredits" bundle="APPLICATION_RESOURCES"/></em></p>
+            <p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.creditsConcluded" bundle="APPLICATION_RESOURCES"/></em></p>
+            <p class="mvert05"><em><bean:message  key="label.curriculum.credits.legend.maxCredits" bundle="APPLICATION_RESOURCES"/></em></p>
+
+            <%-- qubExtension, remove
+            <table class="mtop0">
+            <tr>
+                <td><div style="width: 10px; height: 10px; border: 1px solid #84b181; background: #eff9ee; float:left;"></div></td>
+                <td><bean:message bundle="APPLICATION_RESOURCES"  key="label.confirmedEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.greenLines"/>)</span></td>
+            </tr>
+            <tr>
+                <td><div style="width: 10px; height: 10px; border: 1px solid #b9b983; background: #fafce6; float:left;"></div></td>
+                <td><bean:message bundle="APPLICATION_RESOURCES"  key="label.temporaryEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.yellowLines"/>)</span></td>
+            </tr>
+            <tr>
+                <td><div style="width: 10px; height: 10px; border: 1px solid #be5a39; background: #ffe9e2; float:left;"></div></td>
+                <td><bean:message bundle="APPLICATION_RESOURCES"  key="label.impossibleEnrollments"/><span class="color888"> (<bean:message bundle="APPLICATION_RESOURCES"  key="label.redLines"/>)</span></td>
+            </tr>
+             --%>
+            </table>
+
+            <%-- qubExtension --%>
+            <jsp:include page="<%= "/layout/pleasewait.jsp"%>"/>
+        </logic:notEqual>
 
 
 	<%-- NAVIGATION --%>

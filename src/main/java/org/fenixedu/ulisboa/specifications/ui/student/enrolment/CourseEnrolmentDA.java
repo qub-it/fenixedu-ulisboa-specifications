@@ -1,13 +1,13 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
+ * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
  *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
  *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  *
- * 
+ *
  * This file is part of FenixEdu fenixedu-ulisboa-specifications.
  *
  * FenixEdu fenixedu-ulisboa-specifications is free software: you can redistribute it and/or modify
@@ -37,6 +37,8 @@ import org.apache.struts.action.ActionMapping;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.CurricularRuleLevel;
+import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriodType;
+import org.fenixedu.academic.domain.enrolment.period.AutomaticEnrolment;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
@@ -176,6 +178,17 @@ public class CourseEnrolmentDA extends AbstractBolonhaStudentEnrollmentDA {
             final List<AcademicEnrolmentPeriodBean> periods =
                     process.getEnrolmentPeriods().stream().filter(i -> i.isForCurricularCourses()).collect(Collectors.toList());
             request.setAttribute("openedEnrolmentPeriods", periods);
+
+            request.setAttribute("hideDegreeModulesToEnrol", false);
+            periods.forEach(p -> {
+                if (p.getExecutionSemester() == executionSemester) {
+                    if (p.getEnrolmentPeriodType() == AcademicEnrolmentPeriodType.CURRICULAR_COURSE
+                            && p.getAutomaticEnrolment() == AutomaticEnrolment.YES_UNEDITABLE) {
+                        request.setAttribute("hideDegreeModulesToEnrol", true);
+                    }
+                }
+            });
+
         }
 
         if (scp != null) {
