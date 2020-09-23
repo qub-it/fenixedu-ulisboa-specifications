@@ -108,7 +108,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 
     <div class="well">
     	<spring:message code="label.firstTimeCandidacy.finished.details" />
-    </div>hehehe
+    </div>
     
     <div class="well">
     	<spring:message code="label.firstTimeCandidacy.finished.details.more" />
