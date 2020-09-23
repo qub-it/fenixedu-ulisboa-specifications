@@ -1,3 +1,4 @@
+6.19.5 (23-09-2020)
 - Bug fix: Dont let edit enrolments in enrolment process when it is automatic
 - Bug fix: Removed random keyword
 
