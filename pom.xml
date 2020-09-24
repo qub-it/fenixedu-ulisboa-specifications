@@ -11,7 +11,7 @@
 
 	<groupId>org.fenixedu.ulisboa</groupId>
 	<artifactId>fenixedu-ulisboa-specifications</artifactId>
-	<version>6.19.5</version>
+	<version>6.19.6</version>
 	<packaging>jar</packaging>
 
 	<name>FenixEdu ULisboa Specifications</name>
