@@ -26,7 +26,6 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
-import org.fenixedu.ulisboa.specifications.domain.bluerecord.BlueRecordConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
@@ -74,9 +73,6 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
         if (accessControlRedirect.isPresent()) {
             return accessControlRedirect.get();
         }
-        if (!BlueRecordConfiguration.getInstance().getIsCgdFormToFill()) {
-            return redirect(urlWithExecutionYear(TuitionController.CONTROLLER_URL, executionYear), model, redirectAttributes);
-        }
 
         return redirect(urlWithExecutionYear(CgdDataAuthorizationController.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
@@ -121,7 +117,7 @@ public class FirstTimeCandidacyFinalizationController extends FirstTimeCandidacy
 
         if (personSpecifications != null && !personSpecifications.isSharingDataWithCGDAnswered()) {
             addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.noUniversityCard"), model);
-        } 
+        }
 //        else {
 //            addWarningMessage(BundleUtil.getString(BUNDLE, "label.firstTimeCandidacy.finished.deliverDocumentByHand"), model);
 //        }

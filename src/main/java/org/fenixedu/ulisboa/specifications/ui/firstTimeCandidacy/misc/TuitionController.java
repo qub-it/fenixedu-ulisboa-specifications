@@ -43,7 +43,6 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academictreasury.ui.customer.CustomerAccountingController;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
-import org.fenixedu.ulisboa.specifications.domain.bluerecord.BlueRecordConfiguration;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.enrolments.CurricularCoursesController;
@@ -164,11 +163,6 @@ public class TuitionController extends FirstTimeCandidacyAbstractController {
     }
 
     protected String nextScreen(final ExecutionYear executionYear, Model model, RedirectAttributes redirectAttributes) {
-        if (!BlueRecordConfiguration.getInstance().getIsCgdFormToFill()) {
-            return redirect(urlWithExecutionYear(FirstTimeCandidacyFinalizationController.WITHOUT_MODEL_URL, executionYear),
-                    model, redirectAttributes);
-        }
-
         return redirect(urlWithExecutionYear(CgdDataAuthorizationController.CONTROLLER_URL, executionYear), model,
                 redirectAttributes);
     }
