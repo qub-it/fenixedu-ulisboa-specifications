@@ -1,3 +1,4 @@
+- Improvement: Better error message when an official instituition is required 
 - Bug fix: Using iso-8859-1 instead of iso-8859-15 when importing DGES file 
 
 6.19.9 (26-09-2020)
