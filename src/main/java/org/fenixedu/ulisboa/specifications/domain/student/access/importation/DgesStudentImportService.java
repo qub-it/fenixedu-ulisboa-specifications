@@ -168,7 +168,7 @@ public class DgesStudentImportService {
         final List<DegreeCandidateDTO> result = new ArrayList<>();
 
         final BufferedReader reader =
-                new BufferedReader(new InputStreamReader(new ByteArrayInputStream(content), Charset.forName("ISO-8859-15")));
+                new BufferedReader(new InputStreamReader(new ByteArrayInputStream(content), Charset.forName("ISO-8859-1")));
         String personalDataLine = null;
         String addressDataLine = null;
         int lineNumber = 1;
