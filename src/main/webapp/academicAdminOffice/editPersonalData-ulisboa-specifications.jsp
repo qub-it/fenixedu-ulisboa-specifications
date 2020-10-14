@@ -7,6 +7,7 @@
     - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
   
    Contributors: joao.roxo@qub-it.com
+                 daniel.pires@qub-it.com
   
    
    This file is part of FenixEdu fenixedu-ulisboa-specifications.
@@ -26,6 +27,7 @@
 --%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications"%>
+<%@page import="org.fenixedu.academic.domain.Person"%>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
 <%@ taglib uri="http://struts.apache.org/tags-logic" prefix="logic" %>
 <%@ taglib uri="http://struts.apache.org/tags-html" prefix="html" %>
@@ -35,6 +37,11 @@
 <bean:define id="studentID" type="java.lang.String" name="student" property="externalId"/>
 <bean:define id="personBean" name="personBean" type="org.fenixedu.academic.dto.person.PersonBean"/>
 
+<%
+Person person = personBean.getPerson();
+PersonUlisboaSpecifications personUl = person.getPersonUlisboaSpecifications();
+%>
+
 <%-- <% if (FirstYearRegistrationConfiguration.requiresVaccination(personBean.getPerson())) {%> --%>
 	<h3 class="mbottom025"><bean:message key="label.others" bundle="APPLICATION_RESOURCES"/></h3>
 	<table class="tstyle1 thright thlight mtop0">
@@ -42,7 +49,6 @@
 	    <th class="width14em">Validade da Vacina Antitetânica:</th>
 	    <td>
 		    <%
-		    	PersonUlisboaSpecifications personUl = personBean.getPerson().getPersonUlisboaSpecifications();
 		    	if ((personUl == null) || (personUl.getVaccinationValidity() == null)) {
 		    %>
 		    	-
@@ -56,6 +62,24 @@
 			</html:link>
 	    </td>
 	  </tr>
+	  
+	  <tr>
+        <th class="width14em"><bean:message key="label.healthCardNumber" bundle="FENIXEDU_ULISBOA_SPECIFICATIONS_RESOURCES" />:</th>
+        <td>
+            <%
+                if ((person == null) || (person.getHealthCardNumber() == null)) {
+            %>
+                -
+            <% } else { %>
+                <fr:view name="personBean" property="person.healthCardNumber"/>
+            <% } %>
+        </td>
+        <td>
+            <html:link action="/healthCardNumber.do?method=prepareEditHealthCardNumber" paramId="studentID" paramName="studentID">
+                <bean:message key="label.edit" bundle="APPLICATION_RESOURCES" />
+            </html:link>
+        </td>
+      </tr>
 	</table>
 <%-- <% } %> --%>
 
