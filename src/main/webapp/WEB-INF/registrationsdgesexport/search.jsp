@@ -375,6 +375,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					<th><spring:message code="label.identification.number"/></th>
 					<th><spring:message code="label.student"/></th>
 					<th><spring:message code="label.is.registered"/></th>
+                    <th><spring:message code="label.number.ucs"/></th>
 					<th><spring:message code="label.candidacy"/></th>
 					<% if (exportStatistics) { %>
 					<th><spring:message code="label.FiliationForm.nationality"/></th>
@@ -511,6 +512,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 					idnumber : "<c:out value='${searchResult.idNumber}'/>",
 					name : "<c:out value='${searchResult.name}'/>",
 					registrationstate : "<c:out value='${searchResult.registrationState}'/>",
+                    numberOfUCsEnrolled : "<c:out value='${searchResult.numberOfUCsEnrolled}'/>",
 					candidacyState : "<c:out value='${searchResult.candidacyState}'/>",
 					<% if (exportStatistics) { %>
 					nationality : "<c:out value='${searchResult.nationality}'/>",
@@ -586,6 +588,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select', 'bennuToolkit']).contro
 		        { data: 'idnumber' },
 				{ data: 'name' },
 				{ data: 'registrationstate' },
+                { data: 'numberOfUCsEnrolled' },
 				{ data: 'candidacyState' },
 				<% if (exportStatistics) { %>
 				{ data: 'nationality', visible: false },

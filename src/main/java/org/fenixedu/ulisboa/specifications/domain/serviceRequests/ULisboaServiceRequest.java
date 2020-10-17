@@ -89,7 +89,6 @@ import com.qubit.terra.docs.util.ReportGenerationException;
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 import pt.ist.fenixframework.FenixFramework;
-import pt.ist.fenixframework.dml.DeletionListener;
 
 public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements ITreasuryServiceRequest {
 
@@ -126,6 +125,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
     }
 
+    @Override
     protected void checkRules() {
         for (ServiceRequestProperty property : getServiceRequestPropertiesSet()) {
             ServiceRequestSlotEntry entry = ServiceRequestSlotEntry.findByServiceRequestProperty(property);
@@ -723,9 +723,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
                     getAcademicServiceRequestSituationType().getLocalizedName(),
                     AcademicServiceRequestSituationType.CONCLUDED.getLocalizedName());
         }
-        if (!getIsValid()) {
-            throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.invalid.request");
-        }
+
         transitStateTransation(AcademicServiceRequestSituationType.DELIVERED, ULisboaConstants.EMPTY_JUSTIFICATION.getContent());
     }
 
@@ -926,86 +924,56 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
     public static void setupListenerForPropertiesDeletion() {
         //Registration
-        FenixFramework.getDomainModel().registerDeletionListener(Registration.class, new DeletionListener<Registration>() {
-
-            @Override
-            public void deleting(final Registration registration) {
-                for (ULisboaServiceRequest request : registration.getULisboaServiceRequestsSet()) {
-                    request.setRegistration(null);
-                    request.setIsValid(false);
-                }
+        FenixFramework.getDomainModel().registerDeletionListener(Registration.class, registration -> {
+            for (ULisboaServiceRequest request : registration.getULisboaServiceRequestsSet()) {
+                request.setRegistration(null);
+                request.setIsValid(false);
             }
         });
         //DocumentPurposeTypeInstance
         FenixFramework.getDomainModel().registerDeletionListener(DocumentPurposeTypeInstance.class,
-                new DeletionListener<DocumentPurposeTypeInstance>() {
-
-                    @Override
-                    public void deleting(final DocumentPurposeTypeInstance documentPurposeTypeInstance) {
-                        for (ServiceRequestProperty property : documentPurposeTypeInstance.getServiceRequestPropertiesSet()) {
-                            property.setDocumentPurposeTypeInstance(null);
-                            property.getULisboaServiceRequest().setIsValid(false);
-                        }
+                documentPurposeTypeInstance -> {
+                    for (ServiceRequestProperty property : documentPurposeTypeInstance.getServiceRequestPropertiesSet()) {
+                        property.setDocumentPurposeTypeInstance(null);
+                        property.getULisboaServiceRequest().setIsValid(false);
                     }
                 });
         //Execution Year
-        FenixFramework.getDomainModel().registerDeletionListener(ExecutionYear.class, new DeletionListener<ExecutionYear>() {
-
-            @Override
-            public void deleting(final ExecutionYear executionYear) {
-                for (ServiceRequestProperty property : executionYear.getServiceRequestPropertiesSet()) {
-                    property.setExecutionYear(null);
-                    property.getULisboaServiceRequest().setIsValid(false);
-                }
+        FenixFramework.getDomainModel().registerDeletionListener(ExecutionYear.class, executionYear -> {
+            for (ServiceRequestProperty property : executionYear.getServiceRequestPropertiesSet()) {
+                property.setExecutionYear(null);
+                property.getULisboaServiceRequest().setIsValid(false);
             }
         });
         //Student Curricular Plan
-        FenixFramework.getDomainModel().registerDeletionListener(StudentCurricularPlan.class,
-                new DeletionListener<StudentCurricularPlan>() {
-
-                    @Override
-                    public void deleting(final StudentCurricularPlan studentCurricularPlan) {
-                        for (ServiceRequestProperty property : studentCurricularPlan.getServiceRequestPropertiesSet()) {
-                            property.setStudentCurricularPlan(null);
-                            property.getULisboaServiceRequest().setIsValid(false);
-                        }
-                    }
-                });
-        //ExternalEnrolment
-        FenixFramework.getDomainModel().registerDeletionListener(ExternalEnrolment.class,
-                new DeletionListener<ExternalEnrolment>() {
-
-                    @Override
-                    public void deleting(final ExternalEnrolment externalEnrolment) {
-                        for (ServiceRequestProperty property : externalEnrolment.getServiceRequestPropertiesSet()) {
-                            property.removeExternalEnrolments(externalEnrolment);
-                            property.getULisboaServiceRequest().setIsValid(false);
-                        }
-                    }
-                });
-        //CurriculumLine
-        FenixFramework.getDomainModel().registerDeletionListener(CurriculumLine.class, new DeletionListener<CurriculumLine>() {
-
-            @Override
-            public void deleting(final CurriculumLine curriculumLine) {
-                for (ServiceRequestProperty property : curriculumLine.getServiceRequestPropertiesSet()) {
-                    property.removeCurriculumLines(curriculumLine);
-                    property.getULisboaServiceRequest().setIsValid(false);
-                }
-
+        FenixFramework.getDomainModel().registerDeletionListener(StudentCurricularPlan.class, studentCurricularPlan -> {
+            for (ServiceRequestProperty property : studentCurricularPlan.getServiceRequestPropertiesSet()) {
+                property.setStudentCurricularPlan(null);
+                property.getULisboaServiceRequest().setIsValid(false);
             }
+        });
+        //ExternalEnrolment
+        FenixFramework.getDomainModel().registerDeletionListener(ExternalEnrolment.class, externalEnrolment -> {
+            for (ServiceRequestProperty property : externalEnrolment.getServiceRequestPropertiesSet()) {
+                property.removeExternalEnrolments(externalEnrolment);
+                property.getULisboaServiceRequest().setIsValid(false);
+            }
+        });
+        //CurriculumLine
+        FenixFramework.getDomainModel().registerDeletionListener(CurriculumLine.class, curriculumLine -> {
+            for (ServiceRequestProperty property : curriculumLine.getServiceRequestPropertiesSet()) {
+                property.removeCurriculumLines(curriculumLine);
+                property.getULisboaServiceRequest().setIsValid(false);
+            }
+
         });
     }
 
     public static void setupListenerForServiceRequestTypeDeletion() {
-        FenixFramework.getDomainModel().registerDeletionListener(ServiceRequestType.class,
-                new DeletionListener<ServiceRequestType>() {
-                    @Override
-                    public void deleting(final ServiceRequestType serviceRequestType) {
-                        serviceRequestType.getULisboaServiceRequestProcessorsSet().clear();
-                        serviceRequestType.getServiceRequestSlotEntriesSet().clear();
-                    }
-                });
+        FenixFramework.getDomainModel().registerDeletionListener(ServiceRequestType.class, serviceRequestType -> {
+            serviceRequestType.getULisboaServiceRequestProcessorsSet().clear();
+            serviceRequestType.getServiceRequestSlotEntriesSet().clear();
+        });
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
