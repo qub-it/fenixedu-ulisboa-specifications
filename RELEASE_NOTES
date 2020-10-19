@@ -1,3 +1,5 @@
+- Improvement: Modified logic on how to select the most relevant active registration to use in identification card creation
+
 6.20.1 (18-10-2020)
 - Improvement: Add slot for number of ucs enrolled in dges candidacies screen
 

@@ -83,9 +83,10 @@ public class IdentificationCardServicesController extends FenixeduUlisboaSpecifi
             if (size == 1) {
                 registrationToSend = activeRegistrations.iterator().next();
             } else if (size > 1) {
-                Optional<Registration> findFirst =
-                        activeRegistrations.stream().filter(registration -> registration.getRegistrationYear().isCurrent())
-                                .sorted(REGISTRATION_COMPARATOR).findFirst();
+                Optional<Registration> findFirst = activeRegistrations.stream()
+                        .filter(registration -> registration
+                                .hasAnyEnrolmentsIn(ExecutionYear.findCurrent(registration.getDegree().getCalendar())))
+                        .sorted(REGISTRATION_COMPARATOR).findFirst();
                 if (findFirst.isPresent()) {
                     registrationToSend = findFirst.get();
                 }
