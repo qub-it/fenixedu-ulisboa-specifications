@@ -66,6 +66,10 @@ public class PersonUlisboaSpecifications extends PersonUlisboaSpecifications_Bas
         setDisabilityType(null);
         setDislocatedResidenceType(null);
         setFirstOptionInstitution(null);
+        
+        if(getMobilityRegistatrionUlisboaInformation() != null) {
+            getMobilityRegistatrionUlisboaInformation().delete();
+        }
 
         deleteDomainObject();
     }
