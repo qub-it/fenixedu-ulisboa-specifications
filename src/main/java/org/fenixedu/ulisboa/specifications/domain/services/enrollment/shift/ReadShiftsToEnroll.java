@@ -82,14 +82,14 @@ public class ReadShiftsToEnroll {
         if (shift.containsType(ShiftType.TEORICA)) {
             result.setTheoricType(ShiftType.TEORICA);
 
-        } else if (shift.containsType(ShiftType.PRATICA)) {
-            result.setPraticType(ShiftType.PRATICA);
+//        } else if (shift.containsType(ShiftType.PRATICA)) {
+//            result.setPraticType(ShiftType.PRATICA);
 
         } else if (shift.containsType(ShiftType.LABORATORIAL)) {
             result.setLaboratoryType(ShiftType.LABORATORIAL);
 
-        } else if (shift.containsType(ShiftType.TEORICO_PRATICA)) {
-            result.setTheoricoPraticType(ShiftType.TEORICO_PRATICA);
+//        } else if (shift.containsType(ShiftType.TEORICO_PRATICA)) {
+//            result.setTheoricoPraticType(ShiftType.TEORICO_PRATICA);
 
         } else if (shift.containsType(ShiftType.FIELD_WORK)) {
             result.setFieldWorkType(ShiftType.FIELD_WORK);
@@ -116,14 +116,14 @@ public class ReadShiftsToEnroll {
         if (shift.getExecutionCourse() == attend.getExecutionCourse() && shift.containsType(ShiftType.TEORICA)) {
             result.setTheoricShift(shift);
 
-        } else if (shift.getExecutionCourse() == attend.getExecutionCourse() && shift.containsType(ShiftType.PRATICA)) {
-            result.setPraticShift(shift);
+//        } else if (shift.getExecutionCourse() == attend.getExecutionCourse() && shift.containsType(ShiftType.PRATICA)) {
+//            result.setPraticShift(shift);
 
         } else if (shift.getExecutionCourse() == attend.getExecutionCourse() && shift.containsType(ShiftType.LABORATORIAL)) {
             result.setLaboratoryShift(shift);
 
-        } else if (shift.getExecutionCourse() == attend.getExecutionCourse() && shift.containsType(ShiftType.TEORICO_PRATICA)) {
-            result.setTheoricoPraticShift(shift);
+//        } else if (shift.getExecutionCourse() == attend.getExecutionCourse() && shift.containsType(ShiftType.TEORICO_PRATICA)) {
+//            result.setTheoricoPraticShift(shift);
 
         } else if (shift.getExecutionCourse() == attend.getExecutionCourse() && shift.containsType(ShiftType.FIELD_WORK)) {
             result.setFieldWorkShift(shift);
