@@ -754,19 +754,11 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                     private void addShiftsData(Enrolment enrolment, ExecutionInterval enrolmentInterval) {
                         Collection<Shift> shifts = EnrolmentServices.getShiftsFor(enrolment, enrolmentInterval);
                         for (ShiftType shiftType : ShiftType.values()) {
-                            if (!isShiftTypeToBeIgnored(shiftType)) {
-                                Collection<Shift> shiftsOfType =
-                                        shifts.stream().filter(s -> s.containsType(shiftType)).collect(Collectors.toList());
-                                String shiftsString =
-                                        shiftsOfType.stream().map(s -> s.getNome()).collect(Collectors.joining(", "));
-                                addCell(bundle("label.Enrolment.shift", shiftType.getSiglaTipoAula()), shiftsString);
-                            }
+                            Collection<Shift> shiftsOfType =
+                                    shifts.stream().filter(s -> s.containsType(shiftType)).collect(Collectors.toList());
+                            String shiftsString = shiftsOfType.stream().map(s -> s.getName()).collect(Collectors.joining(", "));
+                            addCell(bundle("label.Enrolment.shift", shiftType.getSiglaTipoAula()), shiftsString);
                         }
-                    }
-
-                    private boolean isShiftTypeToBeIgnored(ShiftType shiftType) {
-                        return shiftType.equals(ShiftType.PRATICA) || shiftType.equals(ShiftType.TEORICO_PRATICA)
-                                || shiftType.equals(ShiftType.RESERVA);
                     }
 
                 });
