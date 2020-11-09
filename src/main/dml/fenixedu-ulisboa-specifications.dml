@@ -254,6 +254,7 @@ class PersonUlisboaSpecificationsByExecutionYear {
     Boolean flunkedUniversity;
     Integer flunkedUniversityTimes;
     String formsAnswered;
+    Boolean blueRecordAnswered;
 }
 
 relation PersonUlExecutionYear {

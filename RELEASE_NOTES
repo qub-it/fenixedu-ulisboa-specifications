@@ -1,3 +1,5 @@
+- New feature: Added isBlueRecordAnswered to PersonUlisboaSpecificationsByExecutionYear
+
 6.20.5 (05-11-2020)
 - Refactor: Upgrade dependency of fenixedu-academic-core (remove usage of deprecated shift types) 
 

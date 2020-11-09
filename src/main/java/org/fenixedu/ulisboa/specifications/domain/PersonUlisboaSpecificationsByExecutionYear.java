@@ -113,4 +113,8 @@ public class PersonUlisboaSpecificationsByExecutionYear extends PersonUlisboaSpe
         return formsAnswered.contains(classSimpleName);
     }
 
+    public boolean isBlueRecordAnswered() {
+        return Boolean.TRUE.equals(getBlueRecordAnswered());
+    }
+
 }
