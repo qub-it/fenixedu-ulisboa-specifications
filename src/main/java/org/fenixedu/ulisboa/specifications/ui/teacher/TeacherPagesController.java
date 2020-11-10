@@ -6,12 +6,14 @@ import static org.fenixedu.academic.predicate.AccessControl.check;
 import static org.fenixedu.academic.predicate.AccessControl.getPerson;
 import static pt.ist.fenixframework.FenixFramework.atomic;
 
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.Degree;
+import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.ui.spring.controller.teacher.TeacherView;
@@ -106,7 +108,7 @@ public class TeacherPagesController extends ExecutionCourseController {
                 .filter(curricularCourse -> degrees.contains(curricularCourse.getDegreeCurricularPlan().getDegree()))
                 .flatMap(curricularCourse -> curricularCourse.getAssociatedExecutionCoursesSet().stream())
                 .filter(ec -> ec != executionCourse).filter(ec -> ec.getSite() != null).distinct()
-                .sorted(ExecutionCourse.EXECUTION_COURSE_COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME.reversed());
+                .sorted(EXECUTION_COURSE_COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME.reversed());
     }
 
     private void canCopyContent(ExecutionCourse executionCourse, ExecutionCourse previousExecutionCourse) {
@@ -128,4 +130,20 @@ public class TeacherPagesController extends ExecutionCourseController {
     Boolean getPermission(Professorship prof) {
         return prof.getPermissions().getSections();
     }
+
+    private static final Comparator<ExecutionCourse> EXECUTION_COURSE_COMPARATOR_BY_EXECUTION_PERIOD_AND_NAME =
+            new Comparator<ExecutionCourse>() {
+
+                @Override
+                public int compare(ExecutionCourse o1, ExecutionCourse o2) {
+                    final int cep = ExecutionCourse.EXECUTION_COURSE_EXECUTION_PERIOD_COMPARATOR.compare(o1, o2);
+                    if (cep != 0) {
+                        return cep;
+                    }
+                    final int c = ExecutionCourse.EXECUTION_COURSE_NAME_COMPARATOR.compare(o1, o2);
+                    return c == 0 ? DomainObjectUtil.COMPARATOR_BY_ID.compare(o1, o2) : c;
+                }
+
+            };
+
 }
