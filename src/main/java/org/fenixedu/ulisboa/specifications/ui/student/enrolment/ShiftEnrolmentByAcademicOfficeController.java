@@ -49,6 +49,7 @@ import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.academic.dto.ShiftToEnrol;
+import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.service.services.exceptions.FenixServiceException;
 import org.fenixedu.academic.service.services.exceptions.NotAuthorizedException;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -223,7 +224,7 @@ public class ShiftEnrolmentByAcademicOfficeController extends FenixeduUlisboaSpe
 
     static private void checkUser() {
         if (!(AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS).isMember(Authenticate.getUser())
-                || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", Authenticate.getUser()))) {
+                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", Authenticate.getUser()))) {
             throw new SecurityException("error.authorization.notGranted");
         }
     }

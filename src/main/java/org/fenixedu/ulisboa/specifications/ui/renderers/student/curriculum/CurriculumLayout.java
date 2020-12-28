@@ -18,6 +18,7 @@ import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
 import org.fenixedu.academic.domain.student.gradingTable.DefaultGradingTable;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
+import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.ui.renderers.student.curriculum.CurriculumRenderer;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -184,7 +185,7 @@ public class CurriculumLayout extends Layout {
 
                 if (!isConclusionDocument() && (AcademicAuthorizationGroup.get(AcademicOperationType.MANAGE_CONCLUSION)
                         .isMember(Authenticate.getUser())
-                        || PermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", Authenticate.getUser()))) {
+                        || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", Authenticate.getUser()))) {
                     generateCellWithLink(enrolmentRow, entry.getExecutionYear(),
                             ULisboaSpecificationsUtil.bundle("label.gradingTables.curriculumRenderer.generateInstitutionTable"));
                     return;

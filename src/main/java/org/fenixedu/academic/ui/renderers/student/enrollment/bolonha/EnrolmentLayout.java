@@ -63,6 +63,7 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CycleCurriculumGroup;
 import org.fenixedu.academic.dto.student.enrollment.bolonha.StudentCurriculumGroupBean;
+import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -294,7 +295,7 @@ public class EnrolmentLayout extends BolonhaStudentEnrolmentLayout {
 
         if (AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
                 curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())
-                || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
+                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
                         curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())) {
             addCreditsDistributionMessage(curriculumGroup, executionInterval, result);
         }

@@ -53,6 +53,7 @@ import org.fenixedu.academic.domain.evaluation.EvaluationServices;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
 import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
+import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -150,7 +151,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
                                 .findEnrolmentCourseEvaluations(ev.getEnrolment(), ev.getEvaluationSeason(), semester).isEmpty()
                                 || AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
                                         studentCurricularPlan.getDegree(), Authenticate.getUser())
-                                || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
+                                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
                                         studentCurricularPlan.getDegree(), Authenticate.getUser()))
                         .sorted(c1.thenComparing(c2).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
                         .collect(Collectors.toList());

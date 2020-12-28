@@ -84,6 +84,7 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule.ConclusionValue;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
+import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.ui.renderers.student.curriculum.StudentCurricularPlanRenderer;
 import org.fenixedu.academic.ui.renderers.student.enrollment.bolonha.EnrolmentLayout;
 import org.fenixedu.academic.util.Bundle;
@@ -540,7 +541,7 @@ public class StudentCurricularPlanLayout extends Layout {
 
             if (AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
                     curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())
-                    || PermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
+                    || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
                             curriculumGroup.getStudentCurricularPlan().getDegree(), Authenticate.getUser())) {
                 EnrolmentLayout.addCreditsDistributionMessage(curriculumGroup, getExecutionSemester(), groupName);
             }
@@ -1543,7 +1544,7 @@ public class StudentCurricularPlanLayout extends Layout {
         if (registration != null && programConclusion != null) {
             boolean canManageConclusion = AcademicAuthorizationGroup
                     .get(AcademicOperationType.MANAGE_CONCLUSION, registration.getDegree()).isMember(Authenticate.getUser())
-                    || PermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", registration.getDegree(),
+                    || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_CONCLUSION", registration.getDegree(),
                             Authenticate.getUser());
             if (canManageConclusion) {
                 final HtmlLink result = new HtmlLink();
