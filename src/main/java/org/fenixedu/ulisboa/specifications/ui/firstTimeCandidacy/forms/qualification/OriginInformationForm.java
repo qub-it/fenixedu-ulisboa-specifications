@@ -400,6 +400,7 @@ public class OriginInformationForm implements CandidancyForm {
         result.add(SchoolLevelType.HIGH_SCHOOL_OR_EQUIVALENT);
         result.add(SchoolLevelType.MEDIUM_EDUCATION);
         result.add(SchoolLevelType.TECHNICAL_SPECIALIZATION);
+        result.add(SchoolLevelType.TECHNICAL_PROFESSIONAL_HIGHER_DIPLOMA);
         result.add(SchoolLevelType.FIRST_CYCLE_INTEGRATED_MASTER_DEGREE);
         result.add(SchoolLevelType.FIRST_CYCLE_BASIC_SCHOOL);
         result.add(SchoolLevelType.SECOND_CYCLE_BASIC_SCHOOL);
