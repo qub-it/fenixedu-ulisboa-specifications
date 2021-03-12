@@ -25,7 +25,6 @@ public class CreateExtendedDegreeInfoBean implements IBean {
             final List<ExecutionYear> yearsOptions = ExecutionYear.readNotClosedExecutionYears().stream()
                     .filter(y -> !existingYears.contains(y)).sorted(Collections.reverseOrder()).collect(Collectors.toList());
             setExecutionIntervalsDataSource(yearsOptions);
-            setCopyFromExecutionIntervalsDataSource(existingYears);
         } else {
             setExecutionIntervalsDataSource(ExecutionYear.readNotClosedExecutionYears());
         }
