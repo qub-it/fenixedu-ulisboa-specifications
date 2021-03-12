@@ -1,10 +1,12 @@
 <%@page import="org.fenixedu.ulisboa.specifications.ui.degrees.extendedinfo.ExtendedDegreeInformationController"%>
+<%@page import="org.fenixedu.ulisboa.specifications.domain.services.AuditingServices"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
 <%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/academic" prefix="academic" %>
+<bean:define id="extendedDegreeInfo" name="extendedDegreeInfo" type="org.fenixedu.academic.domain.degree.ExtendedDegreeInfo"/>
 
 <spring:url var="datatablesUrl"
     value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
@@ -50,7 +52,7 @@ ${portal.toolkit()}
 <div class="page-header">
     <h1>
         <spring:message
-            code="label.manageServiceRequestTypes.readServiceRequestType" />
+            code="label.extendedDegreeInformation.backoffice.title.read" />
         <small></small>
     </h1>
 </div>
@@ -117,60 +119,160 @@ ${portal.toolkit()}
             <table class="table">
                 <tbody>
                     <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice." /></th>
-                        <td><c:out value='${serviceRequestType.code}' /></td>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.executionInterval" /></th>
+                        <td><c:out value='${degreeInfo.executionInterval.qualifiedName}' /></td>
                     </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.degree" /></th>
+                        <td><c:out value='${degreeInfo.degree.presentationNameI18N.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.degreeType" /></th>
+                        <td><c:out value='${degreeInfo.degree.degreeType.name.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.degreeAcron" /></th>
+                        <td><c:out value='${degreeInfo.degree.acronym}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.degreeSitePublicUrl" /></th>
+                        <td><c:if test="${not empty degreeInfo.degree.siteUrl}">degrees/<c:out value='${degreeInfo.degree.siteUrl}' /></c:if></td>
+                    </tr> 
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.degreeSiteManagementUrl" /></th>
+                        <td><c:if test="${not empty degreeInfo.degree.siteUrl}">cms/sites/<c:out value='${degreeInfo.degree.siteUrl}' /></c:if></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.auditInfo" /></th>
+                        <td><%= AuditingServices.getAuditInfo(extendedDegreeInfo) %></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.name" /></th>
+                        <td><c:out value='${degreeInfo.name.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.description" /></th>
+                        <td><c:out value='${degreeInfo.description.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.history" /></th>
+                        <td><c:out value='${degreeInfo.history.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.objectives" /></th>
+                        <td><c:out value='${degreeInfo.objectives.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.designedFor" /></th>
+                        <td><c:out value='${degreeInfo.designedFor.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.professionalExits" /></th>
+                        <td><c:out value='${degreeInfo.professionalExits.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.operationalRegime" /></th>
+                        <td><c:out value='${degreeInfo.operationalRegime.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.gratuity" /></th>
+                        <td><c:out value='${degreeInfo.gratuity.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.additionalInfo" /></th>
+                        <td><c:out value='${degreeInfo.additionalInfo.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.links" /></th>
+                        <td><c:out value='${degreeInfo.links.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.testIngression" /></th>
+                        <td><c:out value='${degreeInfo.testIngression.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.classifications" /></th>
+                        <td><c:out value='${degreeInfo.classifications.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.accessRequisites" /></th>
+                        <td><c:out value='${degreeInfo.accessRequisites.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.candidacyDocuments" /></th>
+                        <td><c:out value='${degreeInfo.candidacyDocuments.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.driftsInitial" /></th>
+                        <td><c:out value='${degreeInfo.driftsInitial}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.driftsFirst" /></th>
+                        <td><c:out value='${degreeInfo.driftsFirst}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.driftsSecond" /></th>
+                        <td><c:out value='${degreeInfo.driftsSecond}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.markMin" /></th>
+                        <td><c:out value='${degreeInfo.markMax}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.markMax" /></th>
+                        <td><c:out value='${degreeInfo.markMax}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.markAverage" /></th>
+                        <td><c:out value='${degreeInfo.markAverage}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.qualificationLevel" /></th>
+                        <td><c:out value='${degreeInfo.qualificationLevel.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.recognitions" /></th>
+                        <td><c:out value='${degreeInfo.recognitions.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.prevailingScientificArea" /></th>
+                        <td><c:out value='${degreeInfo.prevailingScientificArea.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.scientificAreas" /></th>
+                        <td><c:out value='${extendedDegreeInfo.scientificAreas.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.studyProgrammeDuration" /></th>
+                        <td><c:out value='${extendedDegreeInfo.studyProgrammeDuration.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.studyRegime" /></th>
+                        <td><c:out value='${extendedDegreeInfo.studyRegime.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.studyProgrammeRequirements" /></th>
+                        <td><c:out value='${extendedDegreeInfo.studyProgrammeRequirements.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.higherEducationAccess" /></th>
+                        <td><c:out value='${extendedDegreeInfo.higherEducationAccess.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.professionalStatus" /></th>
+                        <td><c:out value='${extendedDegreeInfo.professionalStatus.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.supplementExtraInformation" /></th>
+                        <td><c:out value='${extendedDegreeInfo.supplementExtraInformation.content}' /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.supplementOtherSources" /></th>
+                        <td><c:out value='${extendedDegreeInfo.supplementOtherSources.content}' /></td>
+                    </tr>
+                    
                 </tbody>
             </table>
         </form>
     </div>
 </div>
-
-
-PREFIXO de label
-label.extendedDegreeInformation.backoffice
-
-
-private ExecutionYear executionYear;
-    private Degree degree;
-    private String degreeType;
-    private String degreeAcron;
-    private String degreeSitePublicUrl;
-    private String degreeSiteManagementUrl;
-    private String auditInfo;
-
-    // DegreeInfo fields
-    private LocalizedString name;
-    private LocalizedString description;
-    private LocalizedString history;
-    private LocalizedString objectives;
-    private LocalizedString designedFor;
-    private LocalizedString professionalExits;
-    private LocalizedString operationalRegime;
-    private LocalizedString gratuity;
-    private LocalizedString additionalInfo;
-    private LocalizedString links;
-    private LocalizedString testIngression;
-    private LocalizedString classifications;
-    private LocalizedString accessRequisites;
-    private LocalizedString candidacyDocuments;
-    private Integer driftsInitial;
-    private Integer driftsFirst;
-    private Integer driftsSecond;
-    private Double markMin;
-    private Double markMax;
-    private Double markAverage;
-    private LocalizedString qualificationLevel;
-    private LocalizedString recognitions;
-    private LocalizedString prevailingScientificArea;
-
-    // ExtendedDegreeInfo fields
-    private LocalizedString scientificAreas;
-    private LocalizedString studyProgrammeDuration;
-    private LocalizedString studyRegime;
-    private LocalizedString studyProgrammeRequirements;
-    private LocalizedString higherEducationAccess;
-    private LocalizedString professionalStatus;
-    private LocalizedString supplementExtraInformation;
-    private LocalizedString supplementOtherSources;
-

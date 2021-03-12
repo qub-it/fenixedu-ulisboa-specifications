@@ -188,7 +188,12 @@ public class ExtendedDegreeInformationController extends FenixeduUlisboaSpecific
 
     @RequestMapping(value = _READ_URI + "{oid}", method = RequestMethod.GET)
     public String read(@PathVariable(value = "oid") final DegreeInfo degreeInfo, final Model model,
-            final HttpServletRequest request) {
+            final RedirectAttributes redirectAttributes, final HttpServletRequest request) {
+        if (degreeInfo == null) {
+            addErrorMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "message.DegreeInfo.error"), model);
+            return redirect(SEARCH_URL, model, redirectAttributes);
+        }
+
         model.addAttribute("degreeInfo", degreeInfo);
         model.addAttribute("extendedDegreeInfo", degreeInfo.getExtendedDegreeInfo());
 
