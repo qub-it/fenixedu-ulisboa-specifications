@@ -1,5 +1,5 @@
 <%@page
-    import="org.fenixedu.ulisboa.specifications.ui.servicerequesttype.ServiceRequestTypeController"%>
+    import="org.fenixedu.ulisboa.specifications.ui.degrees.extendedinfo.ExtendedDegreeInformationController"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt"%>
@@ -64,7 +64,7 @@ ${portal.angularToolkit()}
 <div class="well well-sm" style="display: inline-block">
     <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
     &nbsp; 
-    <a class="" href="${pageContext.request.contextPath}<%= ServiceRequestTypeController.READ_URL %>${serviceRequestType.externalId}">
+    <a class="" href="${pageContext.request.contextPath}<%= ExtendedDegreeInformationController.READ_URL %>${degreeInfo.externalId}">
         <spring:message code="label.event.back" />
     </a>
     &nbsp; 
@@ -108,11 +108,11 @@ ${portal.angularToolkit()}
 </c:if>
 
 <script>
-    angular.module('angularAppServiceRequestType',
+    angular.module('angularAppExtendedDegreeInformationController',
             [ 'ngSanitize', 'ui.select', 'bennuToolkit' ]).controller(
-            'ServiceRequestTypeController', [ '$scope', function($scope) {
+            'ExtendedDegreeInformationController', [ '$scope', function($scope) {
 
-                $scope.object = ${serviceRequestTypeBeanJson};
+                $scope.object = ${extendedDegreeInfoBeanJson};
                 $scope.booleanvalues= [
                   {name: '<spring:message code="label.no"/>', value: false},
                   {name: '<spring:message code="label.yes"/>', value: true}
@@ -123,203 +123,28 @@ ${portal.angularToolkit()}
 <form method="post" class="form-horizontal"
     ng-app="angularAppServiceRequestType"
     ng-controller="ServiceRequestTypeController"
-    action='${pageContext.request.contextPath}<%= ServiceRequestTypeController.UPDATE_URL %>${serviceRequestType.externalId}'>
+    action='${pageContext.request.contextPath}<%= ExtendedDegreeInformationController. %>${degreeInfo.externalId}'>
     
     <input name="bean" type="hidden" value="{{ object }}" />
     
     <div class="panel panel-default">
         <div class="panel-body">
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.ServiceRequestType.code" />
-                </div>
 
-                <div class="col-sm-10">
-                    <input id="serviceRequestType_code"
-                        class="form-control" type="text" ng-model="object.code" />
+            <div class="form-group row">
+                <div class="col-sm-2 control-label"><spring:message code="label.extendedDegreeInformation.backoffice.name" /></div> 
+                <div class="col-sm-7">
+                    <input type="text" id="extendedDegreeInformation_name_read" class="form-control form-control-read-only" ng-show="!editMode['name']" ng-readonly="true" ng-model="name" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.readMode" />" />
+                    <input type="text" id="extendedDegreeInformation_name" class="form-control" ng-show="editMode['name']" ng-readonly="false" bennu-localized-string="object.name" placeholder="<spring:message code="label.extendedDegreeInformation.backoffice.noDataDefined.writeMode" />" />
                 </div>
+                <c:if test="<%= RoleType.MANAGER.isMember(Authenticate.getUser()) %>">
+                    <div class="col-sm-3">
+                        <a href="" class="btn btn-xs btn-default" ng-show="editMode['name']" ng-click="toggleEditMode('name')" data-toggle="tooltip" title="<spring:message code="label.cancel" />"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></a>
+                        <button class="btn btn-xs btn-primary" ng-show="editMode['name']" ng-click="edit()" data-toggle="tooltip" title="<spring:message code="label.save" />"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></button>
+                        <a href="" class="btn btn-xs btn-default" ng-show="!editMode['name']" ng-click="toggleEditMode('name')" data-toggle="tooltip" title="<spring:message code="label.edit" />"><span class="glyphicon glyphicon-edit" aria-hidden="true"></span></a>
+                    </div>
+                </c:if>
             </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.ServiceRequestType.name" />
-                </div>
 
-                <div class="col-sm-10">
-                    <input id="serviceRequestType_name"
-                        class="form-control" type="text" 
-                        bennu-localized-string="object.name" />
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message
-                        code="label.ServiceRequestType.active" />
-                </div>
-
-                <div class="col-sm-2">
-                    <ui-select id="serviceRequestType_active"
-                        ng-model="$parent.object.active"
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.name}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select> 
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message
-                        code="label.ServiceRequestType.payable" />
-                </div>
-
-                <div class="col-sm-2">
-                    <ui-select id="serviceRequestType_payable"
-                        ng-model="$parent.object.payable"
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.name}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select> 
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message
-                        code="label.ServiceRequestType.notifyUponConclusion" />
-                </div>
-
-                <div class="col-sm-2">
-                    <ui-select id="serviceRequestType_notifyUponConclusion"
-                        ng-model="$parent.object.notifyUponConclusion"
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.name}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select> 
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message
-                        code="label.ServiceRequestType.printable" />
-                </div>
-
-                <div class="col-sm-2">
-                    <ui-select id="serviceRequestType_printable"
-                        ng-model="$parent.object.printable"
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.name}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select> 
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message
-                        code="label.ServiceRequestType.requestedOnline" />
-                </div>
-
-                <div class="col-sm-2">
-                    <ui-select id="serviceRequestType_requestedOnline"
-                        ng-model="$parent.object.requestedOnline"
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.name}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select> 
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message
-                        code="label.ServiceRequestType.printableOnline" />
-                </div>
-
-                <div class="col-sm-2">
-                    <ui-select id="serviceRequestType_printableOnline"
-                        ng-model="$parent.object.printableOnline"
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.name}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="bvalue.value as bvalue in booleanvalues | filter: $select.search">
-                            <span ng-bind-html="bvalue.name | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select> 
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message
-                        code="label.ServiceRequestType.serviceRequestCategory" />
-                </div>
-
-                <div class="col-sm-2">
-                    <ui-select id="serviceRequestType_serviceRequestCategory"
-                        ng-model="$parent.object.serviceRequestCategory"
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.text}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="element.id as element in object.serviceRequestCategoryDataSource | filter: $select.search">
-                            <span ng-bind-html="element.text | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select>                                
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message
-                        code="label.ServiceRequestType.serviceRequestOutputType" />
-                </div>
-
-                <div class="col-sm-2">
-                    <ui-select id="serviceRequestType_documentGeneratedOutputType"
-                        ng-model="$parent.object.documentGeneratedOutputType"
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.text}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="element.id as element in object.documentGeneratedOutputTypeDataSource | filter: $select.search">
-                            <span ng-bind-html="element.text | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select>                                
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message code="label.ServiceRequestType.uLisboaServiceRequestProcessors" />
-                </div>
-
-                <div class="col-sm-10">
-                    <ui-select id="serviceRequestType_uLisboaServiceRequestProcessors"
-                        ng-model="$parent.object.processors"
-                        theme="bootstrap" multiple> 
-                        <ui-select-match allow-clear="true">
-                            {{$item.text}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="element.id as element in object.processorsDataSource | filter: $select.search">
-                            <span ng-bind-html="element.text | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select>
-                </div>                
-            </div>       
         </div>
         <div class="panel-footer">
             <input type="submit" class="btn btn-default" role="button"

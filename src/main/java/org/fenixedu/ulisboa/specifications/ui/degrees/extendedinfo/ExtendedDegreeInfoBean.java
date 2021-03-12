@@ -62,6 +62,9 @@ public class ExtendedDegreeInfoBean implements IBean {
         final Degree degree = degreeInfo.getDegree();
         final ExtendedDegreeInfo extendedDegreeInfo = degreeInfo.getExtendedDegreeInfo();
 
+        setDegreeType(degree.getDegreeTypeName());
+        setDegreeAcron(degree.getAcronym());
+
         String degreeSiteUrl = degree.getSiteUrl();
         if (Strings.isNullOrEmpty(degreeSiteUrl)) {
             setDegreeSitePublicUrl(null);
