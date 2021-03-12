@@ -150,6 +150,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
 
                 <div class="col-sm-4">
                     <select id="degreeDocumentInfo_degree"
+                        style="width:100%"
                         class="js-example-basic-single"
                         name="degree">
                         <option value="">&nbsp;</option>
