@@ -241,6 +241,39 @@ public class ExtendedDegreeInformationController extends FenixeduUlisboaSpecific
 
     @Atomic
     public void updateDegreeInfo(DegreeInfo degreeInfo, ExtendedDegreeInfoBean bean) {
+        final ExtendedDegreeInfo extendedDegreeInfo = degreeInfo.getExtendedDegreeInfo();
 
+        degreeInfo.setName(bean.getName());
+        degreeInfo.setDescription(bean.getDescription());
+        degreeInfo.setHistory(bean.getHistory());
+        degreeInfo.setObjectives(bean.getObjectives());
+        degreeInfo.setDesignedFor(bean.getDesignedFor());
+        degreeInfo.setProfessionalExits(bean.getProfessionalExits());
+        degreeInfo.setOperationalRegime(bean.getOperationalRegime());
+        degreeInfo.setGratuity(bean.getGratuity());
+        degreeInfo.setAdditionalInfo(bean.getAdditionalInfo());
+        degreeInfo.setLinks(bean.getLinks());
+        degreeInfo.setTestIngression(bean.getTestIngression());
+        degreeInfo.setClassifications(bean.getClassifications());
+        degreeInfo.setAccessRequisites(bean.getAccessRequisites());
+        degreeInfo.setCandidacyDocuments(bean.getCandidacyDocuments());
+        degreeInfo.setDriftsInitial(bean.getDriftsInitial());
+        degreeInfo.setDriftsFirst(bean.getDriftsFirst());
+        degreeInfo.setDriftsSecond(bean.getDriftsSecond());
+        degreeInfo.setMarkMin(bean.getMarkMin());
+        degreeInfo.setMarkMax(bean.getMarkMax());
+        degreeInfo.setMarkAverage(bean.getMarkAverage());
+        degreeInfo.setQualificationLevel(bean.getQualificationLevel());
+        degreeInfo.setRecognitions(bean.getRecognitions());
+        degreeInfo.setPrevailingScientificArea(bean.getPrevailingScientificArea());
+
+        extendedDegreeInfo.setScientificAreas(bean.getScientificAreas());
+        extendedDegreeInfo.setStudyProgrammeDuration(bean.getStudyProgrammeDuration());
+        extendedDegreeInfo.setStudyRegime(bean.getStudyRegime());
+        extendedDegreeInfo.setStudyProgrammeRequirements(bean.getStudyProgrammeRequirements());
+        extendedDegreeInfo.setHigherEducationAccess(bean.getHigherEducationAccess());
+        extendedDegreeInfo.setProfessionalStatus(bean.getProfessionalStatus());
+        extendedDegreeInfo.setSupplementExtraInformation(bean.getSupplementExtraInformation());
+        extendedDegreeInfo.setSupplementOtherSources(bean.getSupplementOtherSources());
     }
 }

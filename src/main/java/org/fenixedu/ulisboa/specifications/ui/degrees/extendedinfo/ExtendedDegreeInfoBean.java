@@ -3,8 +3,12 @@ package org.fenixedu.ulisboa.specifications.ui.degrees.extendedinfo;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeInfo;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.commons.i18n.LocalizedString;
+import org.fenixedu.ulisboa.specifications.domain.services.AuditingServices;
+
+import com.google.common.base.Strings;
 
 public class ExtendedDegreeInfoBean implements IBean {
 
@@ -55,7 +59,53 @@ public class ExtendedDegreeInfoBean implements IBean {
     }
 
     public ExtendedDegreeInfoBean(DegreeInfo degreeInfo) {
+        final Degree degree = degreeInfo.getDegree();
+        final ExtendedDegreeInfo extendedDegreeInfo = degreeInfo.getExtendedDegreeInfo();
 
+        String degreeSiteUrl = degree.getSiteUrl();
+        if (Strings.isNullOrEmpty(degreeSiteUrl)) {
+            setDegreeSitePublicUrl(null);
+            setDegreeSiteManagementUrl(null);
+        } else {
+            degreeSiteUrl = degreeSiteUrl.substring(degreeSiteUrl.lastIndexOf("/") + 1);
+            setDegreeSitePublicUrl("degrees/" + degreeSiteUrl);
+            setDegreeSiteManagementUrl("cms/sites/" + degreeSiteUrl);
+        }
+        setAuditInfo(extendedDegreeInfo.getDegreeInfo().getExecutionYear() == getExecutionYear() ? AuditingServices
+                .getAuditInfo(extendedDegreeInfo) : null);
+
+        setName(degreeInfo.getName() != null ? degreeInfo.getName() : null);
+        setDescription(degreeInfo.getDescription() != null ? degreeInfo.getDescription() : null);
+        setHistory(degreeInfo.getHistory() != null ? degreeInfo.getHistory() : null);
+        setObjectives(degreeInfo.getObjectives() != null ? degreeInfo.getObjectives() : null);
+        setDesignedFor(degreeInfo.getDesignedFor() != null ? degreeInfo.getDesignedFor() : null);
+        setProfessionalExits(degreeInfo.getProfessionalExits() != null ? degreeInfo.getProfessionalExits() : null);
+        setOperationalRegime(degreeInfo.getOperationalRegime() != null ? degreeInfo.getOperationalRegime() : null);
+        setGratuity(degreeInfo.getGratuity() != null ? degreeInfo.getGratuity() : null);
+        setAdditionalInfo(degreeInfo.getAdditionalInfo() != null ? degreeInfo.getAdditionalInfo() : null);
+        setLinks(degreeInfo.getLinks() != null ? degreeInfo.getLinks() : null);
+        setTestIngression(degreeInfo.getTestIngression() != null ? degreeInfo.getTestIngression() : null);
+        setClassifications(degreeInfo.getClassifications() != null ? degreeInfo.getClassifications() : null);
+        setAccessRequisites(degreeInfo.getAccessRequisites() != null ? degreeInfo.getAccessRequisites() : null);
+        setCandidacyDocuments(degreeInfo.getCandidacyDocuments() != null ? degreeInfo.getCandidacyDocuments() : null);
+        setDriftsInitial(degreeInfo.getDriftsInitial() != null ? degreeInfo.getDriftsInitial() : null);
+        setDriftsFirst(degreeInfo.getDriftsFirst() != null ? degreeInfo.getDriftsFirst() : null);
+        setDriftsSecond(degreeInfo.getDriftsSecond() != null ? degreeInfo.getDriftsSecond() : null);
+        setMarkMin(degreeInfo.getMarkMin() != null ? degreeInfo.getMarkMin() : null);
+        setMarkMax(degreeInfo.getMarkMax() != null ? degreeInfo.getMarkMax() : null);
+        setMarkAverage(degreeInfo.getMarkAverage() != null ? degreeInfo.getMarkAverage() : null);
+        setQualificationLevel(degreeInfo.getQualificationLevel() != null ? degreeInfo.getQualificationLevel() : null);
+        setRecognitions(degreeInfo.getRecognitions() != null ? degreeInfo.getRecognitions() : null);
+        setPrevailingScientificArea(degreeInfo.getPrevailingScientificArea());
+
+        setScientificAreas(extendedDegreeInfo.getScientificAreas());
+        setStudyProgrammeDuration(extendedDegreeInfo.getStudyProgrammeDuration());
+        setStudyRegime(extendedDegreeInfo.getStudyRegime());
+        setStudyProgrammeRequirements(extendedDegreeInfo.getStudyProgrammeRequirements());
+        setHigherEducationAccess(extendedDegreeInfo.getHigherEducationAccess());
+        setProfessionalStatus(extendedDegreeInfo.getProfessionalStatus());
+        setSupplementExtraInformation(extendedDegreeInfo.getSupplementExtraInformation());
+        setSupplementOtherSources(extendedDegreeInfo.getSupplementOtherSources());
     }
 
     public ExecutionYear getExecutionYear() {
