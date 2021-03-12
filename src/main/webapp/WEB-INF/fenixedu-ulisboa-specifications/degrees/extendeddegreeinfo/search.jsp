@@ -148,7 +148,7 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
                     <spring:message code="label.CourseGroupDegreeInfo.degree" />
                 </div>
 
-                <div class="col-sm-4">
+                <div class="col-sm-8">
                     <select id="degreeDocumentInfo_degree"
                         style="width:100%"
                         class="js-example-basic-single"
@@ -243,7 +243,8 @@ angular.module('angularApp', ['ngSanitize', 'ui.select']).controller('angularCon
         ],
         "tableTools": {
             "sSwfPath": "${pageContext.request.contextPath}/static/qubdocsreports/swf/copy_csv_xls_pdf.swf"
-        }
+        },
+        "order": [[ 0, "desc" ]]
 		});
 		table.columns.adjust().draw();
 		
