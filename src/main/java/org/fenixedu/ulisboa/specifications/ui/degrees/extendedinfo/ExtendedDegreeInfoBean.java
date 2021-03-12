@@ -60,7 +60,7 @@ public class ExtendedDegreeInfoBean implements IBean {
 
     public ExtendedDegreeInfoBean(DegreeInfo degreeInfo) {
         final Degree degree = degreeInfo.getDegree();
-        final ExtendedDegreeInfo extendedDegreeInfo = degreeInfo.getExtendedDegreeInfo();
+        final ExtendedDegreeInfo extendedDegreeInfo = ExtendedDegreeInfo.getOrCreate(degreeInfo.getExecutionYear(), degree);
 
         setDegreeType(degree.getDegreeTypeName());
         setDegreeAcron(degree.getAcronym());
@@ -74,8 +74,7 @@ public class ExtendedDegreeInfoBean implements IBean {
             setDegreeSitePublicUrl("degrees/" + degreeSiteUrl);
             setDegreeSiteManagementUrl("cms/sites/" + degreeSiteUrl);
         }
-        setAuditInfo(extendedDegreeInfo.getDegreeInfo().getExecutionYear() == getExecutionYear() ? AuditingServices
-                .getAuditInfo(extendedDegreeInfo) : null);
+        setAuditInfo(AuditingServices.getAuditInfo(extendedDegreeInfo));
 
         setName(degreeInfo.getName() != null ? degreeInfo.getName() : null);
         setDescription(degreeInfo.getDescription() != null ? degreeInfo.getDescription() : null);
