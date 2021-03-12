@@ -15,8 +15,6 @@ public class CreateExtendedDegreeInfoBean implements IBean {
     private List<TupleDataSourceBean> degreesDataSource;
     private ExecutionYear executionInterval;
     private List<TupleDataSourceBean> executionIntervalsDataSource;
-    private ExecutionYear copyFromExecutionInterval;
-    private List<TupleDataSourceBean> copyFromExecutionIntervalsDataSource;
 
     public void updateLists() {
         setDegreesDataSource(Degree.readBolonhaDegrees());
@@ -81,25 +79,4 @@ public class CreateExtendedDegreeInfoBean implements IBean {
         }).collect(Collectors.toList());
     }
 
-    public ExecutionYear getCopyFromExecutionInterval() {
-        return copyFromExecutionInterval;
-    }
-
-    public void setCopyFromExecutionInterval(ExecutionYear copyFromExecutionInterval) {
-        this.copyFromExecutionInterval = copyFromExecutionInterval;
-    }
-
-    public List<TupleDataSourceBean> getCopyFromExecutionIntervalsDataSource() {
-        return copyFromExecutionIntervalsDataSource;
-    }
-
-    public void setCopyFromExecutionIntervalsDataSource(List<ExecutionYear> copyFromExecutionIntervalsDataSource) {
-        this.copyFromExecutionIntervalsDataSource =
-                copyFromExecutionIntervalsDataSource.stream().sorted(Collections.reverseOrder()).map(x -> {
-                    TupleDataSourceBean tuple = new TupleDataSourceBean();
-                    tuple.setId(x.getExternalId());
-                    tuple.setText(x.getQualifiedName());
-                    return tuple;
-                }).collect(Collectors.toList());
-    }
 }

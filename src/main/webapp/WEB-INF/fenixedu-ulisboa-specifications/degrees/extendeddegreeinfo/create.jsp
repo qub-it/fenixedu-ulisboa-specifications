@@ -165,25 +165,6 @@ ${portal.angularToolkit()}
                     </ui-select> 
                 </div>
             </div>
-            <div class="form-group row">
-                <div class="col-sm-2 control-label">
-                    <spring:message
-                        code="label.DegreeInfo.copyFrom" />
-                </div>
-
-                <div class="col-sm-8">
-                    <ui-select id="degreeInfo_copyFromExecutionInterval" name="copyFromExecutionInterval" on-select="onDropDownChange($item, $model)"
-                        ng-model="$parent.object.copyFromExecutionInterval"
-                        theme="bootstrap" > 
-                        <ui-select-match>
-                            {{$select.selected.text}}
-                        </ui-select-match> 
-                        <ui-select-choices repeat="element.id as element in object.copyFromExecutionIntervalsDataSource | filter: $select.search">
-                            <span ng-bind-html="element.text | highlight: $select.search"></span>
-                        </ui-select-choices>
-                    </ui-select> 
-                </div>
-            </div>            
         </div>
         <div class="panel-footer">
             <input type="submit" class="btn btn-default" role="button"
