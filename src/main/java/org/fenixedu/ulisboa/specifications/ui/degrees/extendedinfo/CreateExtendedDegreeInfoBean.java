@@ -55,7 +55,7 @@ public class CreateExtendedDegreeInfoBean implements IBean {
             tuple.setId(x.getExternalId());
             tuple.setText(x.getCode() + " - " + x.getPresentationNameI18N().getContent());
             return tuple;
-        }).collect(Collectors.toList());
+        }).sorted((o1, o2) -> o1.getText().compareTo(o2.getText())).collect(Collectors.toList());
     }
 
     public ExecutionYear getExecutionInterval() {

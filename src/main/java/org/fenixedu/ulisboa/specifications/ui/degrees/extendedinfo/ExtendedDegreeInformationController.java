@@ -127,12 +127,22 @@ public class ExtendedDegreeInformationController extends FenixeduUlisboaSpecific
         if (bean != null) {
             Degree degree = bean.getDegree();
             ExecutionYear executionInterval = bean.getExecutionInterval();
+
+            if (degree == null) {
+                throw new RuntimeException(BundleUtil.getString(ULisboaConstants.BUNDLE, "message.DegreeInfo.selectOneDegree"));
+            }
+            if (executionInterval == null) {
+                throw new RuntimeException(
+                        BundleUtil.getString(ULisboaConstants.BUNDLE, "message.DegreeInfo.selectOneExecutionYear"));
+            }
+
             if (degree.getDegreeInfoFor(executionInterval) != null) {
-                throw new RuntimeException("Já existe um neste ano!");
+                throw new RuntimeException(BundleUtil.getString(ULisboaConstants.BUNDLE, "message.DegreeInfo.alreadyExists"));
             }
 
             //ExtendedDegreeInfo create also DegreeInfo if it does not exists
             ExtendedDegreeInfo.getOrCreate(executionInterval, degree);
+
         }
     }
 

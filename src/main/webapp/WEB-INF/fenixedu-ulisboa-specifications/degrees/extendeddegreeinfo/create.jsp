@@ -152,7 +152,7 @@ ${portal.angularToolkit()}
 
                 <div class="col-sm-8">
                     <ui-select id="degreeInfo_executionInterval"
-                        ng-model="$parent.object.degree"
+                        ng-model="$parent.object.executionInterval"
                         theme="bootstrap" > 
                         <ui-select-match>
                             {{$select.selected.text}}
