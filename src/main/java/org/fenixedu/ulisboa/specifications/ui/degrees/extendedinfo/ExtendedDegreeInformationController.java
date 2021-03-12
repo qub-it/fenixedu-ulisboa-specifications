@@ -129,6 +129,7 @@ public class ExtendedDegreeInformationController extends FenixeduUlisboaSpecific
         if (bean != null) {
             Degree degree = bean.getDegree();
             ExecutionYear executionInterval = bean.getExecutionInterval();
+            ExecutionYear copyFromExecutionInterval = bean.getCopyFromExecutionInterval();
 
             if (degree == null) {
                 throw new RuntimeException(BundleUtil.getString(ULisboaConstants.BUNDLE, "message.DegreeInfo.selectOneDegree"));
@@ -143,7 +144,18 @@ public class ExtendedDegreeInformationController extends FenixeduUlisboaSpecific
             }
 
             //ExtendedDegreeInfo create also DegreeInfo if it does not exists
-            return ExtendedDegreeInfo.getOrCreate(executionInterval, degree);
+            ExtendedDegreeInfo extendedDegreeInfo = ExtendedDegreeInfo.getOrCreate(executionInterval, degree);
+
+            if (copyFromExecutionInterval != null) {
+                ExtendedDegreeInfo copyFromExtendedDegreeInfo =
+                        ExtendedDegreeInfo.getMostRecent(copyFromExecutionInterval, degree);
+                if (copyFromExtendedDegreeInfo != null) {
+                    updateDegreeInfo(extendedDegreeInfo.getDegreeInfo(),
+                            new ExtendedDegreeInfoBean(copyFromExtendedDegreeInfo.getDegreeInfo()));
+                }
+            }
+
+            return extendedDegreeInfo;
         }
         return null;
     }

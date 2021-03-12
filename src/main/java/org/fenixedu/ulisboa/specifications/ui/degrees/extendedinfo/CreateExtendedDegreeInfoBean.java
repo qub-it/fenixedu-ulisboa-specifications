@@ -2,7 +2,6 @@ package org.fenixedu.ulisboa.specifications.ui.degrees.extendedinfo;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
@@ -16,16 +15,19 @@ public class CreateExtendedDegreeInfoBean implements IBean {
     private List<TupleDataSourceBean> degreesDataSource;
     private ExecutionYear executionInterval;
     private List<TupleDataSourceBean> executionIntervalsDataSource;
+    private ExecutionYear copyFromExecutionInterval;
+    private List<TupleDataSourceBean> copyFromExecutionIntervalsDataSource;
 
     public void updateLists() {
         setDegreesDataSource(Degree.readBolonhaDegrees());
 
         if (degree != null) {
-            final Set<ExecutionYear> existingYears =
-                    degree.getDegreeInfosSet().stream().map(di -> di.getExecutionYear()).collect(Collectors.toSet());
+            final List<ExecutionYear> existingYears =
+                    degree.getDegreeInfosSet().stream().map(di -> di.getExecutionYear()).collect(Collectors.toList());
             final List<ExecutionYear> yearsOptions = ExecutionYear.readNotClosedExecutionYears().stream()
                     .filter(y -> !existingYears.contains(y)).sorted(Collections.reverseOrder()).collect(Collectors.toList());
             setExecutionIntervalsDataSource(yearsOptions);
+            setCopyFromExecutionIntervalsDataSource(existingYears);
         } else {
             setExecutionIntervalsDataSource(ExecutionYear.readNotClosedExecutionYears());
         }
@@ -76,6 +78,28 @@ public class CreateExtendedDegreeInfoBean implements IBean {
             tuple.setId(x.getExternalId());
             tuple.setText(x.getQualifiedName());
             return tuple;
-        }).collect(Collectors.toList());;
+        }).collect(Collectors.toList());
+    }
+
+    public ExecutionYear getCopyFromExecutionInterval() {
+        return copyFromExecutionInterval;
+    }
+
+    public void setCopyFromExecutionInterval(ExecutionYear copyFromExecutionInterval) {
+        this.copyFromExecutionInterval = copyFromExecutionInterval;
+    }
+
+    public List<TupleDataSourceBean> getCopyFromExecutionIntervalsDataSource() {
+        return copyFromExecutionIntervalsDataSource;
+    }
+
+    public void setCopyFromExecutionIntervalsDataSource(List<ExecutionYear> copyFromExecutionIntervalsDataSource) {
+        this.copyFromExecutionIntervalsDataSource =
+                copyFromExecutionIntervalsDataSource.stream().sorted(Collections.reverseOrder()).map(x -> {
+                    TupleDataSourceBean tuple = new TupleDataSourceBean();
+                    tuple.setId(x.getExternalId());
+                    tuple.setText(x.getQualifiedName());
+                    return tuple;
+                }).collect(Collectors.toList());
     }
 }
