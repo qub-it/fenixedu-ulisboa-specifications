@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.DegreeInfo;
 import org.fenixedu.academic.domain.ExecutionYear;
@@ -96,8 +98,8 @@ public class ExtendedDegreeInformationController extends FenixeduUlisboaSpecific
         setCreateExtendedDegreeInfoBean(bean, model);
 
         try {
-            createExtendedDegreeInfo(bean);
-            return redirect(SEARCH_URL, model, redirectAttributes);
+            ExtendedDegreeInfo extendedDegreeInfo = createExtendedDegreeInfo(bean);
+            return redirect(READ_URL + extendedDegreeInfo.getDegreeInfo().getExternalId(), model, redirectAttributes);
         } catch (DomainException e) {
             addErrorMessage(e.getLocalizedMessage(), model);
         } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
@@ -123,7 +125,7 @@ public class ExtendedDegreeInformationController extends FenixeduUlisboaSpecific
     }
 
     @Atomic
-    private void createExtendedDegreeInfo(final CreateExtendedDegreeInfoBean bean) {
+    private ExtendedDegreeInfo createExtendedDegreeInfo(final CreateExtendedDegreeInfoBean bean) {
         if (bean != null) {
             Degree degree = bean.getDegree();
             ExecutionYear executionInterval = bean.getExecutionInterval();
@@ -141,9 +143,9 @@ public class ExtendedDegreeInformationController extends FenixeduUlisboaSpecific
             }
 
             //ExtendedDegreeInfo create also DegreeInfo if it does not exists
-            ExtendedDegreeInfo.getOrCreate(executionInterval, degree);
-
+            return ExtendedDegreeInfo.getOrCreate(executionInterval, degree);
         }
+        return null;
     }
 
     private static final String _CREATE_POSTBACK_URI = "/createpostback/";
@@ -181,10 +183,64 @@ public class ExtendedDegreeInformationController extends FenixeduUlisboaSpecific
         }
     }
 
-    private static final String _READ_URI = "/delete/";
+    private static final String _READ_URI = "/read/";
     public static final String READ_URL = CONTROLLER_URL + _READ_URI;
+
+    @RequestMapping(value = _READ_URI + "{oid}", method = RequestMethod.GET)
+    public String read(@PathVariable(value = "oid") final DegreeInfo degreeInfo, final Model model,
+            final HttpServletRequest request) {
+        model.addAttribute("degreeInfo", degreeInfo);
+        model.addAttribute("extendedDegreeInfo", degreeInfo.getExtendedDegreeInfo());
+
+        return "fenixedu-ulisboa-specifications/degrees/extendeddegreeinfo/read";
+    }
 
     private static final String _UPDATE_URI = "/update/";
     public static final String UPDATE_URL = CONTROLLER_URL + _UPDATE_URI;
 
+    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.GET)
+    public String updateAcademicRequest(@PathVariable(value = "oid") final DegreeInfo degreeInfo, final Model model) {
+        if (getExtendedDegreeInfoBean(model) == null) {
+            ExtendedDegreeInfoBean bean = new ExtendedDegreeInfoBean(degreeInfo);
+            setExtendedDegreeInfoBean(bean, model);
+        }
+
+        model.addAttribute("degreeInfo", degreeInfo);
+        return "fenixedu-ulisboa-specifications/degrees/extendeddegreeinfo/update";
+    }
+
+    @RequestMapping(value = _UPDATE_URI + "{oid}", method = RequestMethod.POST)
+    public String updateAcademicRequest(@PathVariable(value = "oid") final DegreeInfo degreeInfo,
+            @RequestParam(value = "bean", required = true) final ExtendedDegreeInfoBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        setExtendedDegreeInfoBean(bean, model);
+        model.addAttribute("degreeInfo", degreeInfo);
+
+        try {
+            updateDegreeInfo(degreeInfo, bean);
+            return redirect(READ_URL + degreeInfo.getExternalId(), model, redirectAttributes);
+        } catch (DomainException e) {
+            addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (org.fenixedu.bennu.core.domain.exceptions.DomainException e) {
+            addErrorMessage(e.getLocalizedMessage(), model);
+        } catch (Exception e) {
+            if (e instanceof RuntimeException && e.getCause() != null) {
+                Throwable cause = e.getCause();
+                if (cause instanceof DomainException
+                        || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    String message = BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.update");
+                    addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
+                }
+            } else {
+                addErrorMessage("Unknow exception: " + e.getClass().getSimpleName() + " - " + e.getLocalizedMessage(), model);
+            }
+
+        }
+        return "fenixedu-ulisboa-specifications/degrees/extendeddegreeinfo/update";
+    }
+
+    @Atomic
+    public void updateDegreeInfo(DegreeInfo degreeInfo, ExtendedDegreeInfoBean bean) {
+
+    }
 }
