@@ -6,7 +6,6 @@
 <%@ taglib prefix="joda" uri="http://www.joda.org/joda/time/tags" %>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
 <%@ taglib uri="http://fenix-ashes.ist.utl.pt/taglib/academic" prefix="academic" %>
-<bean:define id="extendedDegreeInfo" name="extendedDegreeInfo" type="org.fenixedu.academic.domain.degree.ExtendedDegreeInfo"/>
 
 <spring:url var="datatablesUrl"
     value="/javaScript/dataTables/media/js/jquery.dataTables.latest.min.js" />
@@ -144,7 +143,12 @@ ${portal.toolkit()}
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.auditInfo" /></th>
-                        <td><%= AuditingServices.getAuditInfo(extendedDegreeInfo) %></td>
+                        <%    Object extendedDegreeInfo = request.getAttribute("extendedDegreeInfo"); %>
+                        <%    if(extendedDegreeInfo != null) { %>
+                            <td><%= AuditingServices.getAuditInfo(extendedDegreeInfo) %></td>
+                        <%    } else { %>
+                            <td></td>
+                        <%    } %>
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.extendedDegreeInformation.backoffice.name" /></th>
