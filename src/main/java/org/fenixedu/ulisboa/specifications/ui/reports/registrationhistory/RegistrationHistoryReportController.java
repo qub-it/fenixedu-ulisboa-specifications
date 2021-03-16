@@ -266,6 +266,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                 addData("Person.districtSubdivisionOfBirth", report.getDistrictSubdivisionOfBirth());
                 addData("Person.parishOfBirth", report.getParishOfBirth());
                 addData("Person.iban", report.getIban());
+                addData("Person.healthCardNumber", report.getHealthCardNumber());
                 // addData("Student.studentPersonalDataAuthorizationChoice", report.getStudentPersonalDataAuthorizationChoice());
             }
         }
