@@ -47,4 +47,9 @@ public class BlueRecordConfiguration extends BlueRecordConfiguration_Base {
         return result;
     }
 
+    @Override
+    public Boolean getIsInactive() {
+        return Boolean.TRUE.equals(super.getIsInactive());
+    }
+
 }

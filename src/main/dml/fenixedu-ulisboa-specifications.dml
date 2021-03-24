@@ -1199,6 +1199,7 @@ class tuitionpenalty.TuitionPenaltyConfiguration {
 
 class bluerecord.BlueRecordConfiguration {
     Boolean isCgdFormToFill;
+    Boolean isInactive;
 }
 
 

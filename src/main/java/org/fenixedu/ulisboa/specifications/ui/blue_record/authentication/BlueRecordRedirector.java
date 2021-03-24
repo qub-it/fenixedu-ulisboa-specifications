@@ -47,6 +47,10 @@ public class BlueRecordRedirector implements RedirectionHandler {
 
     @Override
     public boolean isToRedirect(final User user, final HttpServletRequest request) {
+        if (BlueRecordConfiguration.getInstance().getIsInactive()) {
+            return false;
+        }
+
         if (user == null) {
             return false;
         }

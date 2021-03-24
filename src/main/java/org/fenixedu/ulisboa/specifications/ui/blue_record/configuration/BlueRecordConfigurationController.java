@@ -93,6 +93,7 @@ public class BlueRecordConfigurationController extends FenixeduUlisboaSpecificat
         }
 
         configuration.setIsCgdFormToFill(bean.getIsCgdFormToFill());
+        configuration.setIsInactive(bean.getIsInactive());
 
     }
 

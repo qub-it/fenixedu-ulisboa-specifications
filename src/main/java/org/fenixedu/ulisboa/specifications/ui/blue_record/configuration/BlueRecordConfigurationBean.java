@@ -19,6 +19,7 @@ public class BlueRecordConfigurationBean implements IBean {
     private List<Degree> degrees;
     private List<TupleDataSourceBean> degreeDataSource;
     private Boolean isCgdFormToFill;
+    private Boolean isInactive;
 
     public List<DegreeType> getDegreeTypes() {
         return degreeTypes;
@@ -68,6 +69,14 @@ public class BlueRecordConfigurationBean implements IBean {
 
     public void setIsCgdFormToFill(Boolean isCgdFormToFill) {
         this.isCgdFormToFill = isCgdFormToFill;
+    }
+
+    public Boolean getIsInactive() {
+        return isInactive;
+    }
+
+    public void setIsInactive(Boolean isInactive) {
+        this.isInactive = isInactive;
     }
 
     public BlueRecordConfigurationBean() {
