@@ -1,3 +1,5 @@
+- Bug fix: Excluding uilayer paths form ulisboa redirecting filtering
+
 6.24.0 (24-03-2021)
 - New feature: Added boolean to disable blue record
 

@@ -34,7 +34,7 @@ public class ULisboaRedirectorWebFilter implements Filter {
                 || path.endsWith(".png") || path.endsWith(".jpg") || path.endsWith(".jpeg") || path.endsWith(".gif")
                 || path.endsWith("favicon") || path.endsWith("logo") || path.endsWith(".svg") || path.endsWith(".less")
                 || path.endsWith(".ttf") || path.endsWith(".woff") || path.endsWith("/logout")
-                || path.contains("/api/bennu-core")) {
+                || path.contains("/api/bennu-core") || path.contains("/uiLayer")) {
             chain.doFilter(request, response);
             return;
         }
