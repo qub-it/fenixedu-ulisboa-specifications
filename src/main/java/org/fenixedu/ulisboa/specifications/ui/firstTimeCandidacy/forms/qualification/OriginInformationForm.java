@@ -108,7 +108,7 @@ public class OriginInformationForm implements CandidancyForm {
                 setDegreeNamePart(getFullDescription(raidesDegreeDesignation));
             }
             if (schoolLevel.isHigherEducation() && countryWhereFinishedPreviousCompleteDegree == Country.readDefault()) {
-                units.addAll(findExternalAcademicUnit(institutionNamePart == null ? "" : institutionNamePart, 50).stream()
+                units.addAll(findExternalAcademicUnit(institutionNamePart == null ? "" : institutionNamePart, 100).stream()
                         .map(i -> i.getUnit()).filter(i -> !getDegreeDesignationsWithSameSchoolLevel(i).isEmpty())
                         .collect(Collectors.toSet()));
                 setRaidesInstitutionValues(units);
@@ -117,7 +117,7 @@ public class OriginInformationForm implements CandidancyForm {
                 //put raides designation
                 setDegreeDesignation("");
             } else {
-                units.addAll(findExternalUnit(institutionNamePart == null ? "" : institutionNamePart, 50).stream()
+                units.addAll(findExternalUnit(institutionNamePart == null ? "" : institutionNamePart, 100).stream()
                         .filter(i -> i.getUnit().isNoOfficialExternal()).map(i -> i.getUnit()).collect(Collectors.toSet()));
                 setInstitutionValues(units);
                 setRaidesDegreeDesignation(null);
@@ -170,6 +170,14 @@ public class OriginInformationForm implements CandidancyForm {
                 final String normalizedUnitName = unitName.getName();
                 if (containsAll(normalizedUnitName, nameParts)) {
                     if (sequentialNameParts(normalizedUnitName, normalizedName)) {
+                        //Special case - match the all name
+                        // this case we will remove all other options and present the correct one
+                        //Joao Amaral - 29/04/2020
+                        if (unitName.getName().trim().toLowerCase().equals(normalizedName.trim().toLowerCase())) {
+                            unitNameLimitedOrderedSet.clear();
+                            unitNameLimitedOrderedSet.add(unitName);
+                            return;
+                        }
                         unitNameLimitedOrderedSet.add(unitName);
                     }
                 }

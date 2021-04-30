@@ -1,3 +1,6 @@
+- Bug fix: Increase the size of units returned when filling the precedent degree information
+- Bug fix: Show the correct match in case the name is all written
+
 6.25.0 (11-04-2021)
 - Refactor: Digital Payment Requests
 
