@@ -6,9 +6,9 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.degree.DegreeType;
+import org.fenixedu.academictreasury.util.AcademicTreasuryConstants;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
-import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
 import com.google.common.collect.Lists;
 
@@ -20,7 +20,8 @@ public class DegreePrecedencesBean implements IBean {
 
     public DegreePrecedencesBean() {
         this.degreeTypeDataSource = Lists.newArrayList();
-        this.degreeTypeDataSource.add(ULisboaConstants.SELECT_OPTION);
+        this.degreeTypeDataSource.add(new TupleDataSourceBean("",
+                AcademicTreasuryConstants.academicTreasuryBundle("label.TupleDataSourceBean.select.description")));
 
         this.degreeTypeDataSource.addAll(DegreeType.all()
                 .map(d -> new TupleDataSourceBean(d.getExternalId(), d.getName().getContent())).collect(Collectors.toList()));
@@ -45,9 +46,9 @@ public class DegreePrecedencesBean implements IBean {
     public void setDegreeType(final DegreeType degreeType) {
         this.degreeType = degreeType;
     }
-    
+
     public List<TupleDataSourceBean> getDegreeTypeDataSource() {
         return degreeTypeDataSource;
     }
-    
+
 }

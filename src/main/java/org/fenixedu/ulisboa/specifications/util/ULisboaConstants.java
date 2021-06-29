@@ -226,7 +226,4 @@ public class ULisboaConstants {
 
     public static final Locale DEFAULT_LOCALE = new Locale("PT");
 
-    public static final TupleDataSourceBean SELECT_OPTION = new TupleDataSourceBean("",
-            AcademicTreasuryConstants.academicTreasuryBundle("label.TupleDataSourceBean.select.description"));
-
 }
