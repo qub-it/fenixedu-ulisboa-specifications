@@ -111,7 +111,7 @@ ${portal.angularToolkit()}
     <div class="well well-sm" style="display: inline-block">
         <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
         <a class=""
-            href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.SEARCH_URL %>">
             <spring:message code="label.event.back" />
         </a>
         &nbsp; 

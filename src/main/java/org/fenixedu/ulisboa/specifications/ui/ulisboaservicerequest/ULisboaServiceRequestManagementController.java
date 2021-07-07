@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.degree.DegreeType;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
@@ -28,6 +29,7 @@ import org.fenixedu.academic.domain.serviceRequests.ServiceRequestCategory;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
 import org.fenixedu.academictreasury.util.AcademicTreasuryConstants;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -46,6 +48,7 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaService
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertiesBean;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
+import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestRegistrationBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
@@ -85,6 +88,10 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         return (ULisboaServiceRequestBean) model.asMap().get("ulisboaServiceRequestBean");
     }
 
+    private ULisboaServiceRequestRegistrationBean getULisboaServiceRequestRegistrationBean(final Model model) {
+        return (ULisboaServiceRequestRegistrationBean) model.asMap().get("uLisboaServiceRequestRegistrationBean");
+    }
+
     private void setULisboaServiceRequestBean(final ULisboaServiceRequestBean bean, final Model model,
             final boolean forceUpdate) {
         bean.updateModelLists(forceUpdate);
@@ -96,6 +103,12 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         bean.updateLists();
         model.addAttribute("serviceRequestPropertiesBeanJson", getBeanJson(bean));
         model.addAttribute("serviceRequestPropertiesBean", bean);
+    }
+
+    private void setULisboaServiceRequestRegistrationBean(final ULisboaServiceRequestRegistrationBean bean, final Model model) {
+        bean.updateModelLists();
+        model.addAttribute("uLisboaServiceRequestRegistrationBeanJson", getBeanJson(bean));
+        model.addAttribute("uLisboaServiceRequestRegistrationBean", bean);
     }
 
     private static final String _SEARCH_URI = "/search/";
@@ -114,7 +127,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
             @RequestParam(value = "requestNumber", required = false) final String requestNumber,
             @RequestParam(value = "language", required = false) final Locale language,
             @RequestParam(value = "payed", required = false) final Boolean isPayed,
-            @RequestParam(value = "showAll", required = false) final Boolean showAll, final Model model) {
+            @RequestParam(value = "showAll", required = false) final Boolean showAll,
+            @RequestParam(value = "studentNumber", required = false) final String studentNumber, final Model model) {
 
         Set<Integer> years = new HashSet<>();
         Collection<AcademicServiceRequestYear> requestYears = Bennu.getInstance().getAcademicServiceRequestYearsSet();
@@ -144,7 +158,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
         }
 
         List<ULisboaServiceRequest> result = filterSearchServiceRequest(civilYear, degreeType, degree, categories,
-                serviceRequestType, situationType, isUrgent, isSelfIssued, language, requestNumber, isPayed);
+                serviceRequestType, situationType, isUrgent, isSelfIssued, language, requestNumber, isPayed, studentNumber);
         int total = result.size();
         boolean haveMoreThanTheLimit = false;
         if (total > SEARCH_REQUEST_LIST_LIMIT_SIZE) {
@@ -173,8 +187,17 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     private List<ULisboaServiceRequest> filterSearchServiceRequest(final int civilYear, final DegreeType degreeType,
             final Degree degree, final Collection<ServiceRequestCategory> categories, final ServiceRequestType serviceRequestType,
             final AcademicServiceRequestSituationType situationType, final Boolean isUrgent, final Boolean isSelfIssued,
-            final Locale language, final String requestNumber, final Boolean isPayed) {
+            final Locale language, final String requestNumber, final Boolean isPayed, final String studentNumber) {
         AcademicServiceRequestYear requestsYear = AcademicServiceRequestYear.readByYear(civilYear, false);
+        Student student;
+        Integer number;
+        if (StringUtils.isNotBlank(studentNumber) && studentNumber.matches("[0-9]+")) {
+            student = Student.readStudentByNumber(Integer.valueOf(studentNumber));
+            number = Integer.valueOf(studentNumber);
+        } else {
+            student = null;
+            number = null;
+        }
 
         Predicate<ULisboaServiceRequest> filterIsPayed = req -> {
             //TODO: check this filter
@@ -200,7 +223,9 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                 .filter(req -> isSelfIssued == null || req.isSelfIssued() == isSelfIssued)
                 .filter(req -> language == null || req.getLanguage() == null || req.getLanguage().equals(language))
                 .filter(req -> requestNumber == null || req.getServiceRequestNumberYear().contains(requestNumber))
-                .filter(filterIsPayed).collect(Collectors.toList());
+                .filter(req -> student == null || req.getRegistration().getStudent() == student)
+                .filter(req -> student == null || req.getRegistration().getNumber() == number).filter(filterIsPayed)
+                .collect(Collectors.toList());
     }
 
     private static final String _CREATE_URI = "/create/";
@@ -254,6 +279,39 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     public @ResponseBody String createpostback(
             @RequestParam(value = "bean", required = true) final ULisboaServiceRequestBean bean, final Model model) {
         setULisboaServiceRequestBean(bean, model, false);
+        return getBeanJson(bean);
+    }
+
+    private static final String _CREATE_WITH_REGISTRATION_URI = "/create/selectRegistration";
+    public static final String CREATE_WITH_REGISTRATION_URL = CONTROLLER_URL + _CREATE_WITH_REGISTRATION_URI;
+
+    @RequestMapping(value = _CREATE_WITH_REGISTRATION_URI, method = RequestMethod.GET)
+    public String selectRegistration(final Model model) {
+        if (getULisboaServiceRequestRegistrationBean(model) == null) {
+            setULisboaServiceRequestRegistrationBean(new ULisboaServiceRequestRegistrationBean(), model);
+        }
+        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/selectRegistration";
+    }
+
+    @RequestMapping(value = _CREATE_WITH_REGISTRATION_URI, method = RequestMethod.POST)
+    public String selectRegistration(
+            @RequestParam(value = "bean", required = true) final ULisboaServiceRequestRegistrationBean bean, final Model model,
+            final RedirectAttributes redirectAttributes) {
+        if (bean.getRegistration() != null) {
+            return redirect(CREATE_URL + bean.getRegistration().getExternalId(), model, redirectAttributes);
+        }
+        addErrorMessage("Não foi escolhido nenhuma matricula. Seleciona uma antes de passar ao próximo passo", model);
+        return "fenixedu-ulisboa-specifications/servicerequests/ulisboarequest/selectRegistration";
+    }
+
+    private static final String _CREATE_WITH_REGISTRATION_POSTBACK_URI = "/selectRegistrationpostback/";
+    public static final String CREATE_WITH_REGISTRATION_POSTBACK_URL = CONTROLLER_URL + _CREATE_WITH_REGISTRATION_POSTBACK_URI;
+
+    @RequestMapping(value = _CREATE_WITH_REGISTRATION_POSTBACK_URI, method = RequestMethod.POST,
+            produces = "application/json;charset=UTF-8")
+    public @ResponseBody String selectRegistrationpostback(
+            @RequestParam(value = "bean", required = true) final ULisboaServiceRequestRegistrationBean bean, final Model model) {
+        setULisboaServiceRequestRegistrationBean(bean, model);
         return getBeanJson(bean);
     }
 
@@ -320,11 +378,8 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
     }
 
     private Collection<SibsPaymentRequest> getAllOpenPaymentCodes(final List<DebitEntry> activeDebitEntries) {
-        return activeDebitEntries.stream()
-                    .filter(DebitEntry::isInDebt)
-                    .flatMap(e -> e.getSibsPaymentRequestsSet().stream())
-                    .filter(e -> e.isInRequestedState() || e.isInCreatedState())
-                .collect(Collectors.toList());
+        return activeDebitEntries.stream().filter(DebitEntry::isInDebt).flatMap(e -> e.getSibsPaymentRequestsSet().stream())
+                .filter(e -> e.isInRequestedState() || e.isInCreatedState()).collect(Collectors.toList());
     }
 
     private boolean isAnyPaymentLeft(final List<DebitEntry> activeDebitEntries) {

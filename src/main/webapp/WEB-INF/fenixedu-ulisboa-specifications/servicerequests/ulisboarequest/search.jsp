@@ -122,6 +122,15 @@ function submit(url) {
     </h1>
 </div>
 
+    <div class="well well-sm" style="display: inline-block">
+        <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+        <a class=""
+            href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_WITH_REGISTRATION_URL %>">
+            <spring:message code="label.event.create" />
+        </a>
+        &nbsp; 
+    </div>
+
 <form method="get" class="form-horizontal">
     
     <input type="hidden" id="showAllInput" name="showAll" value="false"/>
@@ -238,7 +247,7 @@ function submit(url) {
                     <spring:message code="label.academicRequest.degree" />
                 </div>
 
-                <div class="col-sm-8">
+                <div class="col-sm-6">
                     <%-- Relation to side 1 drop down rendered in input --%>
                     <select id="academicRequest_degree"
                         class="js-example-basic-single"
@@ -259,6 +268,14 @@ function submit(url) {
                             width: 'element',
                           });
                     </script>
+                </div>
+                
+                <div class="col-sm-1 control-label">
+                    <spring:message code="label.PreviousDegreeInformationForm.studentNumber" />
+                </div>
+
+                <div class="col-sm-1">
+                    <input id="serviceRequestSlot_studentNumber" class="form-control" type="text" name="studentNumber" value='<c:out value='${param.studentNumber}'/>' />                    
                 </div>
             </div>
             <div class="form-group row">
