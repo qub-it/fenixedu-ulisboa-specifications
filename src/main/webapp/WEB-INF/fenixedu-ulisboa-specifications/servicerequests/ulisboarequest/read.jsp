@@ -411,9 +411,12 @@ ${portal.toolkit()}
     <span class="glyphicon glyphicon-arrow-left" aria-hidden="true"></span>
     &nbsp; 
     <a class=""
-        href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.SEARCH_URL %>">
+        href="${pageContext.request.contextPath}<%= GenericChecksumRewriter.injectChecksumInUrl(request.getContextPath(), url, session) %>">
+        <spring:message code="label.event.back.registration" />
+    </a>
+<%--        href="${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.SEARCH_URL %>">
         <spring:message code="label.event.back" />
-    </a>    
+    </a> --%>    
     <c:if test="${ serviceRequest.isValidTransition(serviceRequest.academicServiceRequestSituationType, 'PROCESSING') }">
         &nbsp;|&nbsp;
         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
