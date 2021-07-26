@@ -21,7 +21,7 @@ public class StudentServices {
                 continue;
             }
 
-            if (registration.getEnrolments(executionYear).isEmpty() && registration.getRegistrationYear() != executionYear) {
+            if (registration.getEnrolments(executionYear).isEmpty()) {
                 continue;
             }
 
