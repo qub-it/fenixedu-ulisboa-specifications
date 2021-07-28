@@ -21,8 +21,6 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
-import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
-import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +35,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.lowagie.text.DocumentException;
 import com.qubit.solution.fenixedu.integration.cgd.domain.configuration.CgdIntegrationConfiguration;
 import com.qubit.solution.fenixedu.integration.cgd.services.CGDPdfFiller;
+import com.qubit.solution.fenixedu.integration.cgd.services.form43.CgdForm43Sender;
 
 @SpringFunctionality(app = FenixeduUlisboaSpecificationsController.class, title = "label.title.identificationCardServices",
         accessGroup = "logged")
@@ -47,22 +46,18 @@ public class IdentificationCardServicesController extends FenixeduUlisboaSpecifi
     private @Autowired ServletContext context;
     private static final String CGD_PERSONAL_INFORMATION_PDF_PATH = "candidacy/firsttime/CGD43.pdf";
 
-    private static final Comparator<Registration> REGISTRATION_COMPARATOR = new Comparator<Registration>() {
+    private static final Comparator<Registration> REGISTRATION_COMPARATOR = (registration1, registration2) -> {
+        SortedSet<ExecutionYear> sortedEnrolmentsExecutionYears = registration1.getSortedEnrolmentsExecutionYears();
+        SortedSet<ExecutionYear> sortedEnrolmentsExecutionYears2 = registration2.getSortedEnrolmentsExecutionYears();
 
-        @Override
-        public int compare(Registration registration1, Registration registration2) {
-            SortedSet<ExecutionYear> sortedEnrolmentsExecutionYears = registration1.getSortedEnrolmentsExecutionYears();
-            SortedSet<ExecutionYear> sortedEnrolmentsExecutionYears2 = registration2.getSortedEnrolmentsExecutionYears();
-
-            if (sortedEnrolmentsExecutionYears.isEmpty() && !sortedEnrolmentsExecutionYears2.isEmpty()) {
-                return 1;
-            } else if (!sortedEnrolmentsExecutionYears.isEmpty() && sortedEnrolmentsExecutionYears2.isEmpty()) {
-                return -1;
-            } else if (sortedEnrolmentsExecutionYears.isEmpty() && sortedEnrolmentsExecutionYears2.isEmpty()) {
-                return 0;
-            } else {
-                return sortedEnrolmentsExecutionYears.last().compareTo(sortedEnrolmentsExecutionYears2.last());
-            }
+        if (sortedEnrolmentsExecutionYears.isEmpty() && !sortedEnrolmentsExecutionYears2.isEmpty()) {
+            return 1;
+        } else if (!sortedEnrolmentsExecutionYears.isEmpty() && sortedEnrolmentsExecutionYears2.isEmpty()) {
+            return -1;
+        } else if (sortedEnrolmentsExecutionYears.isEmpty() && sortedEnrolmentsExecutionYears2.isEmpty()) {
+            return 0;
+        } else {
+            return sortedEnrolmentsExecutionYears.last().compareTo(sortedEnrolmentsExecutionYears2.last());
         }
     };
 
@@ -93,7 +88,7 @@ public class IdentificationCardServicesController extends FenixeduUlisboaSpecifi
             }
         }
         if (registrationToSend != null) {
-            sent = StudentAccessServices.triggerSyncRegistrationToExternal(registrationToSend);
+            sent = new CgdForm43Sender().sendForm43For(registrationToSend);
         }
 
         if (sent) {

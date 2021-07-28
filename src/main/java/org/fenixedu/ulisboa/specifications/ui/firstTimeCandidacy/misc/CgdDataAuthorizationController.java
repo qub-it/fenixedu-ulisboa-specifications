@@ -21,7 +21,6 @@ import org.fenixedu.academicextensions.domain.person.dataShare.DataShareAuthoriz
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.PersonUlisboaSpecifications;
 import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
-import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyAbstractController;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.FirstTimeCandidacyController;
 import org.slf4j.LoggerFactory;
@@ -35,6 +34,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.lowagie.text.DocumentException;
 import com.qubit.solution.fenixedu.integration.cgd.domain.configuration.CgdIntegrationConfiguration;
 import com.qubit.solution.fenixedu.integration.cgd.services.CGDPdfFiller;
+import com.qubit.solution.fenixedu.integration.cgd.services.form43.CgdForm43Sender;
 
 import pt.ist.fenixframework.Atomic;
 
@@ -101,7 +101,7 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 
         boolean wsCallSuccess;
         try {
-            wsCallSuccess = StudentAccessServices.triggerSyncRegistrationToExternal(registration);
+            wsCallSuccess = new CgdForm43Sender().sendForm43For(registration);
         } catch (Exception e) {
             wsCallSuccess = false;
         }
@@ -132,7 +132,7 @@ public class CgdDataAuthorizationController extends FirstTimeCandidacyAbstractCo
 
         final Registration registration = findFirstTimeRegistration(executionYear);
         try {
-            StudentAccessServices.triggerSyncRegistrationToExternal(registration);
+            new CgdForm43Sender().sendForm43For(registration);
         } catch (Exception e) {
         }
 

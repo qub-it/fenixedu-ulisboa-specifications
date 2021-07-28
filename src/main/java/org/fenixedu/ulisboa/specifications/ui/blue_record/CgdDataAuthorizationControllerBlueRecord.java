@@ -11,12 +11,13 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.spring.portal.BennuSpringController;
 import org.fenixedu.ulisboa.specifications.domain.bluerecord.BlueRecordConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.services.student.StudentServices;
-import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
 import org.fenixedu.ulisboa.specifications.ui.firstTimeCandidacy.misc.CgdDataAuthorizationController;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.qubit.solution.fenixedu.integration.cgd.services.form43.CgdForm43Sender;
 
 @BennuSpringController(value = BlueRecordEntryPoint.class)
 @RequestMapping(CgdDataAuthorizationControllerBlueRecord.CONTROLLER_URL)
@@ -70,7 +71,7 @@ public class CgdDataAuthorizationControllerBlueRecord extends CgdDataAuthorizati
 
         boolean wsCallSuccess;
         try {
-            wsCallSuccess = StudentAccessServices.triggerSyncRegistrationToExternal(registration);
+            wsCallSuccess = new CgdForm43Sender().sendForm43For(registration);
         } catch (Exception e) {
             wsCallSuccess = false;
         }
@@ -100,7 +101,7 @@ public class CgdDataAuthorizationControllerBlueRecord extends CgdDataAuthorizati
         final Registration registration = findFirstTimeRegistration(executionYear);
 
         try {
-            StudentAccessServices.triggerSyncRegistrationToExternal(registration);
+            new CgdForm43Sender().sendForm43For(registration);
         } catch (Exception e) {
         }
 
@@ -123,7 +124,7 @@ public class CgdDataAuthorizationControllerBlueRecord extends CgdDataAuthorizati
         if (!BlueRecordConfiguration.getInstance().getIsCgdFormToFill()) {
             return true;
         }
-        
+
         final Registration firstTimeRegistration = findFirstTimeRegistration(executionYear);
 
         if (firstTimeRegistration == null) {

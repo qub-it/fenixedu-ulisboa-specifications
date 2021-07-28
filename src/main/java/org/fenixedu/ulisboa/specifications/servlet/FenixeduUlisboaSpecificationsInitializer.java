@@ -25,10 +25,6 @@
  */
 package org.fenixedu.ulisboa.specifications.servlet;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Set;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -59,8 +55,6 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlot;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
-import org.fenixedu.ulisboa.specifications.domain.student.access.StudentAccessServices;
-import org.fenixedu.ulisboa.specifications.domain.student.access.importation.external.cgd.SyncRegistrationWithCgd;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregator;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorMarkSheetServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorRulesInitializer;
@@ -145,8 +139,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         AuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
 
         setupDeleteListenerForPrecedentDegreeInformation();
-
-        StudentAccessServices.subscribeSyncRegistration(new SyncRegistrationWithCgd());
 
         migrateCgdTemplate();
     }

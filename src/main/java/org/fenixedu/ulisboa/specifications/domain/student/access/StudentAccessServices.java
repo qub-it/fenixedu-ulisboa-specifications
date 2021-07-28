@@ -4,22 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.ulisboa.specifications.domain.student.access.importation.external.SyncPersonWithExternalServices;
-import org.fenixedu.ulisboa.specifications.domain.student.access.importation.external.SyncRegistrationWithExternalServices;
 
+@Deprecated(forRemoval = true)
 public class StudentAccessServices {
 
     private static List<SyncPersonWithExternalServices> syncExternalPersons = new ArrayList<>();
-    private static List<SyncRegistrationWithExternalServices> syncExternalRegistrations = new ArrayList<>();
 
     public static void subscribeSyncPerson(SyncPersonWithExternalServices syncPersonWithExternalServices) {
         syncExternalPersons.add(syncPersonWithExternalServices);
-    }
-
-    public static void subscribeSyncRegistration(SyncRegistrationWithExternalServices syncRegistrationWithExternalServices) {
-        syncExternalRegistrations.add(syncRegistrationWithExternalServices);
     }
 
     public static boolean triggerSyncPersonToExternal(Person person) {
@@ -55,14 +49,4 @@ public class StudentAccessServices {
         return globalSuccess;
     }
 
-    public static boolean triggerSyncRegistrationToExternal(Registration registration) {
-        boolean globalSuccess = true;
-        for (SyncRegistrationWithExternalServices syncExternalRegistration : syncExternalRegistrations) {
-            boolean callSuccess = syncExternalRegistration.syncRegistrationToExternal(registration);
-            if (!callSuccess) {
-                globalSuccess = false;
-            }
-        }
-        return globalSuccess;
-    }
 }
