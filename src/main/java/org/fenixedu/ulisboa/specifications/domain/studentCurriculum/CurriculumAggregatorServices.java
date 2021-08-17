@@ -60,6 +60,7 @@ import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.treasury.services.integration.FenixEDUTreasuryPlatformDependentServices;
 import org.fenixedu.ulisboa.specifications.ULisboaConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
+import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -512,7 +513,7 @@ abstract public class CurriculumAggregatorServices {
 
             if (isCandidateForEnrolmentAutomatically(iter, plan, interval, aboutToEnrol)) {
 
-                toEnrol(iter, plan, interval, aboutToEnrol, result);
+                toEnrol(context, iter, plan, interval, aboutToEnrol, result);
             }
         }
 
@@ -542,8 +543,9 @@ abstract public class CurriculumAggregatorServices {
         return CurriculumLineServices.isEvaluated(getLastCurriculumLine(context, year, plan));
     }
 
-    static private DegreeModuleToEnrol toEnrol(final Context context, final StudentCurricularPlan plan,
-            final ExecutionInterval interval, final Set<Context> aboutToEnrol, final Set<IDegreeModuleToEvaluate> collection) {
+    static private DegreeModuleToEnrol toEnrol(final Context parentContext, final Context context,
+            final StudentCurricularPlan plan, final ExecutionInterval interval, final Set<Context> aboutToEnrol,
+            final Set<IDegreeModuleToEvaluate> collection) {
 
         DegreeModuleToEnrol result = null;
 
@@ -553,6 +555,12 @@ abstract public class CurriculumAggregatorServices {
             result = new DegreeModuleToEnrol(curriculumGroup, context, interval);
             collection.add(result);
             aboutToEnrol.add(context);
+        } else {
+            throw new IllegalStateException(ULisboaSpecificationsUtil.bundle(
+                    "error.CurriculumAggregatorServices.parent.group.of.participant.must.be.previously.enroled",
+                    parentContext.getChildDegreeModule().getCode() + " - "
+                            + parentContext.getChildDegreeModule().getNameI18N().getContent(),
+                    context.getParentCourseGroup().getName()));
         }
 
         return result;
