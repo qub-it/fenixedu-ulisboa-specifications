@@ -1,3 +1,5 @@
+- Bug fix: Prevent stack overflow deleting dismissals that are part of curriculum aggregations
+
 6.25.5 (17-08-2021)
 - Improvement: Prevent curriculum aggregation child enrolment if parent group is not enroled
 

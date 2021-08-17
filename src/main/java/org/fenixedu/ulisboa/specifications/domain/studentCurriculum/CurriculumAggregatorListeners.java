@@ -161,8 +161,12 @@ abstract public class CurriculumAggregatorListeners {
 
         for (final CurriculumModule iter : CurriculumAggregatorServices
                 .getAggregationParticipantsToRemove(CurriculumAggregatorServices.getContext(input), plan, interval)) {
+            
+            if (iter != input) {
+                //do not add it self to avoid stack overflow
+                toChange.add(iter);
+            }
 
-            toChange.add(iter);
         }
 
         enrolmentManage(Sets.newHashSet(), Lists.newArrayList(toChange), plan, interval);
