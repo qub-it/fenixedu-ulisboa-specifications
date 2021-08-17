@@ -1,3 +1,4 @@
+6.25.6 (17-08-2021)
 - Bug fix: Prevent stack overflow deleting dismissals that are part of curriculum aggregations
 
 6.25.5 (17-08-2021)
