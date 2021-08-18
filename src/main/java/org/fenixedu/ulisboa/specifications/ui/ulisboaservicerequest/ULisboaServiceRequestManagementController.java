@@ -210,6 +210,22 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                     || event.isPresent() && isPayed.equals(!event.get().isInDebt());
         };
 
+        if (student != null) {
+            //TODO: refactor the filters to be used only once
+            return student.getRegistrationsSet().stream().flatMap(r -> r.getULisboaServiceRequestsSet().stream())
+                    .filter(req -> degreeType == null || req.getRegistration().getDegree().getDegreeType().equals(degreeType))
+                    .filter(req -> degree == null || req.getRegistration().getDegree().equals(degree))
+                    .filter(req -> categories == null || categories.size() == 0
+                            || categories.contains(req.getServiceRequestType().getServiceRequestCategory()))
+                    .filter(req -> serviceRequestType == null || req.getServiceRequestType().equals(serviceRequestType))
+                    .filter(req -> situationType == null
+                            || req.getActiveSituation().getAcademicServiceRequestSituationType().equals(situationType))
+                    .filter(req -> isUrgent == null || req.isUrgent() == isUrgent)
+                    .filter(req -> isSelfIssued == null || req.isSelfIssued() == isSelfIssued)
+                    .filter(req -> language == null || req.getLanguage() == null || req.getLanguage().equals(language))
+                    .collect(Collectors.toList());
+        }
+
         return requestsYear.getAcademicServiceRequestsSet().stream().filter(req -> req instanceof ULisboaServiceRequest)
                 .map(ULisboaServiceRequest.class::cast)
                 .filter(req -> degreeType == null || req.getRegistration().getDegree().getDegreeType().equals(degreeType))
@@ -224,7 +240,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
                 .filter(req -> language == null || req.getLanguage() == null || req.getLanguage().equals(language))
                 .filter(req -> requestNumber == null || req.getServiceRequestNumberYear().contains(requestNumber))
                 .filter(req -> student == null || req.getRegistration().getStudent() == student)
-                .filter(req -> student == null || req.getRegistration().getNumber() == number).filter(filterIsPayed)
+                .filter(req -> student == null || req.getRegistration().getNumber().equals(number)).filter(filterIsPayed)
                 .collect(Collectors.toList());
     }
 
