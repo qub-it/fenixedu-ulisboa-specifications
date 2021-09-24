@@ -32,6 +32,7 @@ import java.util.stream.Stream;
 
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.commons.i18n.I18N;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class DisabilityType extends DisabilityType_Base implements Comparable<DisabilityType> {
@@ -76,7 +77,7 @@ public class DisabilityType extends DisabilityType_Base implements Comparable<Di
     }
 
     public String getLocalizedName() {
-        return getLocalizedName(Locale.getDefault());
+        return getLocalizedName(I18N.getLocale());
     }
 
     public String getLocalizedName(Locale locale) {
