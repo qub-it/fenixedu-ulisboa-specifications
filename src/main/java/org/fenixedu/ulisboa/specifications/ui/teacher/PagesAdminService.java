@@ -371,11 +371,17 @@ public class PagesAdminService {
         HashMap<String, String> clonedFilesAddress = new HashMap<>();
         oldPost.getFilesSorted().forEach(postFile -> {
             GroupBasedFile file = postFile.getFiles();
-            GroupBasedFile attachmentCopy = new GroupBasedFile(file.getDisplayName(), file.getFilename(), file.getContent(),
-                    EquivalentGroup(newSite, file.getAccessGroup()));
-            new PostFile(newPost, attachmentCopy, postFile.getIsEmbedded(), newPost.getFilesSet().size());
+            GroupBasedFile attachmentCopy;
+            try {
+                attachmentCopy = new GroupBasedFile(file.getDisplayName(), file.getFilename(), file.getStream(),
+                        EquivalentGroup(newSite, file.getAccessGroup()));
+                new PostFile(newPost, attachmentCopy, postFile.getIsEmbedded(), newPost.getFilesSet().size());
 
-            clonedFilesAddress.put(FileDownloadServlet.getDownloadUrl(file), FileDownloadServlet.getDownloadUrl(attachmentCopy));
+                clonedFilesAddress.put(FileDownloadServlet.getDownloadUrl(file),
+                        FileDownloadServlet.getDownloadUrl(attachmentCopy));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         });
 
         LocalizedString postBody = parsePostBodyLinks(oldPost.getBody(), clonedFilesAddress);
