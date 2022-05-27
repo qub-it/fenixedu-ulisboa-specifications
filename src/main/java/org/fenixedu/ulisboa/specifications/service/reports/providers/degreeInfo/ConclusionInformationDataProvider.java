@@ -9,16 +9,17 @@ import java.util.stream.Collectors;
 import org.fenixedu.academic.domain.DegreeInfo;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ExtraCurricularActivity;
+import org.fenixedu.academic.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.qubdocs.util.DocsStringUtils;
-import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.joda.time.LocalDate;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -34,7 +35,8 @@ public class ConclusionInformationDataProvider implements IReportDataProvider {
     protected ConclusionInformation conclusionInformation;
 
     public ConclusionInformationDataProvider(final Registration registration, final ProgramConclusion programConclusion) {
-        this.conclusionInformation = new ConclusionInformation(new RegistrationConclusionBean(registration, programConclusion));
+        this.conclusionInformation =
+                new ConclusionInformation(RegistrationConclusionServices.getConclusions(registration).get(programConclusion));
     }
 
     @Override
