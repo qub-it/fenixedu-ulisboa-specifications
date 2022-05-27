@@ -44,15 +44,14 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
+import org.fenixedu.academic.domain.student.curriculum.conclusion.RegistrationConclusionServices;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
-import org.fenixedu.academictreasury.util.AcademicTreasuryConstants;
 import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
-import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
 import org.joda.time.DateTime;
 
@@ -201,7 +200,8 @@ public class ULisboaConstants {
         if (programConclusion == null) {
             return Collections.emptyList();
         }
-        final RegistrationConclusionBean conclusionBean = new RegistrationConclusionBean(registration, programConclusion);
+        final RegistrationConclusionBean conclusionBean =
+                RegistrationConclusionServices.getConclusions(registration).get(programConclusion);
         return conclusionBean.getCurriculumForConclusion().getCurriculumEntries().stream().collect(Collectors.toList());
         // programConclusion -> programConclusionInformation -> curriculumGroup/cycleGroup -> studentCurricularPlan
     }
