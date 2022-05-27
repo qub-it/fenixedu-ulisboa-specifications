@@ -2,11 +2,11 @@ package org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo
 
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
 import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
-import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
-import org.joda.time.YearMonthDay;
 
 import com.qubit.terra.docs.util.IDocumentFieldsData;
 import com.qubit.terra.docs.util.IReportDataProvider;
@@ -21,9 +21,10 @@ public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
             final ProgramConclusion programConclusion) {
         final Degree degree = registration.getDegree();
 
-        YearMonthDay conclusionDate = registration.getConclusionDate();
-        if (conclusionDate != null) {
-            executionYear = ExecutionYear.readByDateTime(conclusionDate.toLocalDate());
+        final ExecutionYear conclusionYear = ProgramConclusion.getConclusionProcess(registration.getLastStudentCurricularPlan())
+                .map(ConclusionProcess::getConclusionYear).orElse(null);
+        if (conclusionYear != null) {
+            executionYear = conclusionYear;
         }
 
         //Try to get last custom name if there is one for combination degree+programConclusion
