@@ -29,7 +29,7 @@ public class CurriculumAggregatorDataProvider implements IReportDataProvider {
     protected static final String KEY_FOR_TOTAL_ECTS = "totalDescendentApprovedECTS";
 
     private final Registration registration;
-    private final CurriculumEntryRemarksDataProvider remarksDataProvider;
+    private CurriculumEntryRemarksDataProvider remarksDataProvider;
     private final Locale locale;
     private Collection<ICurriculumEntry> descendentApprovements;
     private Set<CurriculumEntry> curriculumEntries;
@@ -39,7 +39,6 @@ public class CurriculumAggregatorDataProvider implements IReportDataProvider {
             final CurriculumEntryServices service) {
         this.registration = registration;
         this.locale = locale;
-        this.remarksDataProvider = new CurriculumEntryRemarksDataProvider(registration);
         this.service = service;
         init();
     }
@@ -124,6 +123,7 @@ public class CurriculumAggregatorDataProvider implements IReportDataProvider {
                 return leftContent.compareTo(rightContent);
             }
         });
+        this.remarksDataProvider = new CurriculumEntryRemarksDataProvider(registration, descendentApprovements, service);
         curriculumEntries.addAll(CurriculumEntry.transform(registration, descendentApprovements, remarksDataProvider, service));
     }
 
