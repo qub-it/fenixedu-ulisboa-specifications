@@ -48,7 +48,7 @@ public class SearchCompetenceCoursesDA extends FenixDispatchAction {
         final CompetenceCourse competenceCourse = getDomainObject(request, "competenceCourseID");
 
         try {
-            atomic(() -> competenceCourse.changeCurricularStage(CurricularStage.APPROVED));
+            atomic(() -> competenceCourse.setCurricularStage(CurricularStage.APPROVED));
             addActionMessage("success", request, "successAction");
         } catch (DomainException e) {
             addActionMessage("error", request, e.getMessage());
