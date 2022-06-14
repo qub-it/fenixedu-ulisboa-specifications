@@ -1,3 +1,4 @@
+6.27.0 (14-06-2022)
 - Refactor: Upgrade dependencies versions
 - Refactor: Replace usage of deprecated competence course method 
 - Refactor: Remove legacy resource allocation functionalities
