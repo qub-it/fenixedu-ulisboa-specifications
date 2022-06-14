@@ -1,5 +1,6 @@
 - Refactor: Upgrade dependencies versions
 - Refactor: Replace usage of deprecated competence course method 
+- Refactor: Remove legacy resource allocation functionalities
 
 6.26.2 (06-06-2022)
 - Refactor: Redesign of algorithm to calculate credits transfer remarks
