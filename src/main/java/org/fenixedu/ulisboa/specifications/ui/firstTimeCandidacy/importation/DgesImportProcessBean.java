@@ -67,7 +67,7 @@ public class DgesImportProcessBean implements IBean {
     }
 
     public void setSpaceDataSource(final Set<Space> spaces) {
-        this.spaceDataSource = spaces.stream().sorted(SpaceUtils.COMPARATOR_BY_PRESENTATION_NAME).map(s -> {
+        this.spaceDataSource = spaces.stream().map(s -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(s.getExternalId());
             tuple.setText(s.getPresentationName());
