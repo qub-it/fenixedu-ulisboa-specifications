@@ -28,7 +28,8 @@ public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
         }
 
         //Try to get last custom name if there is one for combination degree+programConclusion
-        while (courseGroupDegreeInfo == null && executionYear.isAfterOrEquals(registration.getStartExecutionYear())) {
+        while (courseGroupDegreeInfo == null && executionYear != null
+                && executionYear.isAfterOrEquals(registration.getStartExecutionYear())) {
             final ExtendedDegreeInfo extendedDegreeInfo = ExtendedDegreeInfo.getMostRecent(executionYear, degree);
             if (extendedDegreeInfo != null) {
 
