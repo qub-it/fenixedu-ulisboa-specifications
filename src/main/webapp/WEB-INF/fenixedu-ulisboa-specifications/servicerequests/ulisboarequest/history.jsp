@@ -26,6 +26,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
+<%@page import="org.fenixedu.academic.service.AcademicPermissionService"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest.ULisboaServiceRequestController"%>
 <%@page import="org.fenixedu.academic.predicate.AccessControl"%>
 <%@page import="org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType"%>
@@ -226,7 +227,7 @@ ${portal.toolkit()}
             "description" : '<c:out value='${request.description}'/>',
             "academicServiceRequestSituationType" : '<c:out value='${request.academicServiceRequestSituationType.localizedName}'/>',
             "actions" :
-            	<% if (AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS).isMember(AccessControl.getPerson().getUser())) {%>
+            	<% if (AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS).isMember(AccessControl.getPerson().getUser()) || AcademicPermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
                 " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${ request.externalId }\"><spring:message code='label.view'/></a>" +
                 <c:choose>
                     <c:when test="${request.serviceRequestType.printable && (request.academicServiceRequestSituationType == 'CONCLUDED' || request.academicServiceRequestSituationType == 'DELIVERED')}">
