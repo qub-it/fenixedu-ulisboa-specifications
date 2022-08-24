@@ -1,3 +1,5 @@
+- Refactor: Remove previous years enrolment rule message override
+
 6.27.4 (02-08-2022)
 - Bug Fix: Apply url and postback section for ULisboa service request pages based in permissions, similar to service request authorisations
 
