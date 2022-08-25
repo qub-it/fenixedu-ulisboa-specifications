@@ -14,7 +14,7 @@ import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.RegistrationProtocol;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.StatuteType;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
@@ -30,7 +30,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     private Set<RegistrationRegimeType> regimeTypes = Sets.newHashSet();
     private Set<RegistrationProtocol> registrationProtocols = Sets.newHashSet();
     private Set<IngressionType> ingressionTypes = Sets.newHashSet();
-    private Set<RegistrationStateType> registrationStateTypes = Sets.newHashSet();
+    private Set<RegistrationStateTypeEnum> registrationStateTypes = Sets.newHashSet();
     private Set<StatuteType> statuteTypes = Sets.newHashSet();
     private Boolean firstTimeOnly;
     private Boolean withEnrolments;
@@ -50,7 +50,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
 
     private Boolean registrationStateSetInExecutionYear;
     private Boolean registrationStateLastInExecutionYear;
-    
+
     private List<TupleDataSourceBean> executionYearsDataSource;
     private List<TupleDataSourceBean> degreeTypesDataSource;
     private List<TupleDataSourceBean> degreesDataSource;
@@ -125,11 +125,11 @@ public class RegistrationHistoryReportParametersBean implements IBean {
         this.ingressionTypes = ingressionTypes;
     }
 
-    public Set<RegistrationStateType> getRegistrationStateTypes() {
+    public Set<RegistrationStateTypeEnum> getRegistrationStateTypes() {
         return registrationStateTypes;
     }
 
-    public void setRegistrationStateTypes(Set<RegistrationStateType> registrationStateTypes) {
+    public void setRegistrationStateTypes(Set<RegistrationStateTypeEnum> registrationStateTypes) {
         this.registrationStateTypes = registrationStateTypes;
     }
 
@@ -200,7 +200,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     public Boolean getFilterWithEnrolments() {
         return withEnrolments;
     }
-    
+
     public Boolean getFilterWithAnnuledEnrolments() {
         return withAnnuledEnrolments;
     }
@@ -270,7 +270,7 @@ public class RegistrationHistoryReportParametersBean implements IBean {
                 .map(x -> new TupleDataSourceBean(x.getExternalId(), "[" + x.getCode() + "] " + x.getDescription().getContent()))
                 .collect(Collectors.toList());
 
-        this.registrationStateTypesDataSource = Arrays.asList(RegistrationStateType.values()).stream()
+        this.registrationStateTypesDataSource = Arrays.asList(RegistrationStateTypeEnum.values()).stream()
                 .sorted((x, y) -> x.getDescription().compareTo(y.getDescription()))
                 .map(x -> new TupleDataSourceBean(x.getName(), x.getDescription())).collect(Collectors.toList());
 
@@ -299,23 +299,23 @@ public class RegistrationHistoryReportParametersBean implements IBean {
     public void setStudentNumber(Integer studentNumber) {
         this.studentNumber = studentNumber;
     }
-    
+
     public Boolean getRegistrationStateSetInExecutionYear() {
         return registrationStateSetInExecutionYear;
     }
-    
+
     public void setRegistrationStateSetInExecutionYear(Boolean registrationStateSetInExecutionYear) {
         this.registrationStateSetInExecutionYear = registrationStateSetInExecutionYear;
     }
-    
+
     public Boolean getRegistrationStateLastInExecutionYear() {
         return registrationStateLastInExecutionYear;
     }
-    
+
     public void setRegistrationStateLastInExecutionYear(Boolean registrationStateLastInExecutionYear) {
         this.registrationStateLastInExecutionYear = registrationStateLastInExecutionYear;
     }
-    
+
     public void setWithEnrolments(Boolean withEnrolments) {
         this.withEnrolments = withEnrolments;
     }

@@ -223,7 +223,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
         service.filterIngressionTypes(bean.getIngressionTypes());
         service.filterRegimeTypes(bean.getRegimeTypes());
         service.filterRegistrationProtocols(bean.getRegistrationProtocols());
-        service.filterRegistrationStateTypes(bean.getRegistrationStateTypes());
+//        service.filterRegistrationStateTypes(bean.getRegistrationStateTypes());
         service.filterStatuteTypes(bean.getStatuteTypes());
         service.filterFirstTimeOnly(bean.getFirstTimeOnly());
         service.filterWithEnrolments(bean.getFilterWithEnrolments());

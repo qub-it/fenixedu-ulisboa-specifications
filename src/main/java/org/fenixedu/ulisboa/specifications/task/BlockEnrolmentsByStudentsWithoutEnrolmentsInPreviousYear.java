@@ -8,7 +8,7 @@ import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.scheduler.CronTask;
@@ -131,7 +131,7 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
     @Atomic(mode = TxMode.WRITE)
     protected void blockRegistration(final Registration registration, String reasons, final ExecutionInterval executionSemester) {
         final RegistrationState createdState = RegistrationState.createRegistrationState(registration, (Person) null,
-                new DateTime(), RegistrationStateType.INTERRUPTED, executionSemester);
+                new DateTime(), RegistrationStateTypeEnum.INTERRUPTED, executionSemester);
         createdState.setRemarks(String.format("Estado criado automaticamente. %s", reasons));
     }
 

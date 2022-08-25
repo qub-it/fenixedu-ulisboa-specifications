@@ -32,7 +32,7 @@ import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.spaces.domain.Space;
@@ -456,7 +456,7 @@ public class DgesStudentImportService {
     protected void markRegistrationAsInactive(final Registration registration) {
         registration.getActiveState().setStateDate(registration.getActiveState().getStateDate().minusMinutes(1));
         RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                RegistrationStateType.INACTIVE, executionYear.getFirstExecutionPeriod());
+                RegistrationStateTypeEnum.INACTIVE, executionYear.getFirstExecutionPeriod());
     }
 
     private PersonalIngressionData findOrCreatePersonalIngressionData(final Registration registration) {
