@@ -40,16 +40,16 @@ public class ReadShiftsToEnroll {
             throw new FenixServiceException("errors.impossible.operation");
         }
 
-        if (executionSemester.getExecutionYear().getFirstExecutionPeriod() == executionSemester
-                && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(registration.getPerson(), new LocalDate())) {
-            if (!registration.getInterruptedStudies()) {
-                throw new FenixServiceException("error.exception.notAuthorized.student.warningTuition");
-            }
-        }
-
-        if (registration.getFlunked()) {
-            throw new FenixServiceException("error.exception.notAuthorized.student.warningTuition");
-        }
+//        if (executionSemester.getExecutionYear().getFirstExecutionPeriod() == executionSemester
+//                && TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(registration.getPerson(), new LocalDate())) {
+//            if (!registration.getInterruptedStudies()) {
+//                throw new FenixServiceException("error.exception.notAuthorized.student.warningTuition");
+//            }
+//        }
+//
+//        if (registration.getFlunked()) {
+//            throw new FenixServiceException("error.exception.notAuthorized.student.warningTuition");
+//        }
     }
 
     private static ShiftToEnrol buildShiftToEnrol(Attends attends) {
