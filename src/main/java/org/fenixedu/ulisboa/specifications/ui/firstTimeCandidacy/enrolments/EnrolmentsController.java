@@ -21,7 +21,7 @@ import org.fenixedu.academic.domain.enrolment.period.AcademicEnrolmentPeriodType
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.predicate.AccessControl;
@@ -141,9 +141,9 @@ public class EnrolmentsController extends EnrolmentAbstractController {
     @Atomic
     private void activateRegistration(final Registration registration, final ExecutionInterval executionSemester) {
         RegistrationState state = registration.getActiveState();
-        if (state.getStateType().equals(RegistrationStateType.INACTIVE)) {
+        if (state.getStateTypeEnum().equals(RegistrationStateTypeEnum.INACTIVE)) {
             RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                    RegistrationStateType.REGISTERED, executionSemester);
+                    RegistrationStateTypeEnum.REGISTERED, executionSemester);
         }
     }
 

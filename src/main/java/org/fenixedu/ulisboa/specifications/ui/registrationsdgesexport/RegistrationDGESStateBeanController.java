@@ -65,7 +65,7 @@ import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
-import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateType;
+import org.fenixedu.academic.domain.student.registrationStates.RegistrationStateTypeEnum;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -284,10 +284,10 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             for (StudentCandidacy candidacy : candidacies) {
                 Registration registration = candidacy.getRegistration();
                 if (registration != null) {
-                    if (!registration.getActiveState().getStateType().equals(RegistrationStateType.INACTIVE)) {
-                        RegistrationState registeredState =
-                                RegistrationState.createRegistrationState(registration, AccessControl.getPerson(), new DateTime(),
-                                        RegistrationStateType.INACTIVE, candidacy.getExecutionYear().getFirstExecutionPeriod());
+                    if (!registration.getActiveState().getStateTypeEnum().equals(RegistrationStateTypeEnum.INACTIVE)) {
+                        RegistrationState registeredState = RegistrationState.createRegistrationState(registration,
+                                AccessControl.getPerson(), new DateTime(), RegistrationStateTypeEnum.INACTIVE,
+                                candidacy.getExecutionYear().getFirstExecutionPeriod());
                         registeredState.setRemarks(
                                 BundleUtil.getString(BUNDLE, "label.RegistrationDGESState.registrationState.remarks"));
                     }
@@ -440,7 +440,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
         Registration registration = candidacy.getRegistration();
         if (registration != null) {
             RegistrationState state = registration.getActiveState();
-            if (!state.getStateType().equals(RegistrationStateType.REGISTERED)) {
+            if (!state.getStateTypeEnum().equals(RegistrationStateTypeEnum.REGISTERED)) {
                 return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.not.registered",
                         "" + candidacy.getRegistration().getNumber(), candidacy.getPerson().getPresentationName(),
                         state.getStateType().getDescription());
