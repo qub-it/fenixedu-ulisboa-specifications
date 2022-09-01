@@ -443,7 +443,7 @@ public class RegistrationDGESStateBeanController extends FenixeduUlisboaSpecific
             if (!state.getStateTypeEnum().equals(RegistrationStateTypeEnum.REGISTERED)) {
                 return BundleUtil.getString(BUNDLE, "error.RegistrationDGESState.not.registered",
                         "" + candidacy.getRegistration().getNumber(), candidacy.getPerson().getPresentationName(),
-                        state.getStateType().getDescription());
+                        state.getStateTypeEnum().getDescription());
             }
         }
 

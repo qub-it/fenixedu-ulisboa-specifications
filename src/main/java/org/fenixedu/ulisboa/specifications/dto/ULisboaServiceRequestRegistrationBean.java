@@ -88,8 +88,7 @@ public class ULisboaServiceRequestRegistrationBean implements IBean {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(r.getExternalId());
             tuple.setText("[" + r.getDegree().getCode() + "] " + r.getDegree().getPresentationName() + " ("
-                    + r.getStartDate().toString("yyyy-MM-dd") + ") - " + r.getActiveStateType().getDescription());
-//            tuple.setText(s.getActiveState().getStateType().getDescription() + " - " + s.getDegreeName());
+                    + r.getStartDate().toString("yyyy-MM-dd") + ") - " + r.getActiveStateTypeEnum().getDescription());
             return tuple;
         }).collect(Collectors.toList());
     }
