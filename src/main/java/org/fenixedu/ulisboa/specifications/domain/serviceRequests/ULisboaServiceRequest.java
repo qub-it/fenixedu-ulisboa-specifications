@@ -899,7 +899,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     }
 
     public static Stream<ULisboaServiceRequest> findByRegistration(final Registration registration) {
-        return findAll().filter(request -> request.getRegistration().equals(registration));
+        return registration.getULisboaServiceRequestsSet().stream();
     }
 
     public static Stream<ULisboaServiceRequest> findNewAcademicServiceRequests(final Registration registration) {
