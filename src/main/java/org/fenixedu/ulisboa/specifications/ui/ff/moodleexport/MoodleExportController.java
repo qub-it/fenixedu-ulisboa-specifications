@@ -142,7 +142,7 @@ public class MoodleExportController extends FenixeduUlisboaSpecificationsBaseCon
         }
 
         moodleExportBean.setUsername(person.getUsername());
-        moodleExportBean.setAuth("shibboleth");
+        moodleExportBean.setAuth("ldap");
     }
 
     private MoodleExportBean populateProfessors(Person person) {
