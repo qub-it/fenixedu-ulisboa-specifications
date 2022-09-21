@@ -1,3 +1,4 @@
+- Bug Fix: ConclusionInformationDataProvider should not read execution year by date
 - Bug Fix: In ULisboaServiceRequest.findByRegistration() use the DML relation instead of finding all requests that match the registration
 
 6.28.0 (01-09-2022)

@@ -86,12 +86,12 @@ public class ConclusionInformationDataProvider implements IReportDataProvider {
         }
 
         public DegreeInfo getDegreeInfo() {
-            final ExecutionYear conclusionYear = ExecutionYear.getExecutionYearByDate(conclusionBean.getConclusionDate());
+            final ExecutionYear conclusionYear = conclusionBean.getConclusionYear();
             return conclusionBean.getRegistration().getDegree().getMostRecentDegreeInfo(conclusionYear.getAcademicInterval());
         }
 
         public ExtendedDegreeInfo getExtendedDegreeInfo() {
-            final ExecutionYear conclusionYear = ExecutionYear.getExecutionYearByDate(conclusionBean.getConclusionDate());
+            final ExecutionYear conclusionYear = conclusionBean.getConclusionYear();
             return ExtendedDegreeInfo.getMostRecent(conclusionYear, conclusionBean.getRegistration().getDegree());
         }
 
