@@ -1,3 +1,4 @@
+6.28.2 (21-09-2022)
 - Improvement: Change moodle export auth to ldap
 - Refactor: Replace usage of deprecated evaluation season periods API
 
