@@ -1,4 +1,5 @@
 - Improvement: Change moodle export auth to ldap
+- Refactor: Replace usage of deprecated evaluation season periods API
 
 6.28.1 (21-09-2022)
 - Bug Fix: ConclusionInformationDataProvider should not read execution year by date
