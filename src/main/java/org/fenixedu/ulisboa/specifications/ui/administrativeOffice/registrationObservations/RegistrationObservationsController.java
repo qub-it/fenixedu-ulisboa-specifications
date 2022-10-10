@@ -5,13 +5,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
 import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
-import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationObservations;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.ui.spring.StrutsFunctionalityController;
-import org.fenixedu.academic.ui.struts.action.administrativeOffice.student.SearchForStudentsDA;
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.treasury.services.accesscontrol.TreasuryAccessControlAPI;
 import org.springframework.stereotype.Controller;
@@ -112,7 +110,7 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
 
     @Override
     protected Class<?> getFunctionalityType() {
-        return SearchForStudentsDA.class;
+        return null; //SearchForStudentsDA.class;
     }
 
 }

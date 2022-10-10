@@ -25,10 +25,6 @@
  */
 package org.fenixedu.ulisboa.specifications.servlet;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Set;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -41,7 +37,6 @@ import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
 import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
-import org.fenixedu.academic.servlet.AuthenticationRedirector;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.servlet.ExceptionHandlerFilter;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
@@ -68,10 +63,6 @@ import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAg
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.ConclusionInformationDataProvider;
 import org.fenixedu.ulisboa.specifications.task.tmp.FixBugProcessorTypeTask;
 import org.fenixedu.ulisboa.specifications.task.tmp.UpdateServiceRequestType;
-import org.fenixedu.ulisboa.specifications.ui.blue_record.authentication.BlueRecordRedirector;
-import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.CurriculumLayout;
-import org.fenixedu.ulisboa.specifications.ui.renderers.student.curriculum.StudentCurricularPlanLayout;
-import org.fenixedu.ulisboa.specifications.ui.student.enrolment.process.EnrolmentProcess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,15 +94,12 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configureMarkSheetSpecifications();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
 
-        EnrolmentProcess.init();
 
         ULisboaSpecificationsRoot.getInstance().getCurriculumAggregatorSet().stream().filter(i -> i.getSince() == null)
                 .forEach(i -> i.setSince(ExecutionYear.readExecutionYearByName("2016/2017")));
 
         CurriculumAggregatorRulesInitializer.init();
 
-        StudentCurricularPlanLayout.register();
-        CurriculumLayout.register();
 
         DynamicGroup dynamicGroup = org.fenixedu.bennu.core.groups.DynamicGroup.get("employees");
         if (!dynamicGroup.isDefined()) {
@@ -142,7 +130,7 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         CourseGroupDegreeInfo.setupDeleteListener();
 
-        AuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
+//        AuthenticationRedirector.registerRedirectionHandler(new BlueRecordRedirector());
 
         setupDeleteListenerForPrecedentDegreeInformation();
 

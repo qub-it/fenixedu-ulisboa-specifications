@@ -40,7 +40,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Professorship;
-import org.fenixedu.academic.ui.struts.action.teacher.ManageExecutionCourseDA;
 import org.fenixedu.bennu.core.domain.exceptions.AuthorizationException;
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.portal.domain.MenuFunctionality;
@@ -117,14 +116,14 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
             final @PathVariable("executionCourseId") ExecutionCourse executionCourse, final Model model,
             final HttpServletRequest request) {
 
-        final Functionality functionality = RenderersAnnotationProcessor.getFunctionalityForType(ManageExecutionCourseDA.class);
-        final MenuFunctionality menuItem =
-                MenuFunctionality.findFunctionality(functionality.getProvider(), functionality.getKey());
-        if (menuItem == null || !menuItem.isAvailableForCurrentUser()) {
-            throw AuthorizationException.unauthorized();
-        }
-
-        BennuPortalDispatcher.selectFunctionality(request, menuItem);
+//        final Functionality functionality = RenderersAnnotationProcessor.getFunctionalityForType(ManageExecutionCourseDA.class);
+//        final MenuFunctionality menuItem =
+//                MenuFunctionality.findFunctionality(functionality.getProvider(), functionality.getKey());
+//        if (menuItem == null || !menuItem.isAvailableForCurrentUser()) {
+//            throw AuthorizationException.unauthorized();
+//        }
+//
+//        BennuPortalDispatcher.selectFunctionality(request, menuItem);
 
         final Map<String, Object> requestContext = Maps.newHashMap();
         requestContext.put("professorship", findProfessorship(executionCourse));
