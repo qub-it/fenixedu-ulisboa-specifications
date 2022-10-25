@@ -2,7 +2,6 @@ package org.fenixedu.ulisboa.specifications.ui.reports.registrationhistory;
 
 import java.io.IOException;
 import java.text.Normalizer;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +24,6 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Shift;
 import org.fenixedu.academic.domain.ShiftType;
-import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.degreeStructure.CompetenceCourseServices;
 import org.fenixedu.academic.domain.degreeStructure.CurricularPeriodServices;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
@@ -54,8 +52,6 @@ import org.fenixedu.ulisboa.specifications.domain.file.ULisboaSpecificationsTemp
 import org.fenixedu.ulisboa.specifications.dto.report.registrationhistory.RegistrationHistoryReportParametersBean;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsController;
-import org.fenixedu.ulisboa.specifications.ui.registrationsdgesexport.RegistrationDGESStateBeanController;
-import org.fenixedu.ulisboa.specifications.ui.registrationsdgesexport.RegistrationDGESStateBeanController.RegistrationDGESStateBean;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 import org.joda.time.YearMonthDay;
@@ -892,201 +888,6 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
                         addData("Degree.code", report.getDegreeCode());
                         addData("Degree.presentationName", report.getDegreePresentationName());
                         addData("RegistrationHistoryReport.statutes", report.getStudentStatutesNamesAndDates());
-                    }
-
-                    private void addData(final String key, final Object value) {
-                        addCell(bundle("label." + key), value == null ? "" : value);
-                    }
-
-                });
-
-        final ByteArrayOutputStream result = new ByteArrayOutputStream();
-        try {
-            builder.build(result);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return result.toByteArray();
-    }
-
-    @RequestMapping(value = "/exportbluerecord", method = RequestMethod.POST, produces = "text/plain;charset=UTF-8")
-    public @ResponseBody ResponseEntity<String> exportBlueRecordInfo(
-            @RequestParam(value = "bean", required = false) final RegistrationHistoryReportParametersBean bean,
-            final Model model) {
-
-        final String reportId = getReportId("exportBlueRecordData");
-        new Thread(() -> processReport(this::exportRegistrationsBlueRecordInformationToXLS, bean, reportId)).start();
-
-        return new ResponseEntity<String>(reportId, HttpStatus.OK);
-    }
-
-    private byte[] exportRegistrationsBlueRecordInformationToXLS(final RegistrationHistoryReportParametersBean bean) {
-        final Collection<RegistrationHistoryReport> reports = generateReport(bean);
-
-        final Collection<RegistrationDGESStateBean> toExport = new ArrayList<>();
-
-        for (final RegistrationHistoryReport report : reports) {
-            final StudentCandidacy studentCandidacy = report.getRegistration().getStudentCandidacy();
-            if (studentCandidacy != null) {
-                toExport.add(RegistrationDGESStateBeanController.populateBean(studentCandidacy));
-            }
-        }
-
-        final SpreadsheetBuilderForXLSX builder = new SpreadsheetBuilderForXLSX();
-        builder.addSheet(ULisboaSpecificationsUtil.bundle("label.reports.registrationHistory.blueRecord"),
-                new SheetData<RegistrationDGESStateBean>(toExport) {
-
-                    @Override
-                    protected void makeLine(final RegistrationDGESStateBean stateBean) {
-                        addData("HouseholdInformationForm.executionYear", stateBean.getExecutionYear());
-                        addData("Degree.degreeType", stateBean.getDegreeTypeName());
-                        addData("studentsListByCurricularCourse.degree", stateBean.getDegreeCode());
-                        addData("Degree.name", stateBean.getDegreeName());
-                        addData("ServiceRequestSlot.label.cycleType", stateBean.getCycleName());
-                        addData("RegistrationHistoryReport.curricularYear", stateBean.getCurricularYear());
-                        addData("OriginInformationForm.schoolLevel", stateBean.getDegreeLevel());
-                        addData("RegistrationHistoryReport.primaryBranch", stateBean.getDegreeBranch());
-                        addData("RegistrationHistoryReport.regimeType", stateBean.getRegimeType());
-                        addData("OriginInformationForm.institution", stateBean.getInstitutionName());
-                        addData("OriginInformationForm.studentNumber", stateBean.getStudentNumber());
-                        addData("identification.number", stateBean.getIdNumber());
-                        addData("PersonalInformationForm.idDocumentType", stateBean.getIdType());
-                        addData("PersonalInformationForm.documentIdExpirationDate", stateBean.getExpirationDateOfIdDoc());
-                        addData("PersonalInformationForm.documentIdEmissionLocation", stateBean.getEmissionLocationOfIdDoc());
-                        addData("PersonalInformationForm.fiscalCountry", stateBean.getFiscalCountry());
-                        addData("PersonalInformationForm.socialSecurityNumber", stateBean.getSocialSecurityNumber());
-                        addData("student", stateBean.getName());
-                        addData("PersonalInformationForm.maritalStatus", stateBean.getMaritalStatus());
-                        addData("is.registered", stateBean.getRegistrationState());
-                        addData("candidacy", stateBean.getCandidacyState());
-                        addData("FiliationForm.nationality", stateBean.getNationality());
-                        addData("FiliationForm.secondNationality", stateBean.getSecondNationality());
-                        addData("Person.birthYear", stateBean.getBirthYear());
-                        addData("FiliationForm.countryOfBirth", stateBean.getCountryOfBirth());
-                        addData("FiliationForm.districtOfBirth", stateBean.getDistrictOfBirth());
-                        addData("FiliationForm.districtSubdivisionOfBirth", stateBean.getDistrictSubdivisionOfBirth());
-                        addData("FiliationForm.parishOfBirth", stateBean.getParishOfBirth());
-                        addData("Person.gender", stateBean.getGender());
-                        addData("Registration.ingressionType", stateBean.getIngressionType());
-                        addData("PersonalInformationForm.ingressionOption", stateBean.getPlacingOption());
-                        addData("PersonalInformationForm.firstOptionDegreeDesignation.short", stateBean.getFirstOptionDegree());
-                        addData("PersonalInformationForm.firstOptionInstitution.short", stateBean.getFirstOptionInstitution());
-                        addData("ResidenceInformationForm.countryOfResidence", stateBean.getCountryOfResidence());
-                        addData("ResidenceInformationForm.districtOfResidence", stateBean.getDistrictOfResidence());
-                        addData("ResidenceInformationForm.districtSubdivisionOfResidence",
-                                stateBean.getDistrictSubdivisionOfResidence());
-                        addData("ResidenceInformationForm.parishOfResidence", stateBean.getParishOfResidence());
-                        addData("ResidenceInformationForm.address", stateBean.getAddressOfResidence());
-                        addData("ResidenceInformationForm.areaCode", stateBean.getAreaCodeOfResidence());
-                        //                        addData("ResidenceInformationForm.schoolTimeCountry", stateBean.getCountryOfDislocated());
-                        addData("ResidenceInformationForm.schoolTimeDistrictOfResidence", stateBean.getDistrictOfDislocated());
-                        addData("ResidenceInformationForm.schoolTimeDistrictSubdivisionOfResidence",
-                                stateBean.getDistrictSubdivisionOfDislocated());
-                        addData("ResidenceInformationForm.schoolTimeParishOfResidence", stateBean.getParishOfDislocated());
-                        addData("ResidenceInformationForm.schoolTimeAddress", stateBean.getAddressOfDislocated());
-                        addData("ResidenceInformationForm.schoolTimeAreaCode", stateBean.getAreaCodeOfDislocated());
-                        addData("ResidenceInformationForm.dislocatedFromPermanentResidence", stateBean.getIsDislocated());
-                        addData("firstTimeCandidacy.fillResidenceInformation", stateBean.getDislocatedResidenceType());
-                        addData("PersonalInformationForm.profession", stateBean.getProfession());
-                        addData("PersonalInformationForm.professionTimeType.short", stateBean.getProfessionTimeType());
-                        addData("PersonalInformationForm.professionalCondition", stateBean.getProfessionalCondition());
-                        addData("PersonalInformationForm.professionType", stateBean.getProfessionType());
-                        addData("FiliationForm.fatherName", stateBean.getFatherName());
-                        addData("HouseholdInformationForm.fatherSchoolLevel.short", stateBean.getFatherSchoolLevel());
-                        addData("HouseholdInformationForm.fatherProfessionalCondition.short",
-                                stateBean.getFatherProfessionalCondition());
-                        addData("HouseholdInformationForm.fatherProfessionType.short", stateBean.getFatherProfessionType());
-                        addData("FiliationForm.motherName", stateBean.getMotherName());
-                        addData("HouseholdInformationForm.motherSchoolLevel.short", stateBean.getMotherSchoolLevel());
-                        addData("HouseholdInformationForm.motherProfessionalCondition.short",
-                                stateBean.getMotherProfessionalCondition());
-                        addData("HouseholdInformationForm.motherProfessionType.short", stateBean.getMotherProfessionType());
-                        addData("HouseholdInformationForm.householdSalarySpan.short", stateBean.getSalarySpan());
-                        addData("firstTimeCandidacy.fillDisabilities", stateBean.getDisabilityType());
-                        addData("DisabilitiesForm.needsDisabilitySupport.short", stateBean.getNeedsDisabilitySupport());
-                        addData("MotivationsExpectationsForm.universityDiscoveryMeansAnswers.short",
-                                stateBean.getUniversityDiscoveryString());
-                        addData("MotivationsExpectationsForm.universityChoiceMotivationAnswers.short",
-                                stateBean.getUniversityChoiceString());
-                        addData("OriginInformationForm.countryWhereFinishedPreviousCompleteDegree",
-                                stateBean.getPrecedentCountry());
-                        addData("OriginInformationForm.districtWhereFinishedPreviousCompleteDegree",
-                                stateBean.getPrecedentDistrict());
-                        addData("OriginInformationForm.districtSubdivisionWhereFinishedPreviousCompleteDegree",
-                                stateBean.getPrecedentDistrictSubdivision());
-                        addData("OriginInformationForm.schoolLevel", stateBean.getPrecedentSchoolLevel());
-                        addData("OriginInformationForm.institution", stateBean.getPrecedentInstitution());
-                        addData("OriginInformationForm.degreeDesignation", stateBean.getPrecedentDegreeDesignation());
-                        addData("OriginInformationForm.degree.cycle", stateBean.getPrecendentDegreeCycle());
-                        addData("OriginInformationForm.conclusionGrade", stateBean.getPrecedentConclusionGrade());
-                        addData("OriginInformationForm.conclusionYear", stateBean.getPrecedentConclusionYear());
-                        addData("OriginInformationForm.highSchoolType", stateBean.getPrecedentHighSchoolType());
-                        addData("HouseholdInformationForm.candidacyGrade", stateBean.getCandidacyGrade());
-                        addData("ContactsForm.institutionalEmail", stateBean.getInstitutionalEmail());
-                        addData("ContactsForm.personalEmail", stateBean.getDefaultEmail());
-                        addData("ContactsForm.phoneNumber", stateBean.getPhone());
-                        addData("ContactsForm.mobileNumber", stateBean.getTelephone());
-                        addData("SchoolSpecificData.vaccinationValidity", stateBean.getVaccinationValidity());
-                        addData("HouseholdInformationForm.grantOwnerType", stateBean.getGrantOwnerType());
-                        //                        addData("HouseholdInformationForm.grantOwnerProviderName", stateBean.getGrantOwnerProvider());
-
-                        //                        addData("HouseholdInformationForm.flunkedHighSchool", stateBean.getFlunkedHighSchool());
-                        addData("HouseholdInformationForm.flunkedHighSchoolTimes", stateBean.getFlunkedHighSchoolTimes());
-                        //                        addData("HouseholdInformationForm.flunkedPreHighSchool", stateBean.getFlunkedPreHighSchool());
-                        addData("HouseholdInformationForm.flunkedPreHighSchoolTimes", stateBean.getFlunkedPreHighSchoolTimes());
-                        addData("HouseholdInformationForm.socialBenefitsInHighSchool", stateBean.getSocialBenefitsInHighSchool());
-                        addData("HouseholdInformationForm.socialBenefitsInHighSchoolDescription",
-                                stateBean.getSocialBenefitsInHighSchoolDescription());
-                        addData("HouseholdInformationForm.firstTimeInPublicUniv", stateBean.getFirstTimeInPublicUniv());
-                        addData("HouseholdInformationForm.publicUnivCandidacies", stateBean.getPublicUnivCandidacies());
-                        addData("HouseholdInformationForm.firstTimeInUlisboa", stateBean.getFirstTimeInUlisboa());
-
-                        //                        addData("HouseholdInformationForm.bestQualitiesInThisCicle", stateBean.getBestQualitiesInThisCicle());
-                        //                        addData("HouseholdInformationForm.remuneratedActivityInPast", stateBean.getRemuneratedActivityInPast());
-                        //                        addData("HouseholdInformationForm.remuneratedActivityInPastDescription",
-                        //                                stateBean.getRemuneratedActivityInPastDescription());
-                        addData("HouseholdInformationForm.flunkedUniversity", stateBean.getFlunkedUniversity());
-                        addData("HouseholdInformationForm.flunkedUniversityTimes", stateBean.getFlunkedUniversityTimes());
-
-                        addData("HouseholdInformationForm.livesAlone", stateBean.getLivesAlone());
-                        addData("HouseholdInformationForm.livesWithParents", stateBean.getLivesWithParents());
-                        //                        addData("HouseholdInformationForm.livesWithMother", stateBean.getLivesWithMother());
-                        //                        addData("HouseholdInformationForm.livesWithFather", stateBean.getLivesWithFather());
-                        //                        addData("HouseholdInformationForm.livesWithStepFather", stateBean.getLivesWithStepFather());
-                        //                        addData("HouseholdInformationForm.livesWithStepMother", stateBean.getLivesWithStepMother());
-                        addData("HouseholdInformationForm.livesWithBrothers", stateBean.getLivesWithBrothers());
-                        addData("HouseholdInformationForm.livesWithChildren", stateBean.getLivesWithChildren());
-                        addData("HouseholdInformationForm.livesWithLifemate", stateBean.getLivesWithLifemate());
-                        addData("HouseholdInformationForm.livesWithOthers", stateBean.getLivesWithOthers());
-                        addData("HouseholdInformationForm.livesWithOthersDesc", stateBean.getLivesWithOthersDesc());
-                        addData("HouseholdInformationForm.numBrothers", stateBean.getNumBrothers());
-                        addData("HouseholdInformationForm.numChildren", stateBean.getNumChildren());
-
-                        addData("MobilityRegistrationInformation.begin", stateBean.getMobilityInformationBegin());
-                        addData("MobilityRegistrationInformation.beginDate", stateBean.getMobilityInformationBeginDate());
-                        addData("MobilityRegistrationInformation.end", stateBean.getMobilityInformationEnd());
-                        addData("MobilityRegistrationInformation.endDate", stateBean.getMobilityInformationEndDate());
-                        addData("MobilityRegistrationInformation.mobilityProgramType",
-                                stateBean.getMobilityInformationProgramType());
-                        addData("MobilityRegistrationInformation.mobilityActivityType",
-                                stateBean.getMobilityInformationActivityType());
-                        addData("MobilityRegistrationInformation.mobilityScientificArea",
-                                stateBean.getMobilityInformationScientificArea());
-                        addData("MobilityRegistrationInformation.programDuration",
-                                stateBean.getMobilityInformationProgramDuration());
-                        addData("MobilityRegistrationInformation.originMobilityProgrammeLevel",
-                                stateBean.getMobilityInformationOriginProgrammeLevel());
-                        addData("MobilityRegistrationInformation.incomingMobilityProgrammeLevel",
-                                stateBean.getMobilityInformationIncomingProgrammeLevel());
-                        addData("MobilityRegistrationInformation.otherOriginMobilityProgrammeLevel",
-                                stateBean.getMobilityInformationOtherOriginProgrammeLevel());
-                        addData("MobilityRegistrationInformation.otherIncomingMobilityProgrammeLevel",
-                                stateBean.getMobilityInformationOtherIncomingProgrammeLevel());
-                        addData("firstTimeCandidacy.MobilityRegistrationInformation.originCountry",
-                                stateBean.getMobilityInformationOriginCountry());
-                        addData("firstTimeCandidacy.MobilityRegistrationInformation.incomingCountry",
-                                stateBean.getMobilityInformationIncomingCountry());
                     }
 
                     private void addData(final String key, final Object value) {

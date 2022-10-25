@@ -1274,7 +1274,7 @@ class organizationalStructure.SchoolUnit extends .org.fenixedu.academic.domain.o
 class organizationalStructure.UniversityUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
 
 class degreeStructure.BranchCourseGroup extends degreeStructure.CourseGroup {}
-class studentCurriculum.BranchCurriculumGroup extends studentCurriculum.CurriculumGroup {}
+
 
 
 package org.fenixedu.learning.domain;
