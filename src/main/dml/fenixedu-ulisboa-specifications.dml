@@ -1272,7 +1272,9 @@ class organizationalStructure.ScientificCouncilUnit extends .org.fenixedu.academ
 class organizationalStructure.SectionUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
 class organizationalStructure.SchoolUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
 class organizationalStructure.UniversityUnit extends .org.fenixedu.academic.domain.organizationalStructure.Unit {}
-            
+
+//DEPRECATED
+class degreeStructure.BranchCourseGroup extends degreeStructure.CourseGroup {}
 
 package org.fenixedu.learning.domain;
 
