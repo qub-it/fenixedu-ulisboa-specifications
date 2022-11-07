@@ -228,6 +228,7 @@ public class ULisboaServiceRequestManagementController extends FenixeduUlisboaSp
 
         return requestsYear.getAcademicServiceRequestsSet().stream().filter(req -> req instanceof ULisboaServiceRequest)
                 .map(ULisboaServiceRequest.class::cast)
+                .filter(req -> req.getRegistration() != null)
                 .filter(req -> degreeType == null || req.getRegistration().getDegree().getDegreeType().equals(degreeType))
                 .filter(req -> degree == null || req.getRegistration().getDegree().equals(degree))
                 .filter(req -> categories == null || categories.size() == 0

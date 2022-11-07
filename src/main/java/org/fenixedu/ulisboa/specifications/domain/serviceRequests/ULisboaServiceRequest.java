@@ -925,9 +925,9 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     public static void setupListenerForPropertiesDeletion() {
         //Registration
         FenixFramework.getDomainModel().registerDeletionListener(Registration.class, registration -> {
-            for (ULisboaServiceRequest request : registration.getULisboaServiceRequestsSet()) {
-                request.setRegistration(null);
-                request.setIsValid(false);
+            if (!registration.getULisboaServiceRequestsSet().isEmpty()) {
+                throw new ULisboaSpecificationsDomainException(
+                        "error.serviceRequests.ULisboaServiceRequest.cannotDeleteRegistrationWithServiceRequests");
             }
         });
         //DocumentPurposeTypeInstance

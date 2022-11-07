@@ -1,3 +1,5 @@
+- Bug Fix: Prevent service requests without registration
+
 7.0.2 (26-10-2022)
 - Refactor: Remove branch group subclasses
 
