@@ -868,7 +868,7 @@ public class RegistrationHistoryReportController extends FenixeduUlisboaSpecific
 
             for (final Registration registration : studentStatute.getStudent().getRegistrationsSet()) {
                 if (executionYear.isAfterOrEquals(registration.getRegistrationYear())
-                        && registration.getRegistrationStatesTypes(executionYear).stream().anyMatch(x -> x.isActive())) {
+                        && registration.getRegistrationStatesTypesEnums(executionYear).stream().anyMatch(x -> x.isActive())) {
                     toExport.add(new RegistrationHistoryReport(registration, executionYear));
                 }
             }
