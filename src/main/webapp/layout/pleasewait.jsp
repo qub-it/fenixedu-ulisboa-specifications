@@ -15,14 +15,14 @@
 
 <div id="pleaseWaitContainer" class="selector">
 	<div style="text-align: center;" class="color777 italic">
-		<bean:message bundle="APPLICATION_RESOURCES" key="message.pleaseWait.message" />
+		A processar, por favor aguarde...<br />Evite sair ou refrescar esta página.
 		<br />
 		<html:img align="middle" src='<%=request.getContextPath() + "/static/lib/fancytree/skin-lion/loading.gif"%>' />
 	</div>
 </div>
 
 <bean:define id="noContextString">
-	<bean:message bundle="APPLICATION_RESOURCES" key="message.pleaseWait" />
+	A processar, por favor aguarde...<br />Evite sair ou refrescar esta página.
 </bean:define>
 
 <bean:define id="selectedTopLevelContainerName">

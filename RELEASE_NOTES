@@ -1,3 +1,5 @@
+- Bug fix: Struts messages not supported anymore
+
 7.0.5 (24-11-2022)
 - Refactor: Replace usage of RegistrationStateType by RegistrationStateTypeEnum
 
