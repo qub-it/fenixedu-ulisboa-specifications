@@ -34,7 +34,7 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
 //        if (registrationObservations != null && !StringUtils.isEmpty(registrationObservations.getValue())) {
 //            model.addAttribute("observations", registrationObservations.getValue().replaceAll("\r\n", "\\\\n"));
 //        }
-        model.addAttribute("observations", RegistrationObservations.getReverseSortedObservations(registration));
+        model.addAttribute("observations", registration.getRegistrationObservationsSet());
         model.addAttribute("registration", registration);
 
         String returnLink = "/academicAdministration/registration.do?method=visualizeRegistration&registrationID="
