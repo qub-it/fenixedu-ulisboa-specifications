@@ -1296,6 +1296,15 @@ relation RootDomainObjectDepartment {
     }
 }
 
+relation DepartmentDegree {
+    Department playsRole departments {
+        multiplicity *;
+    }
+    Degree playsRole degrees {
+        multiplicity *;
+    }
+}
+
 package org.fenixedu.learning.domain;
 
 class executionCourse.ExecutionCourseSite extends .org.fenixedu.cms.domain.Site {}
