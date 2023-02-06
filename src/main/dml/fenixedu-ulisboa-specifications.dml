@@ -1276,9 +1276,28 @@ class organizationalStructure.UniversityUnit extends .org.fenixedu.academic.doma
 //DEPRECATED
 class degreeStructure.BranchCourseGroup extends degreeStructure.CourseGroup {}
 
+class Department  {
+    String code;
+    String name;
+    String realName;
+    String realNameEn;
+    Boolean active;
+}
+
+relation DepartmentUnit {
+    Department playsRole department;
+    .org.fenixedu.academic.domain.organizationalStructure.Unit playsRole departmentUnit;
+}
+
+relation RootDomainObjectDepartment {
+    .org.fenixedu.bennu.core.domain.Bennu playsRole rootDomainObject;
+    Department playsRole departments {
+        multiplicity *;
+    }
+}
+
 package org.fenixedu.learning.domain;
 
 class executionCourse.ExecutionCourseSite extends .org.fenixedu.cms.domain.Site {}
 class degree.DegreeSite extends .org.fenixedu.cms.domain.Site {}
-
 
