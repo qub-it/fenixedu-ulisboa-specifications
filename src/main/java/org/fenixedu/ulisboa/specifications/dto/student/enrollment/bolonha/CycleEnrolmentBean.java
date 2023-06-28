@@ -36,16 +36,6 @@ public class CycleEnrolmentBean extends org.fenixedu.academic.dto.student.enroll
         }
 
         final List<CycleCourseGroup> result = new ArrayList<CycleCourseGroup>();
-        for (final CycleCourseGroup cycleCourseGroup : affinities) {
-            final DegreeCurricularPlan degreeCurricularPlan = cycleCourseGroup.getParentDegreeCurricularPlan();
-
-            // qubExtensions
-            if (degreeCurricularPlan.getAcademicEnrolmentPeriodsSet().stream()
-                    .anyMatch(p -> p.isOpen() && p.isForCurricularCourses())) {
-                result.add(cycleCourseGroup);
-            }
-
-        }
         return result;
     }
 
