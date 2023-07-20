@@ -57,32 +57,32 @@
 		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
 			<artifactId>fenixedu-academic-core</artifactId>
-			<version>40.15.1</version>
+			<version>41.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-extensions</artifactId>
-			<version>4.20.1</version>
+			<version>4.20.2</version>
 		</dependency>
                 <dependency>
                         <groupId>org.fenixedu</groupId>
                         <artifactId>fenixedu-treasury-base</artifactId>
-                        <version>9.3.2</version>
+                        <version>11.1.0</version>
                 </dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-treasury-base</artifactId>
-			<version>8.3.6</version>
+			<version>10.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-treasury-ui</artifactId>
-			<version>8.1.1</version>
+			<version>9.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-qubdocs-reports</artifactId>
-			<version>2.3.0</version>
+			<version>2.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
