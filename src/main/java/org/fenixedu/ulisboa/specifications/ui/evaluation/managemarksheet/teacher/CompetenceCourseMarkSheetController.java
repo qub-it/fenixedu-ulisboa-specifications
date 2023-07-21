@@ -40,19 +40,14 @@ import org.apache.commons.io.FilenameUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.Professorship;
-import org.fenixedu.bennu.core.domain.exceptions.AuthorizationException;
-import org.fenixedu.bennu.core.security.Authenticate;
-import org.fenixedu.bennu.portal.domain.MenuFunctionality;
-import org.fenixedu.bennu.portal.model.Functionality;
-import org.fenixedu.bennu.portal.servlet.BennuPortalDispatcher;
-import org.fenixedu.bennu.portal.servlet.PortalLayoutInjector;
-import org.fenixedu.bennu.struts.portal.RenderersAnnotationProcessor;
 import org.fenixedu.academic.domain.evaluation.config.MarkSheetSettings;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheet;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequest;
+import org.fenixedu.academic.services.evaluation.MarkSheetDocumentPrintService;
+import org.fenixedu.bennu.core.security.Authenticate;
+import org.fenixedu.bennu.portal.servlet.PortalLayoutInjector;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.dto.evaluation.markSheet.CompetenceCourseMarkSheetBean;
-import org.fenixedu.academic.services.evaluation.MarkSheetDocumentPrintService;
 import org.fenixedu.ulisboa.specifications.service.evaluation.MarkSheetImportExportService;
 import org.fenixedu.ulisboa.specifications.ui.FenixeduUlisboaSpecificationsBaseController;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
@@ -135,7 +130,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
 
     private Professorship findProfessorship(final ExecutionCourse executionCourse) {
         final Professorship result = Authenticate.getUser().getPerson().getProfessorshipByExecutionCourse(executionCourse);
-        if (result == null || !result.getPermissions().getEvaluationFinal()) {
+        if (result == null) {
             throw new ULisboaSpecificationsDomainException(Status.FORBIDDEN, "message.error.notAuthorized");
         }
 
