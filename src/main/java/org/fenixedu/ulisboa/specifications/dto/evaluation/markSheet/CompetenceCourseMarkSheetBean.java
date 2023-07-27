@@ -40,11 +40,9 @@ import org.fenixedu.academic.domain.Evaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionCourse;
 import org.fenixedu.academic.domain.ExecutionInterval;
-import org.fenixedu.academic.domain.GradeScaleEnum;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.Professorship;
 import org.fenixedu.academic.domain.Shift;
-import org.fenixedu.academic.domain.ShiftType;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
 import org.fenixedu.academic.domain.evaluation.EvaluationServices;
@@ -53,8 +51,6 @@ import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkShe
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetChangeRequestStateEnum;
 import org.fenixedu.academic.domain.evaluation.markSheet.CompetenceCourseMarkSheetStateEnum;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
-import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonRule;
-import org.fenixedu.academic.domain.evaluation.season.rule.EvaluationSeasonShiftType;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.academic.dto.evaluation.markSheet.report.AbstractSeasonReport;
 import org.fenixedu.academic.services.evaluation.MarkSheetStatusReportService;
@@ -410,12 +406,12 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         }
 
         // filter by configured types
-        final Set<ShiftType> allowedTypes = EvaluationSeasonRule.find(getEvaluationSeason(), EvaluationSeasonShiftType.class)
-                .stream().flatMap(i -> i.getShiftTypes().getTypes().stream()).collect(Collectors.toSet());
-        if (isByTeacher() && !allowedTypes.isEmpty()) {
-            available = available.stream().filter(i -> !Sets.intersection(allowedTypes, i.getSortedTypes()).isEmpty())
-                    .collect(Collectors.toSet());
-        }
+//        final Set<ShiftType> allowedTypes = EvaluationSeasonRule.find(getEvaluationSeason(), EvaluationSeasonShiftType.class)
+//                .stream().flatMap(i -> i.getShiftTypes().getTypes().stream()).collect(Collectors.toSet());
+//        if (isByTeacher() && !allowedTypes.isEmpty()) {
+//            available = available.stream().filter(i -> !Sets.intersection(allowedTypes, i.getSortedTypes()).isEmpty())
+//                    .collect(Collectors.toSet());
+//        }
 
         // build data source
         this.shiftsDataSource = available.stream().sorted(Shift.SHIFT_COMPARATOR_BY_NAME).map(x -> {

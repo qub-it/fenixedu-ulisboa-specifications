@@ -1,4 +1,5 @@
 - Refactor: Make compatible with latest academic-core
+- Refactor: Remove deprecated evaluation season management functionalities
 
 7.2.0 (28-06-2023)
 - Refactor: Make compatible with latest academic-core and academic-extensions 
