@@ -317,7 +317,7 @@
     </div>
     
     <% 
-        pageContext.setAttribute("sortedStudentCurricularPlans", registration.getSortedStudentCurricularPlans().stream().sorted(StudentCurricularPlan.STUDENT_CURRICULAR_PLAN_COMPARATOR_BY_START_DATE.reversed()).collect(Collectors.toList())); 
+        pageContext.setAttribute("sortedStudentCurricularPlans", registration.getSortedStudentCurricularPlans().stream().sorted(StudentCurricularPlan.COMPARATOR_BY_START_EXECUTION_AND_DATE.reversed()).collect(Collectors.toList())); 
     %>
     
     <%-- qubExtension --%>
