@@ -28,22 +28,18 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
     @Override
     public void runTask() throws Exception {
 
-        final ExecutionInterval currentExecutionSemester = ExecutionInterval.findFirstCurrentChild(null);
-        final ExecutionYear currentExecutionYear = currentExecutionSemester.getExecutionYear();
-        final ExecutionYear previousExecutionYear = currentExecutionYear.getPreviousExecutionYear();
-
-        if (!currentExecutionSemester.getChildOrder().equals(1)) {
-            taskLog("Nothing to be done, currently not at the beggining of a given year\n");
-            return;
-
-        } else {
-            taskLog("Inspecting Registrations' activity in years %s and %s\n", previousExecutionYear.getQualifiedName(),
-                    currentExecutionYear.getQualifiedName());
-        }
-
         final Set<String> blocked = Sets.newHashSet();
         final Set<String> failed = Sets.newHashSet();
         for (final Registration registration : Bennu.getInstance().getRegistrationsSet()) {
+
+            final ExecutionInterval currentExecutionInterval =
+                    ExecutionInterval.findFirstCurrentChild(registration.getDegree().getCalendar());
+            final ExecutionYear currentExecutionYear = currentExecutionInterval.getExecutionYear();
+            final ExecutionYear previousExecutionYear = currentExecutionYear.getPreviousExecutionYear();
+
+            if (!currentExecutionInterval.getChildOrder().equals(1)) {
+                continue;
+            }
 
             final String registrationInfo = registration.getNumber() + "-" + registration.getDegree().getCode();
 
@@ -83,17 +79,6 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
 
             boolean block = false;
             String reasons = StringUtils.EMPTY;
-
-//            if (registration.getEnrolments(currentExecutionYear).isEmpty()) {
-//                block = true;
-//
-//                final String reason =
-//                        BundleUtil.getString(BUNDLE, "label.blockEnrolments.noEnrolmentsFound",
-//                                currentExecutionYear.getQualifiedName());
-//
-//                reasons += "\n" + reason;
-//                getLogger().debug("Will block Registration [{}]: {}", registrationInfo, reason);
-//            }
 
             if (registration.getEnrolments(previousExecutionYear).isEmpty()) {
                 block = true;

@@ -1,3 +1,5 @@
+- Bug fix: Change registration deactivation task to support all type of calendars 
+
 7.3.1 (02-08-2023)
 - Refactor: Change student curricular plan comparator to use interval
 
