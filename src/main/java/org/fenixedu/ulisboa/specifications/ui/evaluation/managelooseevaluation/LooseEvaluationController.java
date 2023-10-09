@@ -27,7 +27,7 @@
  */
 package org.fenixedu.ulisboa.specifications.ui.evaluation.managelooseevaluation;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.Enrolment;
 import org.fenixedu.academic.domain.EnrolmentEvaluation;
 import org.fenixedu.academic.domain.EvaluationSeason;
@@ -44,16 +43,11 @@ import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicAccessRule;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.curriculum.grade.GradeScale;
 import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.academic.domain.evaluation.EnrolmentEvaluationServices;
-import org.fenixedu.academic.domain.evaluation.EvaluationServices;
 import org.fenixedu.academic.domain.evaluation.season.EvaluationSeasonServices;
-import org.fenixedu.academic.domain.groups.PermissionService;
 import org.fenixedu.academic.domain.student.curriculum.CurriculumLineServices;
-import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.util.Bundle;
 import org.fenixedu.academic.util.EnrolmentEvaluationState;
 import org.fenixedu.bennu.TupleDataSourceBean;
@@ -143,18 +137,7 @@ public class LooseEvaluationController extends FenixeduUlisboaSpecificationsBase
         final Comparator<EnrolmentEvaluation> c2 = (x, y) -> EvaluationSeasonServices.SEASON_ORDER_COMPARATOR
                 .compare(x.getEvaluationSeason(), y.getEvaluationSeason());
 
-        final List<EnrolmentEvaluation> evaluations =
-                studentCurricularPlan.getEnrolmentsSet().stream().flatMap(enr -> enr.getEvaluationsSet().stream())
-                        .filter(ev -> ev.getExecutionPeriod() == semester || ev.getEnrolment().getExecutionPeriod() == semester)
-                        .filter(ev -> ev.getCompetenceCourseMarkSheet() == null)
-                        .filter(ev -> EvaluationServices
-                                .findEnrolmentCourseEvaluations(ev.getEnrolment(), ev.getEvaluationSeason(), semester).isEmpty()
-                                || AcademicAccessRule.isProgramAccessibleToFunction(AcademicOperationType.ENROLMENT_WITHOUT_RULES,
-                                        studentCurricularPlan.getDegree(), Authenticate.getUser())
-                                || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS_ADMIN",
-                                        studentCurricularPlan.getDegree(), Authenticate.getUser()))
-                        .sorted(c1.thenComparing(c2).thenComparing(DomainObjectUtil.COMPARATOR_BY_ID))
-                        .collect(Collectors.toList());
+        final List<EnrolmentEvaluation> evaluations = Collections.emptyList();
 
         model.addAttribute("evaluationsSet", evaluations);
 

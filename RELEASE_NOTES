@@ -1,3 +1,5 @@
+- Refactor: Remove hardcoded permissions from academic-core domain [#qubIT-Fenix-4434]
+
 7.3.2 (04-08-2023)
 - Bug fix: Change registration deactivation task to support all type of calendars 
 

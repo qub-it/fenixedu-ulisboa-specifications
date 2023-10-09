@@ -39,13 +39,13 @@ import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
 import org.fenixedu.academic.domain.enrolment.IDegreeModuleToEvaluate;
-import org.fenixedu.academic.domain.enrolment.StudentCurricularPlanEnrolmentManager;
 import org.fenixedu.academic.domain.exceptions.EnrollmentDomainException;
 import org.fenixedu.academic.domain.studentCurriculum.Credits;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumGroup;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumModule;
 import org.fenixedu.academic.domain.studentCurriculum.Dismissal;
+import org.fenixedu.academic.domain.studentCurriculum.StudentCurricularPlanEnrolmentManager;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.I18N;
 import org.slf4j.Logger;
@@ -161,7 +161,7 @@ abstract public class CurriculumAggregatorListeners {
 
         for (final CurriculumModule iter : CurriculumAggregatorServices
                 .getAggregationParticipantsToRemove(CurriculumAggregatorServices.getContext(input), plan, interval)) {
-            
+
             if (iter != input) {
                 //do not add it self to avoid stack overflow
                 toChange.add(iter);

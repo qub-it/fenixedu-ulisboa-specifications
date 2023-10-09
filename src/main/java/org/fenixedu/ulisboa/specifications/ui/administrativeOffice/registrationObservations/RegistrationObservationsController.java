@@ -3,15 +3,9 @@ package org.fenixedu.ulisboa.specifications.ui.administrativeOffice.registration
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
-import org.fenixedu.academic.domain.accessControl.AcademicAuthorizationGroup;
-import org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationObservations;
-import org.fenixedu.academic.predicate.AccessControl;
-import org.fenixedu.academic.service.AcademicPermissionService;
 import org.fenixedu.academic.ui.spring.StrutsFunctionalityController;
-import org.fenixedu.bennu.core.domain.User;
-import org.fenixedu.treasury.services.accesscontrol.TreasuryAccessControlAPI;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,14 +44,7 @@ public class RegistrationObservationsController extends StrutsFunctionalityContr
     }
 
     private boolean getWriteAccessControl(Registration registration) {
-        User user = AccessControl.getPerson().getUser();
-        boolean academicAuthorization =
-                AcademicAuthorizationGroup.get(AcademicOperationType.STUDENT_ENROLMENTS, registration.getDegree()).isMember(user)
-                        || AcademicPermissionService.hasAccess("ACADEMIC_OFFICE_ENROLMENTS", registration.getDegree(), user);
-        boolean treasuryAuthorization = TreasuryAccessControlAPI.isBackOfficeMember(user.getUsername());
-
-        boolean writeAccessControll = academicAuthorization || treasuryAuthorization;
-        return writeAccessControll;
+        return false;
     }
 
     @RequestMapping(value = "/{registration}/observations/{registrationObservations}", method = RequestMethod.GET)

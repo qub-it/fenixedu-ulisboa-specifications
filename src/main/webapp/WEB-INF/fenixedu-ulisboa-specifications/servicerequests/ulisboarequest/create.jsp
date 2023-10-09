@@ -26,7 +26,7 @@
  * along with FenixEdu Specifications.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
-<%@page import="org.fenixedu.academic.service.AcademicPermissionService"%>
+<%@page import="org.fenixedu.academic.domain.groups.PermissionService"%>
 <%@page import="org.fenixedu.ulisboa.specifications.domain.serviceRequests.UIComponentType"%>
 <%@page import="org.fenixedu.academic.predicate.AccessControl"%>
 <%@page import="org.fenixedu.academic.domain.accessControl.academicAdministration.AcademicOperationType"%>
@@ -335,7 +335,7 @@ ${portal.angularToolkit()}
     ng-app="angularAppULisboaServiceRequest"
     ng-controller="ULisboaServiceRequestController"
     ng-submit="form.$valid"
-    <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || AcademicPermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
+    <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || PermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
         action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${ulisboaServiceRequestBean.registration.externalId}'
     <%} else {%>
         action='${pageContext.request.contextPath}<%= ULisboaServiceRequestController.CREATE_SERVICE_REQUEST_URL %>${ulisboaServiceRequestBean.registration.externalId}'
@@ -343,7 +343,7 @@ ${portal.angularToolkit()}
     >
 
     <input type="hidden" name="postback"
-    <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || AcademicPermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
+    <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || PermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
         value='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_POSTBACK_URL %>' 
     <%} else {%>
         value='${pageContext.request.contextPath}<%= ULisboaServiceRequestController.CREATE_SERVICE_REQUEST_POSTBACK_URL %>' 

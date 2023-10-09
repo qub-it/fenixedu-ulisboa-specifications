@@ -18,7 +18,7 @@
     along with FenixEdu Academic.  If not, see <http://www.gnu.org/licenses/>.
 
 --%>
-<%@page import="org.fenixedu.academic.service.AcademicPermissionService"%>
+<%@page import="org.fenixedu.academic.domain.groups.PermissionService"%>
 <%@page import="org.joda.time.LocalDate"%>
 <%@page import="org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest.ULisboaServiceRequestController"%>
@@ -254,7 +254,7 @@ ${portal.angularToolkit()}
          "serviceRequestNumberYear" : '<c:out value="${ academicRequest.serviceRequestNumberYear }" />',
          "description" : '<c:out value="${ academicRequest.description }" />',
          "actions" : 
-        	 <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || AcademicPermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
+        	 <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || PermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
              " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${ academicRequest.externalId } \"><fmt:message key='label.view' bundle='${lang}' /></a>" +
              ""
              <%} else {%>
@@ -274,7 +274,7 @@ ${portal.angularToolkit()}
          "serviceRequestNumberYear" : '<c:out value="${ academicRequest.serviceRequestNumberYear }" />',
          "description" : '<c:out value="${ academicRequest.description }" />',
          "actions" : 
-             <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || AcademicPermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
+             <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || PermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
              " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${ academicRequest.externalId } \"><fmt:message key='label.view' bundle='${lang}' /></a>" +
              ""
              <%} else {%>
@@ -294,7 +294,7 @@ ${portal.angularToolkit()}
            "serviceRequestNumberYear" : '<c:out value="${ academicRequest.serviceRequestNumberYear }" />',
            "description" : '<c:out value="${ academicRequest.description }" />',
            "actions" : 
-               <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || AcademicPermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
+               <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || PermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
                " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.READ_ACADEMIC_REQUEST_URL %>${ academicRequest.externalId } \"><fmt:message key='label.view' bundle='${lang}' /></a>" +
                ""
                <%} else {%>
