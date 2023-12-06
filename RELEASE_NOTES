@@ -1,3 +1,5 @@
+- Improvement: Adds fenixedu OSS DM [#qubIT-Omnis-4736]
+
 7.4.0 (09-10-2023)
 - Refactor: Remove hardcoded permissions from academic-core domain [#qubIT-Fenix-4434]
 

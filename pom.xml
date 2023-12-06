@@ -16,6 +16,18 @@
 
 	<name>FenixEdu ULisboa Specifications</name>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.qubit.solution.fenixedu</groupId>
+				<artifactId>fenixedu-oss-dependency-management</artifactId>
+				<version>1</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<build>
 		<plugins>
 
@@ -52,42 +64,34 @@
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-learning</artifactId>
-			<version>3.10.9-FORK</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
 			<artifactId>fenixedu-academic-core</artifactId>
-			<version>43.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-extensions</artifactId>
-			<version>4.22.0</version>
 		</dependency>
                 <dependency>
                         <groupId>org.fenixedu</groupId>
                         <artifactId>fenixedu-treasury-base</artifactId>
-                        <version>11.1.0</version>
                 </dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-treasury-base</artifactId>
-			<version>10.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-academic-treasury-ui</artifactId>
-			<version>9.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-qubdocs-reports</artifactId>
-			<version>2.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
 			<artifactId>fenixedu-ulisboa-cgdIntegration</artifactId>
-			<version>2.7.2</version>
 		</dependency>
 		
 		<dependency>
@@ -123,7 +127,6 @@
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-commons</artifactId>
-			<version>1.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
@@ -188,20 +191,9 @@
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-legal-pt</artifactId>
-			<version>2.13.1</version>
 		</dependency>
 	</dependencies>
-
-	<repositories>
-		<repository>
-			<id>ulisboa-repo</id>
-			<url>https://nexjen.ulisboa.pt/nexus/content/groups/public/</url>
-		</repository>
-		<repository>
-			<id>fenixedu-maven-repository</id>
-			<url>https://repo.fenixedu.org/fenixedu-maven-repository</url>
-		</repository>
-	</repositories>
+	
 	    <distributionManagement>
                 <repository>
                         <id>ulisboa-repo</id>
