@@ -170,7 +170,7 @@
 		</dependency>
         <dependency>
             <groupId>pt.ist</groupId>
-            <artifactId>fenix-framework-backend-jvstm-ojb-runtime</artifactId>
+            <artifactId>fenix-framework-core</artifactId>
         </dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.jasig.cas.client/cas-client-core -->
