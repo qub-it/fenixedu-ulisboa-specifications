@@ -1,3 +1,4 @@
+7.5.0 (06-03-2024)
 - Refactor: PersonServices not extending academic-extensions service anymore [#qubIT-Fenix-4784]
 - Improvement: Adds fenixedu OSS DM [#qubIT-Omnis-4736]
 
