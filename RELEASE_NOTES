@@ -1,3 +1,5 @@
+- Improvement: Modified how StudentActive operates regarding first year first time students [#UL-FF-3273]
+
 7.6.0 (25-03-2024)
 - Refactor: Removing dependencies from bennu-struts [#qubIT-Fenix-5098]
 

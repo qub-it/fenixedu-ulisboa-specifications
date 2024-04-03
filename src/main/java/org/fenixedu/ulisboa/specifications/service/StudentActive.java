@@ -113,10 +113,28 @@ public class StudentActive {
             //
             if (!hasActiveRegistrationsWithEnrolments && !activeRegistrationCreatedInTheLastMonth
                     && !activeRegistrationCreatedInFuture) {
+
+                // Changing firstTime detection predicate due Daniela Mendes request in #UL-FF-3273
+                //
+                // Previously we were only checking if the user had a StudentCandidacy for the current year (meaning a student 
+                // that is coming from DGES) but it may happen that the student decides to cancel the registration.
+                //
+                // That being said we cannot only check if the registration is active, because when they are imported from DGES the 
+                // registration is a inactive state with code INACTIVE.
+                //
+                // So basically we now check if the registration is either in INACTIVE state which means it was DGES imported or
+                // the registration is actually active.
+                //
+                // 3 April 2024 - Paulo Abrantes
+                Predicate<? super StudentCandidacy> firstTimePredicate =
+                        studentCandidacy -> studentCandidacy.getEntryPhase() != null && studentCandidacy.getRegistration() != null
+                                && (studentCandidacy.getRegistration().isActive()
+                                        || studentCandidacy.getRegistration().getActiveStateType().getCode().equals("INACTIVE"))
+                                && studentCandidacy.getExecutionYear().isCurrent() && studentCandidacy.isActive();
+
                 isFirstYearFirstTime = student.getPerson().getCandidaciesSet().stream()
                         .filter(candidacy -> candidacy instanceof StudentCandidacy).map(StudentCandidacy.class::cast)
-                        .anyMatch(studentCandidacy -> studentCandidacy.getEntryPhase() != null
-                                && studentCandidacy.getExecutionYear().isCurrent() && studentCandidacy.isActive());
+                        .anyMatch(firstTimePredicate);
             }
 
             // Removing detecion of other kind of candidate (still leaving the code just in case) 
