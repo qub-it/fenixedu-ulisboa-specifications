@@ -1,3 +1,5 @@
+- Refactor: Add missing fenixedu-spaces UI css and js [#qubIT-Omnis-5753]
+
 7.9.0 (17-04-2024)
 - Refactor: Add fenixedu-spaces UI controllers and views [#qubIT-Omnis-5753]
 
