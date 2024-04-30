@@ -50,7 +50,7 @@
 
     <div style="float: right;">
         <bean:define id="personID" name="registration" property="student.person.username"/>
-        <html:img align="middle" src="<%= request.getContextPath() + "/user/photo/" + personID.toString()%>" altKey="personPhoto" bundle="IMAGE_RESOURCES" styleClass="showphoto"/>
+        <html:img align="middle" src="<%= request.getContextPath() + "/api/user/photo/" + personID.toString()%>" altKey="personPhoto" bundle="IMAGE_RESOURCES" styleClass="showphoto"/>
     </div>
 
     <h2><bean:message key="label.visualizeRegistration" bundle="ACADEMIC_OFFICE_RESOURCES"/></h2>
