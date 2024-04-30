@@ -1,3 +1,5 @@
+- Refactor: Adds HelpdeskEntrypointController [#qubIT-Omnis-5784]
+
 7.10.0 (30-04-2024)
 - Refactor: Uses new photo controller url in jsp [#qubIT-Omnis-5783]
 
