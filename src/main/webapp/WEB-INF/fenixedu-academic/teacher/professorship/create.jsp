@@ -115,7 +115,7 @@
     			<tbody>
     				<tr>
 						<th class="row"><spring:message code="label.photo"/></th>
-						<td><img src="${authorization.teacher.person.user.profile.avatarUrl}?s=100" /></td>
+						<td><img src="${authorization.teacher.person.user.profile.fullAvatarUrl}?s=100" /></td>
 					</tr>
     				<tr>
 						<th class="row"><spring:message code="label.name"/></th>
