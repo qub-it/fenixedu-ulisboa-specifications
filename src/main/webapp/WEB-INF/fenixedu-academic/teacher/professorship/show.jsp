@@ -211,7 +211,7 @@ $(document).ready(function() {
 						<c:set var="user" value="${auth.teacher.person.user}"/>
 						<c:set var="professorships" value="${professorshipService.getProfessorships(user, search.period)}"/>
 						<tr class="authorization" id="authorization-${auth.externalId}">
-							<td><img src="${user.profile.avatarUrl}" alt="<c:out value='${user.profile.displayName}'/>" /></td>
+							<td><img src="${user.profile.fullAvatarUrl}" alt="<c:out value='${user.profile.displayName}'/>" /></td>
 							<td><c:out value="${user.username}" /></td>  
 							<td><c:out value="${user.profile.displayName}" /></td>
 							<td>${professorships.size()}</td>
