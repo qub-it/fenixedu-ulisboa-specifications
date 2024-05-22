@@ -1,3 +1,5 @@
+- Bug fix: Introducing spring functionality loader for package com.qubit.qubEdu.module.base [#UL-REIT-3983]
+
 7.15.0 (20-05-2024)
 - Refactor: Uses fullAvatarUrl for avatarUrl refactoring [#qubIT-Omnis-5848]
 
