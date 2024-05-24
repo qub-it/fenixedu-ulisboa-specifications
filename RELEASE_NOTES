@@ -1,3 +1,5 @@
+- Refactor: Change internal source credits label [#qubIT-Fenix-5327]
+
 7.15.1 (22-05-2024)
 - Bug fix: Introducing spring functionality loader for package com.qubit.qubEdu.module.base [#UL-REIT-3983]
 
