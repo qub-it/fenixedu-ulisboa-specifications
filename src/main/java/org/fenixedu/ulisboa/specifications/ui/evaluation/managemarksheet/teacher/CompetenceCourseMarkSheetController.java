@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Response.Status;
 
+import com.qubit.qubEdu.module.base.util.XLSxUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.ExecutionCourse;
@@ -462,7 +463,7 @@ public class CompetenceCourseMarkSheetController extends FenixeduUlisboaSpecific
         final String filename = competenceCourse.getCode() + "_"
                 + competenceCourse.getName().replace(' ', '_').replace('/', '-').replace('\\', '-')
                 + competenceCourseMarkSheet.getEvaluationDatePresentation().replace(' ', '_').replace(':', '-')
-                + MarkSheetImportExportService.XLSX_EXTENSION;
+                + XLSxUtil.XLSX_EXTENSION;
 
         writeFile(response, filename, MarkSheetImportExportService.XLSX_MIME_TYPE,
                 MarkSheetImportExportService.exportToXLSX(new CompetenceCourseMarkSheetBean(competenceCourseMarkSheet)));

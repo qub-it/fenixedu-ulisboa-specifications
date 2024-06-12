@@ -27,18 +27,14 @@
 package org.fenixedu.ulisboa.specifications.ui.curricularrules.manageanycurricularcourseexceptionsconfiguration;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
+import com.qubit.qubEdu.module.base.util.SheetProcessor;
+import com.qubit.qubEdu.module.base.util.XLSxUtil;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptionsConfiguration;
 import org.fenixedu.academic.domain.exceptions.AcademicExtensionsDomainException;
@@ -235,31 +231,12 @@ public class AnyCurricularCourseExceptionsConfigurationController extends Fenixe
         }
     }
 
-    private Collection<CompetenceCourse> parseCompetenceCoursesFromXLS(MultipartFile competenceCoursesFile) throws IOException {
-
-        if (!competenceCoursesFile.getOriginalFilename().endsWith(".xls")) {
-            throw new ULisboaSpecificationsDomainException(
-                    "error.curricularRules.manageAnyCurricularCourseExceptionsConfiguration.importCompetenceCourses.invalid.file.format");
-        }
-
+    private static class CompetenceCourseSheetProcessor extends SheetProcessor {
         final Set<CompetenceCourse> result = new HashSet<CompetenceCourse>();
 
-        InputStream inputStream = null;
-        HSSFWorkbook workbook = null;
-        try {
-
-            inputStream = competenceCoursesFile.getInputStream();
-            workbook = new HSSFWorkbook(competenceCoursesFile.getInputStream());
-
-            final HSSFSheet sheet = workbook.getSheetAt(0);
-            final Iterator<Row> rowIterator = sheet.iterator();
-
-            //header
-            rowIterator.next();
-
-            while (rowIterator.hasNext()) {
-
-                final Row row = rowIterator.next();
+        public CompetenceCourseSheetProcessor() {
+            super();
+            setRowProcessor(row -> {
                 final String code = row.getCell(0).getStringCellValue();
                 final CompetenceCourse competenceCourse = CompetenceCourse.find(code);
 
@@ -270,16 +247,19 @@ public class AnyCurricularCourseExceptionsConfigurationController extends Fenixe
                 }
 
                 result.add(competenceCourse);
-
-            }
-
-            return result;
-
-        } catch (IOException e) {
-            throw new ULisboaSpecificationsDomainException("label.unexpected.error.occured");
-        } finally {
-            IOUtils.closeQuietly(inputStream);
+            });
         }
+
+        public Set<CompetenceCourse> getResult() {
+            return result;
+        }
+    }
+
+    // This should be tested to see if HSSFWorkbook is compatible with XSSFWorkbook
+    private Collection<CompetenceCourse> parseCompetenceCoursesFromXLS(MultipartFile competenceCoursesFile) throws IOException {
+        CompetenceCourseSheetProcessor competenceCourseSheetProcessor = new CompetenceCourseSheetProcessor();
+        XLSxUtil.parseXLS(competenceCoursesFile.getOriginalFilename(), competenceCoursesFile.getInputStream(), competenceCourseSheetProcessor);
+        return competenceCourseSheetProcessor.getResult();
     }
 
     private byte[] exportCompetenceCoursesToXLS(Collection<CompetenceCourse> toExport) throws IOException {
