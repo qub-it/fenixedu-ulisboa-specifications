@@ -33,8 +33,9 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.qubit.qubEdu.module.base.util.SheetProcessor;
-import com.qubit.qubEdu.module.base.util.XLSxUtil;
+import com.qubit.terra.framework.tools.excel.ExcelUtil;
+import com.qubit.terra.framework.tools.excel.SheetProcessor;
+import com.qubit.terra.framework.tools.excel.XlsType;
 import org.fenixedu.academic.domain.CompetenceCourse;
 import org.fenixedu.academic.domain.curricularRules.AnyCurricularCourseExceptionsConfiguration;
 import org.fenixedu.academic.domain.exceptions.AcademicExtensionsDomainException;
@@ -257,8 +258,13 @@ public class AnyCurricularCourseExceptionsConfigurationController extends Fenixe
 
     // This should be tested to see if HSSFWorkbook is compatible with XSSFWorkbook
     private Collection<CompetenceCourse> parseCompetenceCoursesFromXLS(MultipartFile competenceCoursesFile) throws IOException {
+        if (!competenceCoursesFile.getOriginalFilename().endsWith(".xls")) {
+            throw new ULisboaSpecificationsDomainException(
+                    "error.curricularRules.manageAnyCurricularCourseExceptionsConfiguration.importCompetenceCourses.invalid.file.format");
+        }
+        
         CompetenceCourseSheetProcessor competenceCourseSheetProcessor = new CompetenceCourseSheetProcessor();
-        XLSxUtil.parseXLS(competenceCoursesFile.getOriginalFilename(), competenceCoursesFile.getInputStream(), competenceCourseSheetProcessor);
+        ExcelUtil.importExcel(XlsType.XLSX, competenceCoursesFile.getInputStream(), competenceCourseSheetProcessor);
         return competenceCourseSheetProcessor.getResult();
     }
 
