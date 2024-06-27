@@ -1,4 +1,4 @@
-- Refactor: Uses XlsxUtil to handle excel files [#qubIT-Omnis-6065]
+- Refactor: Uses ExcelUtil to handle excel files [#qubIT-Omnis-6065]
 
 7.17.0 (17-06-2024)
 - Refactor: Updates ff dependency [#qubIT-Omnis-4749]
