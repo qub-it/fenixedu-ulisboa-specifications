@@ -28,25 +28,14 @@
 
 package org.fenixedu.ulisboa.specifications.dto;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
+import com.google.common.collect.Sets;
 import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.Enrolment.EnrolmentPredicate;
 import org.fenixedu.academic.domain.EvaluationSeason;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
-import org.fenixedu.academic.domain.enrolment.EnrolmentServices;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
 import org.fenixedu.academic.domain.student.Registration;
@@ -61,12 +50,18 @@ import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequest
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ServiceRequestSlotEntry;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.ULisboaServiceRequest;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
-import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ValidateImprovementEnrolmentProcessor;
-import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ValidateSpecialSeasonEnrolmentProcessor;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 
-import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ULisboaServiceRequestBean implements IBean {
 
@@ -424,32 +419,9 @@ public class ULisboaServiceRequestBean implements IBean {
 
             private List<Enrolment> getEnrolmentsToEnrol(final ExecutionInterval executionSemester,
                     final StudentCurricularPlan studentCurricularPlan, final Set<ULisboaServiceRequestProcessor> processors) {
-                EvaluationSeason evaluationSeason = null;
-                EnrolmentPredicate predicate = null;
-                for (ULisboaServiceRequestProcessor processor : processors) {
-                    if (processor instanceof ValidateImprovementEnrolmentProcessor) {
-                        ValidateImprovementEnrolmentProcessor improvementProcessor =
-                                (ValidateImprovementEnrolmentProcessor) processor;
-                        evaluationSeason = improvementProcessor.getEvaluationSeason();
-                        predicate = Enrolment.getPredicateImprovement();
-                        break;
-                    }
-                    if (processor instanceof ValidateSpecialSeasonEnrolmentProcessor) {
-                        ValidateSpecialSeasonEnrolmentProcessor specialSeasonProcessor =
-                                (ValidateSpecialSeasonEnrolmentProcessor) processor;
-                        evaluationSeason = specialSeasonProcessor.getEvaluationSeason();
-                        predicate = Enrolment.getPredicateSpecialSeason();
-                        break;
-                    }
-                }
-                if (evaluationSeason == null) {
-                    // No filter
-                    return studentCurricularPlan.getRoot().getCurriculumModulesSet().stream()
-                            .filter(module -> module.isEnrolment()).map(Enrolment.class::cast).collect(Collectors.toList());
-                }
-
-                return EnrolmentServices.getEnrolmentsToEnrol(studentCurricularPlan, executionSemester, evaluationSeason,
-                        predicate);
+                // No filter
+                return studentCurricularPlan.getRoot().getCurriculumModulesSet().stream().filter(module -> module.isEnrolment())
+                        .map(Enrolment.class::cast).collect(Collectors.toList());
             }
 
         });

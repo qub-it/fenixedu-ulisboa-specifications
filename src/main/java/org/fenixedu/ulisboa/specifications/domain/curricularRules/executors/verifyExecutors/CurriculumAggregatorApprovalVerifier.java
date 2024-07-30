@@ -40,14 +40,6 @@ import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAg
 
 public class CurriculumAggregatorApprovalVerifier extends VerifyRuleExecutor {
 
-    //  author = "legidio", comment = "Deprecated: grades must be set before enrolment periods"
-    @Deprecated
-    @Override
-    protected RuleResult verifyEnrolmentWithTemporaryEnrolment(ICurricularRule curricularRule, EnrolmentContext enrolmentContext,
-            DegreeModule degreeModuleToVerify, CourseGroup parentCourseGroup) {
-        return RuleResult.createNA(degreeModuleToVerify);
-    }
-
     @Override
     protected RuleResult verifyEnrolmentWithRules(ICurricularRule curricularRule, EnrolmentContext enrolmentContext,
             DegreeModule degreeModuleToVerify, CourseGroup parentCourseGroup) {

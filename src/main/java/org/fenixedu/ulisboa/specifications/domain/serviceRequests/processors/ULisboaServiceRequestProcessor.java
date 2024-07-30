@@ -92,22 +92,6 @@ public abstract class ULisboaServiceRequestProcessor extends ULisboaServiceReque
     }
 
     public static void initValidators() {
-        ULisboaServiceRequestProcessor processor =
-                findAll().filter(p -> p instanceof ValidateImprovementEnrolmentProcessor).findAny().orElse(null);
-        if (processor != null) {
-            for (ServiceRequestType serviceRequestType : processor.getServiceRequestTypesSet()) {
-                serviceRequestType.removeULisboaServiceRequestProcessors(processor);
-            }
-            processor.delete();
-        }
-        processor = findAll().filter(p -> p instanceof ValidateSpecialSeasonEnrolmentProcessor).findAny().orElse(null);
-        if (processor != null) {
-            for (ServiceRequestType serviceRequestType : processor.getServiceRequestTypesSet()) {
-                serviceRequestType.removeULisboaServiceRequestProcessors(processor);
-            }
-            processor.delete();
-        }
-
         if (findByName(BundleUtil.getString(ULisboaConstants.BUNDLE, ULisboaConstants.STATE_LOGGER_PROCESSOR)).count() == 0) {
             StateLoggerProcessor.create(
                     BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, ULisboaConstants.STATE_LOGGER_PROCESSOR),

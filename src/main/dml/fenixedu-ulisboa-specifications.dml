@@ -580,35 +580,6 @@ class serviceRequests.processors.ValidateRequirementsInCreationProcessor extends
     String serviceRequestTypesNeeded;
 }
 
-
-class serviceRequests.processors.ValidateImprovementEnrolmentProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
-    String curricularEntriesPropertyName;    
-}
-
-class serviceRequests.processors.ValidateSpecialSeasonEnrolmentProcessor extends serviceRequests.processors.ULisboaServiceRequestProcessor {
-    String curricularEntriesPropertyName;
-}
-
-relation ValidateImprovementEnrolmentProcessorEvaluationSeason {
-    public serviceRequests.processors.ValidateImprovementEnrolmentProcessor playsRole validateImprovementEnrolmentProcessors {
-        multiplicity *;
-    }
-
-    public .org.fenixedu.academic.domain.EvaluationSeason playsRole evaluationSeason {
-        multiplicity 1..1;
-    }
-}
-
-relation ValidateSpecialSeasonEnrolmentProcessorEvaluationSeason {
-    public serviceRequests.processors.ValidateSpecialSeasonEnrolmentProcessor playsRole validateSpecialSeasonEnrolmentProcessors {
-        multiplicity *;
-    }
-
-    public .org.fenixedu.academic.domain.EvaluationSeason playsRole evaluationSeason {
-        multiplicity 1..1;
-    }
-}
-
 relation ULisboaServiceRequestProcessorBennu {
     protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
         multiplicity 1..1;

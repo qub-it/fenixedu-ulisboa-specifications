@@ -26,8 +26,6 @@
 package org.fenixedu.ulisboa.specifications.domain.studentCurriculum;
 
 import org.fenixedu.academic.domain.CurricularCourse;
-import org.fenixedu.academic.domain.Enrolment;
-import org.fenixedu.academic.domain.Enrolment.EnrolmentPredicate;
 import org.fenixedu.academic.domain.ExecutionInterval;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
@@ -35,41 +33,11 @@ import org.fenixedu.academic.domain.curricularRules.executors.ruleExecutors.Curr
 import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
-import org.fenixedu.academic.domain.enrolment.EnrolmentPredicateInitializer;
 import org.fenixedu.academic.domain.evaluation.services.EnrolmentEvaluationServices;
-import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 
 abstract public class CurriculumAggregatorRulesInitializer {
 
     static public void init() {
-
-        EnrolmentPredicateInitializer.addExtraImprovementPredicate(new EnrolmentPredicate() {
-
-            @Override
-            public boolean test(Enrolment enrolment) {
-                if (!CurriculumAggregatorServices.isCandidateForEvaluation(getEvaluationSeason(), enrolment)) {
-                    throw new ULisboaSpecificationsDomainException(
-                            "error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation",
-                            enrolment.getPresentationName().getContent());
-                }
-
-                return true;
-            }
-        });
-
-        EnrolmentPredicateInitializer.addExtraSpecialPredicate(new EnrolmentPredicate() {
-
-            @Override
-            public boolean test(Enrolment enrolment) {
-                if (!CurriculumAggregatorServices.isCandidateForEvaluation(getEvaluationSeason(), enrolment)) {
-                    throw new ULisboaSpecificationsDomainException(
-                            "error.EnrolmentEvaluation.aggregation.member.not.configured.for.evaluation",
-                            enrolment.getPresentationName().getContent());
-                }
-
-                return true;
-            }
-        });
 
         CurricularRuleConfigurationInitializer
                 .addPreviousYearsEnrolmentCoursesSkipPredicate((cg, ctx) -> skipByCurriculumAggregatorApproval(cg, ctx));
