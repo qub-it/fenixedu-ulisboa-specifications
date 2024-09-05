@@ -62,7 +62,6 @@ import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaSpecificationsRoot;
 import org.fenixedu.ulisboa.specifications.domain.services.PersonServices;
-import org.fenixedu.ulisboa.specifications.domain.services.enrollment.AttendsServices;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.YearMonthDay;
 import org.slf4j.Logger;
@@ -395,7 +394,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
                     final ExecutionCourse execution = EnrolmentServices.getExecutionCourseUnique(enrolment, semesterImprovement);
 
                     if (execution != null) {
-                        AttendsServices.createAttend(enrolment, execution);
+                        enrolment.findOrCreateAttends(execution);
                     }
                 }
             }

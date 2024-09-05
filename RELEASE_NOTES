@@ -1,5 +1,6 @@
-- Improvement: Updates guava from 21.0 to 33.2.1-jre [#qubIT-Omnis-5869]
 - Refactor: Replace usages of deprecated RegistrationStateTypeEnum [#qubIT-Fenix-2587]
+- Refactor: Use new method for creating or adding existing attends to enrolment [#qubIT-Fenix-5598]
+- Improvement: Updates guava from 21.0 to 33.2.1-jre [#qubIT-Omnis-5869]
 
 7.19.0 (05-08-2024)
 - Refactor: Remove legacy evaluation season and temporary enrolment logic [#qubIT-Fenix-5554]
