@@ -67,7 +67,7 @@ public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends Cr
             if (state != null) {
 
                 getLogger().warn("Ignoring Registration [{}]: has active {} state for {}", registrationInfo,
-                        state.getStateTypeEnum().getName(), registrationYear.getQualifiedName());
+                        state.getType().getName().getContent(), registrationYear.getQualifiedName());
                 continue;
             }
 
