@@ -121,7 +121,7 @@ ${portal.toolkit()}
 <script>
     var registrationsSet = [
             <c:forEach items="${registrationsSet}" var="registration">
-                <c:set var="situationLabel" value="${ registration.activeStateTypeEnum.description }" />
+                <c:set var="situationLabel" value="${ registration.activeStateType.name.content }" />
                 {
                 "startDate" : "<c:out value='${registration.startDate}'/>",
                 "number" : "<c:out value='${registration.number}'/>",

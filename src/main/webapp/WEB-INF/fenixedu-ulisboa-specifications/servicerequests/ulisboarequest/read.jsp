@@ -656,7 +656,7 @@ ${portal.toolkit()}
                 </tr>
                 <tr>
                     <th scope="row" class="col-xs-3"><spring:message code="label.Registration.currentState" /></th>
-                    <c:set var="situationLabel" value="${ registration.activeStateTypeEnum.description }" />
+                    <c:set var="situationLabel" value="${ registration.activeStateType.name.content }" />
                     <td><spring:message code="${ situationLabel }" /></td>
                 </tr>
             </tbody>
