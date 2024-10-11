@@ -320,34 +320,6 @@ relation ULisboaSpecificationsRootContingentToIngressions {
 	}
 }
 
-// ==================== DGES Student Import ====================
-
-class student.access.importation.DgesStudentImportationProcess extends .org.fenixedu.academic.domain.QueueJobWithFile {
-	EntryPhase entryPhase;
-}
-
-class student.access.importation.DgesStudentImportationFile extends .org.fenixedu.bennu.io.domain.GenericFile {
-}
-
-relation ImportCandidaciesFromDgesProcessDgesImportationStudentFile {
-	student.access.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess;
-	student.access.importation.DgesStudentImportationFile playsRole dgesStudentImportationFile;
-}
-
-relation DgesStudentImportationProcessExecutionYear {
-	.org.fenixedu.academic.domain.ExecutionYear playsRole executionYear;
-	student.access.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess {
-		multiplicity *;
-	}
-}
-
-relation DgesStudentImportationProcessSpace {
-	.org.fenixedu.spaces.domain.Space playsRole space;
-	student.access.importation.DgesStudentImportationProcess playsRole dgesStudentImportationProcess {
-		multiplicity*;
-	}
-}
-
 
 // ==================== First Year School Configuration ====================
 
