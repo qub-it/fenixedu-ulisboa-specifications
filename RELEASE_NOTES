@@ -1,3 +1,4 @@
+- Refactor: Add subclasses of RegistrationState [#qubIT-Fenix-5944] 
 - Refactor: Remove unused classes that have EntryPhase [#qubIT-Fenix-5905]
 
 7.20.2 (03-10-2024)

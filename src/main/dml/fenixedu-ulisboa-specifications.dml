@@ -1248,6 +1248,21 @@ relation DepartmentDegree {
     }
 }
 
+class student.registrationStates.CanceledState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.ConcludedState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.ExternalAbandonState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.FlunkedState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.InternalAbandonState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.InterruptedState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.MobilityState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.RegisteredState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.SchoolPartConcludedState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.StudyPlanConcludedState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.TransitionalState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.TransitedState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+class student.registrationStates.InactiveState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
+
+
 package org.fenixedu.learning.domain;
 
 class executionCourse.ExecutionCourseSite extends .org.fenixedu.cms.domain.Site {}
