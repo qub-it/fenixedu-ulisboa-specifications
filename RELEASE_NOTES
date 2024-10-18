@@ -1,3 +1,5 @@
+- Refactor: Refactor EntryPhase of Registration to Integer (and remove the redundant field) [#qubIT-Fenix-5905]
+
 7.21.0 (17-10-2024)
 - Refactor: Add subclasses of RegistrationState [#qubIT-Fenix-5944] 
 - Refactor: Remove unused classes that have EntryPhase [#qubIT-Fenix-5905]
