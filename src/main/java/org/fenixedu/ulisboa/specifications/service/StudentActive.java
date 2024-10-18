@@ -127,7 +127,8 @@ public class StudentActive {
                 //
                 // 3 April 2024 - Paulo Abrantes
                 Predicate<? super StudentCandidacy> firstTimePredicate =
-                        studentCandidacy -> studentCandidacy.getEntryPhase() != null && studentCandidacy.getRegistration() != null
+                        studentCandidacy -> studentCandidacy.getRegistration() != null
+                                && studentCandidacy.getRegistration().getAdmissionPhase() != null
                                 && (studentCandidacy.getRegistration().isActive()
                                         || studentCandidacy.getRegistration().getActiveStateType().getCode().equals("INACTIVE"))
                                 && studentCandidacy.getExecutionYear().isCurrent() && studentCandidacy.isActive();
