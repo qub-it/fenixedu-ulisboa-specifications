@@ -44,6 +44,7 @@ import org.fenixedu.academic.domain.AcademicProgram;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
+import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituation;
@@ -150,7 +151,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         bean.setUrgentRequest(Boolean.FALSE);
         bean.setFreeProcessed(Boolean.FALSE);
         bean.setLanguage(I18N.getLocale());
-        super.init(bean, registration.getDegree().getAdministrativeOffice());
+        super.init(bean, AdministrativeOffice.readDegreeAdministrativeOffice());
     }
 
     /*
