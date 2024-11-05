@@ -326,7 +326,7 @@ ${portal.angularToolkit()}
                	       return;
                    }
                    $scope.transformDataToSubmit();
-                   $('form').submit();
+                   $('#myTargetForm').submit();
                }
            } ]);
 </script>
@@ -334,6 +334,7 @@ ${portal.angularToolkit()}
 <form name='form' method="post" class="form-horizontal"
     ng-app="angularAppULisboaServiceRequest"
     ng-controller="ULisboaServiceRequestController"
+    id="myTargetForm"
     ng-submit="form.$valid"
     <% if(AcademicAuthorizationGroup.get(AcademicOperationType.SERVICE_REQUESTS, null, null, null).isMember(AccessControl.getPerson().getUser()) || PermissionService.hasAccess("ACADEMIC_REQUISITIONS", AccessControl.getPerson().getUser())) {%>
         action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_URL %>${ulisboaServiceRequestBean.registration.externalId}'

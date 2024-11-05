@@ -1,3 +1,5 @@
+- Bug Fix: Fix error in submiting angular form, which the angular logic was colliding with the support form [#qubIT-Fenix-6049]
+
 7.21.1 (22-10-2024)
 - Bug fix: Allow to create old service requests for degrees without admin office [#UL-FBA-1899]
 

@@ -281,7 +281,7 @@ ${portal.angularToolkit()}
                	       return;
                    }
                    $scope.transformDataToSubmit();
-                   $('form').submit();
+                   $('#myTargetForm').submit();
                }
            } ]);
 </script>
@@ -290,6 +290,7 @@ ${portal.angularToolkit()}
     ng-app="angularAppULisboaServiceRequest"
     ng-controller="ULisboaServiceRequestController"
     ng-submit="form.$valid"
+    id="myTargetForm"
     ng-init="initObject()"
         action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.UPDATE_URL %>${serviceRequest.externalId}'
     >

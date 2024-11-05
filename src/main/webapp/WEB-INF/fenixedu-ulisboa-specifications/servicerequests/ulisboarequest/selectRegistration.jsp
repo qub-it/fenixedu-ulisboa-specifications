@@ -233,7 +233,7 @@ ${portal.angularToolkit()}
                	       return;
                    }
                    $scope.transformDataToSubmit();
-                   $('form').submit();
+                   $('#myTargetForm').submit();
                }
            } ]);
 </script>
@@ -243,6 +243,7 @@ ${portal.angularToolkit()}
     ng-controller="ULisboaServiceRequestRegistrationController"
     ng-submit="form.$valid"
     action='${pageContext.request.contextPath}<%= ULisboaServiceRequestManagementController.CREATE_WITH_REGISTRATION_URL %>'
+    id="myTargetForm"
     >
 
     <input type="hidden" name="postback"
