@@ -1,3 +1,4 @@
+7.21.2 (05-11-2024)
 - Bug Fix: Fix error in submiting angular form, which the angular logic was colliding with the support form [#qubIT-Fenix-6049]
 
 7.21.1 (22-10-2024)
