@@ -1,3 +1,5 @@
+- Refactor: Delete SAS/SICABE JSP and controllers [#qubIT-Fenix-6343]
+
 7.21.2 (05-11-2024)
 - Bug Fix: Fix error in submiting angular form, which the angular logic was colliding with the support form [#qubIT-Fenix-6049]
 
