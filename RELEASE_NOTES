@@ -2,6 +2,7 @@
 
 7.22.0 (15-01-2025)
 - Refactor: Changes sendConcludeEmail to use SystemSender [#qubIT-Omnis-7780]
+- Refactor: Moves SystemSender to ULisboa because of specific emails sent in ULisboaServiceRequest [#qubIT-Omnis-7804]
 
 7.21.5 (13-01-2025)
 - Refactor: change references of EntryPhase to AdmissionPhase [#qubIT-Fenix-5905]
