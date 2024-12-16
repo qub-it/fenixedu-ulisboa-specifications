@@ -11,7 +11,7 @@
 
 	<groupId>org.fenixedu.ulisboa</groupId>
 	<artifactId>fenixedu-ulisboa-specifications</artifactId>
-	<version>7.21.3</version>
+	<version>7.21.4</version>
 	<packaging>jar</packaging>
 
 	<name>FenixEdu ULisboa Specifications</name>
@@ -21,7 +21,7 @@
 			<dependency>
 				<groupId>com.qubit.solution.fenixedu</groupId>
 				<artifactId>fenixedu-oss-dependency-management</artifactId>
-				<version>329</version>
+				<version>330</version>
 				<scope>import</scope>
 				<type>pom</type>
 			</dependency>
