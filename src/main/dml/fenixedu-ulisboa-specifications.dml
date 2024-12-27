@@ -71,8 +71,6 @@ external class .org.fenixedu.academic.domain.DegreeCurricularPlan;
 external class .org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 external class .org.fenixedu.academic.domain.Degree;
 external class .org.fenixedu.academic.domain.Country;
-external class .org.fenixedu.bennu.core.domain.groups.PersistentGroup;
-external class .org.fenixedu.academic.domain.util.email.Sender;
 
 class DisabilityType {
 	String code (REQUIRED);
@@ -190,20 +188,6 @@ class PersonUlisboaSpecifications {
     Boolean firstTimeInUlisboa;
     String bestQualitiesInThisCicle;
 }
-
-class util.email.SystemSender extends .org.fenixedu.academic.domain.util.email.Sender {}
-
-
-relation RootDomainObjectSystemSender {
-    .org.fenixedu.bennu.core.domain.Bennu playsRole systemRootDomainObject;
-    .org.fenixedu.academic.domain.util.email.Sender playsRole systemSender;
-}
-
-relation SystemSenderOptOutGroup {
-    protected .org.fenixedu.bennu.core.domain.groups.PersistentGroup playsRole optOutPersistentGroup;
-    .org.fenixedu.academic.domain.util.email.Sender playsRole systemSender;
-}
-
 
 relation PersonUlPerson {
 	PersonUlisboaSpecifications playsRole personUlisboaSpecifications;
