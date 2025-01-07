@@ -25,6 +25,8 @@
  */
 package org.fenixedu.ulisboa.specifications.servlet;
 
+import java.util.Collections;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -33,12 +35,23 @@ import javax.servlet.annotation.WebListener;
 import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
+import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
+import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
 import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
+import org.fenixedu.academic.domain.util.email.CurrentUserReplyTo;
+import org.fenixedu.academic.domain.util.email.Message;
+import org.fenixedu.academic.domain.util.email.Recipient;
+import org.fenixedu.academic.domain.util.email.Sender;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
+import org.fenixedu.academic.util.Bundle;
+import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
+import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.servlet.ExceptionHandlerFilter;
+import org.fenixedu.bennu.core.signals.DomainObjectEvent;
+import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
 import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
@@ -94,12 +107,10 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         configureMarkSheetSpecifications();
         configureMaximumNumberOfCreditsForEnrolmentPeriod();
 
-
         ULisboaSpecificationsRoot.getInstance().getCurriculumAggregatorSet().stream().filter(i -> i.getSince() == null)
                 .forEach(i -> i.setSince(ExecutionYear.readExecutionYearByName("2016/2017")));
 
         CurriculumAggregatorRulesInitializer.init();
-
 
         DynamicGroup dynamicGroup = org.fenixedu.bennu.core.groups.DynamicGroup.get("employees");
         if (!dynamicGroup.isDefined()) {
@@ -137,6 +148,32 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         StudentAccessServices.subscribeSyncRegistration(new SyncRegistrationWithCgd());
 
         migrateCgdTemplate();
+
+        Signal.register("academicServiceRequest.sendConcludeEmailEvent", (DomainObjectEvent<AcademicServiceRequest> request) -> {
+            sendConcludeEmail(request.getInstance());
+        });
+    }
+
+    private void sendConcludeEmail(AcademicServiceRequest request) {
+        String body = BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message1");
+        body += " " + request.getServiceRequestNumberYear();
+        body += " " + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message2");
+        body += " '" + request.getDescription();
+        body += "' " + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message3");
+
+        if (request.getAcademicServiceRequestType() == AcademicServiceRequestType.SPECIAL_SEASON_REQUEST) {
+            body += "\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.messageSSR4B");
+            body += "\n\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.messageSSR5");
+        } else {
+
+            body += "\n\n" + BundleUtil.getString(Bundle.APPLICATION, "mail.academicServiceRequest.concluded.message4");
+
+        }
+
+        final Sender sender = Bennu.getInstance().getSystemSender();
+        final Recipient recipient = new Recipient(request.getPerson().getUser().groupOf());
+        new Message(sender, Collections.singletonList(new CurrentUserReplyTo()), recipient.asCollection(),
+                request.getDescription(), body, "");
     }
 
     private void migrateCgdTemplate() {
