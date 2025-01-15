@@ -1,3 +1,4 @@
+7.22.0 (15-01-2025)
 - Refactor: Changes sendConcludeEmail to use SystemSender [#qubIT-Omnis-7780]
 
 7.21.5 (13-01-2025)
