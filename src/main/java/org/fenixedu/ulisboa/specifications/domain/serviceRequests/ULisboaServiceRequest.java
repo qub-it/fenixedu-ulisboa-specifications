@@ -30,7 +30,6 @@ package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -60,10 +59,11 @@ import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
 import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicTaxTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
 import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
-import org.fenixedu.academic.domain.util.email.Message;
+import org.fenixedu.academic.dto.CommunicationMessageDTO;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academic.servlet.FenixInitializer;
 import org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -820,7 +820,6 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     }
 
     private void sendConclusionNotification() {
-        String emailAddress = getPerson().getDefaultEmailAddressValue();
         Locale locale = getLanguage();
         if (locale == null) {
             locale = ULisboaConstants.DEFAULT_LOCALE;
@@ -845,11 +844,10 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
                 BundleUtil.getString(ULisboaConstants.BUNDLE, locale, "message.ULisboaServiceRequest.conclusionNotification.body",
                         salutation, getDescription(), getServiceRequestNumberYear(), bodyDocumentMessage);
 
-        sendEmail(emailAddress, subject, body);
+        sendEmail(getPerson(), subject, body);
     }
 
     private void sendReversionApology() {
-        String emailAddress = getPerson().getDefaultEmailAddressValue();
         String subject = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
                 "message.ULisboaServiceRequest.reversionApology.subject", getDescription(), getServiceRequestNumberYear());
         String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
@@ -859,13 +857,12 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         String body = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
                 "message.ULisboaServiceRequest.reversionApology.body", salutation, getDescription(),
                 getServiceRequestNumberYear());
-        sendEmail(emailAddress, subject, body);
+        sendEmail(getPerson(), subject, body);
     }
 
     @Atomic
-    private void sendEmail(final String emailAddress, final String subject, final String body) {
-        new Message(Bennu.getInstance().getSystemSender(), Collections.EMPTY_LIST, Collections.EMPTY_LIST, subject, body,
-                emailAddress);
+    private void sendEmail(final Person person, final String subject, final String body) {
+        Signal.emit(FenixInitializer.SEND_EMAIL_SIGNAL, new CommunicationMessageDTO(subject, body, Set.of(person)));
     }
 
     @Atomic
