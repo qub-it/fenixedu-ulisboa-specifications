@@ -1,4 +1,5 @@
 - Refactor: Moves SystemSender to ULisboa because of specific emails sent in ULisboaServiceRequest [#qubIT-Omnis-7804]
+- Refactor: Replace references to Email and Message classes [#qubIT-Omnis-8403]
 
 7.22.0 (15-01-2025)
 - Refactor: Changes sendConcludeEmail to use SystemSender [#qubIT-Omnis-7780]

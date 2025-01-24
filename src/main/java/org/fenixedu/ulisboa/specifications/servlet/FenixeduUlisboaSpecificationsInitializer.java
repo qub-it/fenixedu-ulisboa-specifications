@@ -25,7 +25,7 @@
  */
 package org.fenixedu.ulisboa.specifications.servlet;
 
-import java.util.Collections;
+import java.util.Set;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -40,13 +40,8 @@ import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicSer
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
 import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
-import org.fenixedu.academic.domain.util.email.CurrentUserReplyTo;
-import org.fenixedu.academic.domain.util.email.Message;
-import org.fenixedu.academic.domain.util.email.Recipient;
-import org.fenixedu.academic.domain.util.email.Sender;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.academic.util.Bundle;
-import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.servlet.ExceptionHandlerFilter;
@@ -73,6 +68,7 @@ import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAg
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorMarkSheetServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorRulesInitializer;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
+import org.fenixedu.ulisboa.specifications.dto.CommunicationMessageDTO;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.ConclusionInformationDataProvider;
 import org.fenixedu.ulisboa.specifications.task.tmp.FixBugProcessorTypeTask;
 import org.fenixedu.ulisboa.specifications.task.tmp.UpdateServiceRequestType;
@@ -92,6 +88,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
     private static final Logger logger = LoggerFactory.getLogger(FenixeduUlisboaSpecificationsInitializer.class);
 
     public static final String BUNDLE = "resources/FenixeduUlisboaSpecificationsResources";
+
+    public static final String SEND_EMAIL_SIGNAL = "email.send.SystemSenderEmail";
 
     @Override
     public void contextDestroyed(final ServletContextEvent event) {
@@ -170,10 +168,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         }
 
-        final Sender sender = Bennu.getInstance().getSystemSender();
-        final Recipient recipient = new Recipient(request.getPerson().getUser().groupOf());
-        new Message(sender, Collections.singletonList(new CurrentUserReplyTo()), recipient.asCollection(),
-                request.getDescription(), body, "");
+        Signal.emit(FenixeduUlisboaSpecificationsInitializer.SEND_EMAIL_SIGNAL,
+                new CommunicationMessageDTO(request.getDescription(), body, Set.of(request.getPerson())));
     }
 
     private void migrateCgdTemplate() {
