@@ -1,3 +1,5 @@
+- Refactor: Remove references to deprecated GradeScaleEnum related domain [#qubIT-Fenix-1784]
+
 7.22.0 (15-01-2025)
 - Refactor: Changes sendConcludeEmail to use SystemSender [#qubIT-Omnis-7780]
 
