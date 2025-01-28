@@ -862,7 +862,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
     @Atomic
     private void sendEmail(final Person person, final String subject, final String body) {
-        Signal.emit(FenixInitializer.SEND_EMAIL_SIGNAL, new CommunicationMessageDTO(subject, body, Set.of(person)));
+        Signal.emit(FenixInitializer.SEND_EMAIL_SIGNAL, new CommunicationMessageDTO(subject, body, person));
     }
 
     @Atomic
