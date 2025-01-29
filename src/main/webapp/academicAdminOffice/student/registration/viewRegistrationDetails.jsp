@@ -196,8 +196,6 @@
 <!--                </span> -->
 <%--                </academic:allowed>      --%>
                 
-                <%-- Extension --%>
-                <jsp:include page="viewRegistrationDetailsTreasuryDebtAccountLink_ulisboa_specification.jsp" /> 
             </p>
             </academic:allowed>
             </academic:allowed>
