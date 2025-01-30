@@ -5,7 +5,6 @@
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.OriginInformationManagementController"%>
 <%@page import="org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.administrativeOffice.blueRecord.HouseholdInformationManagementController"%>
-<%@page import="org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory"%>
 
 <%@ page isELIgnored="true"%>
 <%@ taglib uri="http://struts.apache.org/tags-bean" prefix="bean" %>
