@@ -1,3 +1,4 @@
+- Refactor: Remove ExceptionHandlers since they are made redundant by recent fenixedu-base changes [#qubIT-Omnis-8439]
 - Refactor: Removes unused ManageRegistrationEntryGradeController [#qubIT-Fenix-6559]
 
 7.24.2 (04-02-2025)

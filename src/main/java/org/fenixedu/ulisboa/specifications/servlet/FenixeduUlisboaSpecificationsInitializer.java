@@ -3,8 +3,8 @@
  * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
  * software development project between Quorum Born IT and Serviços Partilhados da
  * Universidade de Lisboa:
- *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
- *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
+ * - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
+ * - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  *
  *
@@ -25,7 +25,6 @@
  */
 package org.fenixedu.ulisboa.specifications.servlet;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
@@ -38,11 +37,7 @@ import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
 import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
-import org.fenixedu.bennu.core.servlet.ExceptionHandlerFilter;
-import org.fenixedu.bennu.core.util.CoreConfiguration;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
-import org.fenixedu.bennu.portal.servlet.PortalDevModeExceptionHandler;
-import org.fenixedu.bennu.portal.servlet.PortalExceptionHandler;
 import org.fenixedu.cms.domain.Site;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
 import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
@@ -104,7 +99,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
             dynamicGroup.toPersistentGroup();
         }
 
-        setupCustomExceptionHandler(event);
         setupListenerForDegreeDelete();
 
         ULisboaServiceRequest.setupListenerForPropertiesDeletion();
@@ -123,8 +117,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         }
 
         CurriculumEntry.setCourseEctsGradeProviderProvider(entry -> CourseGradingTable.getEctsGrade(entry));
-        ConclusionInformationDataProvider
-                .setDegreeEctsGradeProviderProvider(conclusion -> DegreeGradingTable.getEctsGrade(conclusion));
+        ConclusionInformationDataProvider.setDegreeEctsGradeProviderProvider(
+                conclusion -> DegreeGradingTable.getEctsGrade(conclusion));
 
         CourseGroupDegreeInfo.setupDeleteListener();
 
@@ -201,14 +195,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         if (enforcer != null) {
             enforcer.delete();
         }
-    }
-
-    private void setupCustomExceptionHandler(final ServletContextEvent event) {
-        ServletContext servletContext = event.getServletContext();
-        PortalExceptionHandler exceptionHandler =
-                CoreConfiguration.getConfiguration().developmentMode() == Boolean.TRUE ? new PortalDevModeExceptionHandler(
-                        servletContext) : new FenixEduUlisboaExceptionHandler(servletContext);
-        ExceptionHandlerFilter.setExceptionHandler(exceptionHandler);
     }
 
     private void setupDeleteListenerForPrecedentDegreeInformation() {
