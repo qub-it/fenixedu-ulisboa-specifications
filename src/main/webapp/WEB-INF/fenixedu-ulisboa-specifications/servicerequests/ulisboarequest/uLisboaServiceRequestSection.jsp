@@ -20,7 +20,6 @@
 --%>
 <%@page import="org.fenixedu.academic.domain.groups.PermissionService"%>
 <%@page import="org.joda.time.LocalDate"%>
-<%@page import="org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory"%>
 <%@page import="org.fenixedu.ulisboa.specifications.ui.student.ulisboaservicerequest.ULisboaServiceRequestController"%>
 <%@page import="org.fenixedu.academic.predicate.AccessControl"%>
 <%@page import="org.fenixedu.bennu.core.security.Authenticate"%>

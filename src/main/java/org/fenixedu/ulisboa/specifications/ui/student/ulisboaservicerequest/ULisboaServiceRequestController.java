@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.fenixedu.academic.domain.exceptions.AcademicExtensionsDomainException;
 import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.predicate.AccessControl;
+import org.fenixedu.academictreasury.services.PersonServices;
 import org.fenixedu.academictreasury.util.AcademicTreasuryConstants;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.security.Authenticate;
@@ -107,7 +107,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
             return redirect("/", model, redirectAttributes);
         }
 
-        if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
+        if (PersonServices.isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
             addErrorMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequest.create.actsBlocked"), model);
             return redirect(READ_REGISTRATION_URL + registration.getExternalId(), model, redirectAttributes);
         }
@@ -128,7 +128,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
 
         setULisboaServiceRequestBean(bean, model);
         try {
-            if (TreasuryBridgeAPIFactory.implementation().isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
+            if (PersonServices.isAcademicalActsBlocked(AccessControl.getPerson(), new LocalDate())) {
                 addErrorMessage(BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequest.create.actsBlocked"), model);
                 return redirect(READ_REGISTRATION_URL + registration.getExternalId(), model, redirectAttributes);
             }
@@ -140,8 +140,7 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
             if (e instanceof RuntimeException) {
                 if (e.getCause() != null) {
                     Throwable cause = e.getCause();
-                    if (cause instanceof DomainException
-                            || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
+                    if (cause instanceof DomainException || cause instanceof org.fenixedu.bennu.core.domain.exceptions.DomainException) {
                         String message =
                                 BundleUtil.getString(ULisboaConstants.BUNDLE, "error.serviceRequests.ulisboarequest.create");
                         addErrorMessage(message + " - " + cause.getLocalizedMessage(), model);
@@ -201,11 +200,8 @@ public class ULisboaServiceRequestController extends FenixeduUlisboaSpecificatio
     }
 
     private Collection<SibsPaymentRequest> getAllOpenPaymentCodes(final List<DebitEntry> activeDebitEntries) {
-        return activeDebitEntries.stream()
-                    .filter(DebitEntry::isInDebt)
-                    .flatMap(e -> e.getSibsPaymentRequestsSet().stream())
-                    .filter(e -> e.isInRequestedState() || e.isInCreatedState())
-                    .collect(Collectors.toList());
+        return activeDebitEntries.stream().filter(DebitEntry::isInDebt).flatMap(e -> e.getSibsPaymentRequestsSet().stream())
+                .filter(e -> e.isInRequestedState() || e.isInCreatedState()).collect(Collectors.toList());
     }
 
     private boolean isAnyPaymentLeft(final List<DebitEntry> activeDebitEntries) {

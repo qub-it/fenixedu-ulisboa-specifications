@@ -1,29 +1,22 @@
 /**
- * This file was created by Quorum Born IT <http://www.qub-it.com/> and its
- * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa
- * software development project between Quorum Born IT and Serviços Partilhados da
- * Universidade de Lisboa:
- *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
- *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
+ * This file was created by Quorum Born IT <http://www.qub-it.com/> and its copyright terms are bind to the legal agreement
+ * regulating the FenixEdu@ULisboa software development project between Quorum Born IT and Serviços Partilhados da Universidade de
+ * Lisboa: - Copyright © 2015 Quorum Born IT (until any Go-Live phase) - Copyright © 2015 Universidade de Lisboa (after any
+ * Go-Live phase)
  *
- * Contributors: diogo.simoes@qub-it.com
- *               jnpa@reitoria.ulisboa.pt
+ * Contributors: diogo.simoes@qub-it.com jnpa@reitoria.ulisboa.pt
  *
  *
  * This file is part of FenixEdu QubDocs.
  *
- * FenixEdu QubDocs is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * FenixEdu QubDocs is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
  *
- * FenixEdu QubDocs is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * FenixEdu QubDocs is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with FenixEdu QubDocs.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License along with FenixEdu QubDocs.  If not, see
+ * <http://www.gnu.org/licenses/>.
  */
 
 package org.fenixedu.ulisboa.specifications.domain.serviceRequests;
@@ -56,14 +49,13 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
-import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicTaxTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.CommunicationMessageDTO;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
 import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.servlet.FenixInitializer;
+import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
 import org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
@@ -216,8 +208,9 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
         ensureReadOnlyTx();
 
-        ULisboaServiceRequest request = createTransation(bean.getServiceRequestType(), bean.getRegistration(),
-                bean.isRequestedOnline(), bean.getRequestDate(), bean.getServiceRequestPropertyBeans());
+        ULisboaServiceRequest request =
+                createTransation(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline(),
+                        bean.getRequestDate(), bean.getServiceRequestPropertyBeans());
 
         request.processRequest(false, true);
 
@@ -225,8 +218,9 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     }
 
     public static ULisboaServiceRequest createForServiceRequestImport(final ULisboaServiceRequestBean bean) {
-        final ULisboaServiceRequest request = new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(),
-                bean.isRequestedOnline(), bean.getRequestDate());
+        final ULisboaServiceRequest request =
+                new ULisboaServiceRequest(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline(),
+                        bean.getRequestDate());
 
         addRequestSlots(request, bean.getServiceRequestPropertyBeans());
 
@@ -254,8 +248,9 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
         FenixFramework.atomic(() -> {
             for (ULisboaServiceRequestBean bean : beans) {
-                ULisboaServiceRequest request = createTransation(bean.getServiceRequestType(), bean.getRegistration(),
-                        bean.isRequestedOnline(), bean.getRequestDate(), bean.getServiceRequestPropertyBeans());
+                ULisboaServiceRequest request =
+                        createTransation(bean.getServiceRequestType(), bean.getRegistration(), bean.isRequestedOnline(),
+                                bean.getRequestDate(), bean.getServiceRequestPropertyBeans());
                 results.add(request);
             }
         });
@@ -293,8 +288,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
         processRequest(bean.isForceUpdate(), true);
 
-        IAcademicServiceRequestAndAcademicTaxTreasuryEvent treasuryEvent =
-                TreasuryBridgeAPIFactory.implementation().academicTreasuryEventForAcademicServiceRequest(this);
+        AcademicTreasuryEvent treasuryEvent = AcademicTreasuryEvent.findUnique(this).orElse(null);
         if (treasuryEvent != null && treasuryEvent.isExempted()) {
             throw new ULisboaSpecificationsDomainException(
                     "error.documentRequest.annul.not.possible.remove.exemption.on.debit.entry");
@@ -409,8 +403,8 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     }
 
     public DocumentPurposeTypeInstance getDocumentPurposeTypeInstance() {
-        return hasDocumentPurposeTypeInstance() ? findProperty(ULisboaConstants.DOCUMENT_PURPOSE_TYPE)
-                .getDocumentPurposeTypeInstance() : null;
+        return hasDocumentPurposeTypeInstance() ? findProperty(
+                ULisboaConstants.DOCUMENT_PURPOSE_TYPE).getDocumentPurposeTypeInstance() : null;
     }
 
     public boolean hasDocumentPurposeTypeInstance() {
@@ -418,8 +412,8 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     }
 
     public String getOtherDocumentPurposeTypeDescription() {
-        return hasOtherDocumentPurposeTypeDescription() ? findProperty(ULisboaConstants.OTHER_DOCUMENT_PURPOSE)
-                .getString() : null;
+        return hasOtherDocumentPurposeTypeDescription() ? findProperty(
+                ULisboaConstants.OTHER_DOCUMENT_PURPOSE).getString() : null;
     }
 
     public boolean hasOtherDocumentPurposeTypeDescription() {
@@ -429,8 +423,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     @Override
     public boolean isDetailed() {
         ServiceRequestProperty detailedProperty = findProperty(ULisboaConstants.IS_DETAILED);
-        return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty
-                .getBooleanValue() : false;
+        return detailedProperty != null && detailedProperty.getBooleanValue() != null ? detailedProperty.getBooleanValue() : false;
     }
 
     @Override
@@ -605,14 +598,15 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
     @Override
     protected boolean hasMissingPersonalInfo() {
-        return getPerson() == null || Strings.isNullOrEmpty(getPerson().getName())
-                || getPerson().getDateOfBirthYearMonthDay() == null || Strings.isNullOrEmpty(getPerson().getDocumentIdNumber())
-                || getPerson().getIdDocumentType() == null;
+        return getPerson() == null || Strings.isNullOrEmpty(
+                getPerson().getName()) || getPerson().getDateOfBirthYearMonthDay() == null || Strings.isNullOrEmpty(
+                getPerson().getDocumentIdNumber()) || getPerson().getIdDocumentType() == null;
     }
 
     public ServiceRequestProperty findProperty(final String slotCode) {
-        Optional<ServiceRequestProperty> property = getServiceRequestPropertiesSet().stream()
-                .filter(prop -> prop.getServiceRequestSlot().getCode().equals(slotCode)).findFirst();
+        Optional<ServiceRequestProperty> property =
+                getServiceRequestPropertiesSet().stream().filter(prop -> prop.getServiceRequestSlot().getCode().equals(slotCode))
+                        .findFirst();
         if (property.isPresent()) {
             return property.get();
         }
@@ -795,24 +789,20 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         if (!anulledStates.contains(previousType) && anulledStates.contains(currentType)) {
             return true;
         }
-        if (previousType == AcademicServiceRequestSituationType.CONCLUDED
-                && currentType == AcademicServiceRequestSituationType.DELIVERED) {
+        if (previousType == AcademicServiceRequestSituationType.CONCLUDED && currentType == AcademicServiceRequestSituationType.DELIVERED) {
             return true;
         }
-        if (previousType == AcademicServiceRequestSituationType.PROCESSING
-                && currentType == AcademicServiceRequestSituationType.CONCLUDED) {
+        if (previousType == AcademicServiceRequestSituationType.PROCESSING && currentType == AcademicServiceRequestSituationType.CONCLUDED) {
             return true;
         }
-        if (previousType == AcademicServiceRequestSituationType.NEW
-                && currentType == AcademicServiceRequestSituationType.PROCESSING) {
+        if (previousType == AcademicServiceRequestSituationType.NEW && currentType == AcademicServiceRequestSituationType.PROCESSING) {
             return true;
         }
         return false;
     }
 
     private void processRequest(final boolean forceUpdate, final boolean runExclusiveTransationProcessors) {
-        for (ULisboaServiceRequestProcessor uLisboaServiceRequestValidator : getServiceRequestType()
-                .getULisboaServiceRequestProcessorsSet()) {
+        for (ULisboaServiceRequestProcessor uLisboaServiceRequestValidator : getServiceRequestType().getULisboaServiceRequestProcessorsSet()) {
             if (uLisboaServiceRequestValidator.runExclusiveTransation() == runExclusiveTransationProcessors) {
                 uLisboaServiceRequestValidator.process(this, forceUpdate);
             }
@@ -832,7 +822,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, locale,
                 "message.ULisboaServiceRequest.salutation.male",
                 getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE, locale,
-                        "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
+                "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
 
         String bodyDocumentMessage = "";
         if (isPrintable) {
@@ -853,7 +843,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         String salutation = getPerson().isMale() ? BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
                 "message.ULisboaServiceRequest.salutation.male",
                 getPerson().getProfile().getDisplayName()) : BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
-                        "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
+                "message.ULisboaServiceRequest.salutation.female", getPerson().getProfile().getDisplayName());
         String body = BundleUtil.getString(ULisboaConstants.BUNDLE, getLanguage(),
                 "message.ULisboaServiceRequest.reversionApology.body", salutation, getDescription(),
                 getServiceRequestNumberYear());
@@ -901,8 +891,8 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     }
 
     public static Stream<ULisboaServiceRequest> findNewAcademicServiceRequests(final Registration registration) {
-        return findByRegistration(registration)
-                .filter(request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW);
+        return findByRegistration(registration).filter(
+                request -> request.getAcademicServiceRequestSituationType() == AcademicServiceRequestSituationType.NEW);
     }
 
     public static Stream<ULisboaServiceRequest> findProcessingAcademicServiceRequests(final Registration registration) {
@@ -916,8 +906,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     }
 
     /**
-     * Delete Listener for Service Request Properties Relations
-     * Delete Listener for Service Request Type
+     * Delete Listener for Service Request Properties Relations Delete Listener for Service Request Type
      */
 
     public static void setupListenerForPropertiesDeletion() {
@@ -929,8 +918,8 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
             }
         });
         //DocumentPurposeTypeInstance
-        FenixFramework.getDomainModel().registerDeletionListener(DocumentPurposeTypeInstance.class,
-                documentPurposeTypeInstance -> {
+        FenixFramework.getDomainModel()
+                .registerDeletionListener(DocumentPurposeTypeInstance.class, documentPurposeTypeInstance -> {
                     for (ServiceRequestProperty property : documentPurposeTypeInstance.getServiceRequestPropertiesSet()) {
                         property.setDocumentPurposeTypeInstance(null);
                         property.getULisboaServiceRequest().setIsValid(false);
@@ -974,7 +963,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         });
     }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
      * ****************
      * <Deprecated API>
