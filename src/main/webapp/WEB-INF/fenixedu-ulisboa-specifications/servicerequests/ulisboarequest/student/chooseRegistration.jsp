@@ -97,7 +97,6 @@ ${portal.toolkit()}
                     <th><spring:message code="label.Registration.number" /></th>
                     <th><spring:message code="label.Registration.degree" /></th>
                     <th><spring:message code="label.Registration.currentState" /></th>
-                    <th><spring:message code="label.Registration.numberEnroledCurricularCoursesInCurrentYear" /></th>
                     <%-- Operations Column --%>
                     <th></th>
                 </tr>
@@ -125,9 +124,8 @@ ${portal.toolkit()}
                 {
                 "startDate" : "<c:out value='${registration.startDate}'/>",
                 "number" : "<c:out value='${registration.number}'/>",
-                "degreeName" : "<c:out value='${registration.degreeNameWithDescription}'/>",
+                "degreeName" : "<c:out value='${registration.degree.presentationName}'/>",
                 "situation" : "<spring:message code='${ situationLabel }' />",
-                "numberEnroled" : "<c:out value='${registration.numberEnroledCurricularCoursesInCurrentYear}'/>",
                 "actions" :
                   " <a  class=\"btn btn-default btn-xs\" href=\"${pageContext.request.contextPath}<%= ULisboaServiceRequestController.READ_REGISTRATION_URL %>${registration.externalId}\"><spring:message code='label.view'/></a>" +
                   "" 
@@ -148,14 +146,13 @@ ${portal.toolkit()}
             { data: 'number' },
             { data: 'degreeName' },
             { data: 'situation' },
-            { data: 'numberEnroled' },
             { data: 'actions',className:"all" }
             
         ],
         "columnDefs": [
                         //54
                         //128
-           { "width": "54px", "targets": 5 } 
+           { "width": "54px", "targets": 4 } 
         ],
         "data" : registrationsSet,
         //Documentation: https://datatables.net/reference/option/dom

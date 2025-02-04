@@ -2,10 +2,10 @@
  /**
  * This file was created by Quorum Born IT <http://www.qub-it.com/> and its 
  * copyright terms are bind to the legal agreement regulating the FenixEdu@ULisboa 
- * software development project between Quorum Born IT and Serviços Partilhados da
+ * software development project between Quorum Born IT and Serviï¿½os Partilhados da
  * Universidade de Lisboa:
- *  - Copyright © 2015 Quorum Born IT (until any Go-Live phase)
- *  - Copyright © 2015 Universidade de Lisboa (after any Go-Live phase)
+ *  - Copyright ï¿½ 2015 Quorum Born IT (until any Go-Live phase)
+ *  - Copyright ï¿½ 2015 Universidade de Lisboa (after any Go-Live phase)
  *
  * Contributors: diogo.simoe@qub-it.com 
  *
@@ -152,16 +152,12 @@ ${portal.toolkit()}
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.Registration.degree" /></th>
-                        <td><c:out value='${registration.degreeNameWithDescription}' /></td>
+                        <td><c:out value='${registration.degree.presentationName}' /></td>
                     </tr>
                     <tr>
                         <th scope="row" class="col-xs-3"><spring:message code="label.Registration.currentState" /></th>
                         <c:set var="situationLabel" value="${ registration.activeStateType.name.content }" />
                         <td><spring:message code="${ situationLabel }" /></td>
-                    </tr>
-                    <tr>
-                        <th scope="row" class="col-xs-3"><spring:message code="label.Registration.numberEnroledCurricularCoursesInCurrentYear" /></th>
-                        <td><c:out value='${registration.numberEnroledCurricularCoursesInCurrentYear}' /></td>
                     </tr>
                 </tbody>
             </table>
