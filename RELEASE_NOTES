@@ -1,3 +1,5 @@
+- Refactor: Removes reference to StudentCandidacy numberOfCandidaciesToHigherSchool [#qubIT-Fenix-6559]
+
 7.24.3 (07-02-2025)
 - Refactor: Remove ExceptionHandlers since they are made redundant by recent fenixedu-base changes [#qubIT-Omnis-8439]
 - Refactor: Removes unused ManageRegistrationEntryGradeController [#qubIT-Fenix-6559]
