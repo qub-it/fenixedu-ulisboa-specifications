@@ -1835,8 +1835,8 @@ public class RegistrationDGESStateBean {
         String precedentConclusionGrade = "";
         String precedentConclusionYear = "";
         String precedentHighSchoolType = "";
-        if (studentCandidacy.getCompletedDegreeInformation() != null) {
-            PrecedentDegreeInformation information = studentCandidacy.getCompletedDegreeInformation();
+        if (studentCandidacy.getRegistration().getCompletedDegreeInformation() != null) {
+            PrecedentDegreeInformation information = studentCandidacy.getRegistration().getCompletedDegreeInformation();
             if (information.getCountry() != null) {
                 precedentCountry = information.getCountry().getLocalizedName().getContent();
             }
