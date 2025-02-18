@@ -187,6 +187,7 @@ class PersonUlisboaSpecifications {
     Integer publicUnivCandidacies;
     Boolean firstTimeInUlisboa;
     String bestQualitiesInThisCicle;
+    LocalDate lastValidationDate;
 }
 
 relation PersonUlPerson {
