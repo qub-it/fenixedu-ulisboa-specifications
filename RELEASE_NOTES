@@ -1,3 +1,4 @@
+- Refactor: Move PrecedentDegreeInformation relations from the StudentCandidacy to Registration [#qubIT-Fenix-6617]
 - Refactor: Removes unused viewRegistrationDetailsTreasuryDebtAccountLink_ulisboa_specification [#qubIT-Fenix-6559]
 - Refactor: Removes reference to StudentCandidacy numberOfCandidaciesToHigherSchool [#qubIT-Fenix-6559]
 
