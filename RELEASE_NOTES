@@ -1,5 +1,6 @@
 - Refactor: Removes unused viewRegistrationDetailsTreasuryDebtAccountLink_ulisboa_specification [#qubIT-Fenix-6559]
 - Refactor: Removes reference to StudentCandidacy numberOfCandidaciesToHigherSchool [#qubIT-Fenix-6559]
+- Improvement: Add last validation date to personal specifications [#UL-REIT-4199]
 
 7.24.3 (07-02-2025)
 - Refactor: Remove ExceptionHandlers since they are made redundant by recent fenixedu-base changes [#qubIT-Omnis-8439]
