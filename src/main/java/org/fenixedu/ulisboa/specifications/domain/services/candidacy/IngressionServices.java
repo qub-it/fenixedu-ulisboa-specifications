@@ -9,7 +9,7 @@ import com.google.common.base.Strings;
 public class IngressionServices {
 
     public static boolean isCompletePrecedentDegreeInformationMissing(final Registration registration) {
-        final PrecedentDegreeInformation pdi = registration.getStudentCandidacy().getCompletedDegreeInformation();
+        final PrecedentDegreeInformation pdi = registration.getCompletedDegreeInformation();
 
         if (pdi.getSchoolLevel() != null && !pdi.getSchoolLevel().isHigherEducation()) {
             return false;
@@ -24,7 +24,7 @@ public class IngressionServices {
             return false;
         }
 
-        final PrecedentDegreeInformation pdi = registration.getStudentCandidacy().getPreviousDegreeInformation();
+        final PrecedentDegreeInformation pdi = registration.getPreviousDegreeInformation();
         return pdi == null || pdi.getInstitution() == null;
     }
 
