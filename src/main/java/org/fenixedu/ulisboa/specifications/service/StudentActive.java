@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.Student;
 import org.fenixedu.academic.domain.student.registrationStates.RegistrationState;
@@ -126,16 +125,11 @@ public class StudentActive {
                 // the registration is actually active.
                 //
                 // 3 April 2024 - Paulo Abrantes
-                Predicate<? super StudentCandidacy> firstTimePredicate =
-                        studentCandidacy -> studentCandidacy.getAdmissionPhase() != null
-                                && studentCandidacy.getRegistration() != null
-                                && (studentCandidacy.getRegistration().isActive()
-                                        || studentCandidacy.getRegistration().getActiveStateType().getCode().equals("INACTIVE"))
-                                && studentCandidacy.getExecutionYear().isCurrent() && studentCandidacy.isActive();
+                Predicate<Registration> firstTimePredicate = registration -> registration.getAdmissionPhase() != null  //
+                        && (registration.isActive() || registration.getActiveStateType().getCode().equals("INACTIVE"))
+                        && registration.getRegistrationYear().isCurrent();
 
-                isFirstYearFirstTime = student.getPerson().getCandidaciesSet().stream()
-                        .filter(candidacy -> candidacy instanceof StudentCandidacy).map(StudentCandidacy.class::cast)
-                        .anyMatch(firstTimePredicate);
+                isFirstYearFirstTime = student.getRegistrationsSet().stream().anyMatch(firstTimePredicate);
             }
 
             // Removing detecion of other kind of candidate (still leaving the code just in case) 
