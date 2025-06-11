@@ -1341,13 +1341,15 @@ public class RegistrationDGESStateBean {
 
     /* TODO: Remove to DTO with RDGESSBean */
     public static RegistrationDGESStateBean populateBean(final StudentCandidacy studentCandidacy) {
-        ExecutionYear executionYear = studentCandidacy.getRegistration().getStartExecutionYear();
+        ExecutionYear executionYear = studentCandidacy.getRegistration().getRegistrationYear();
         String executionYearName = executionYear.getQualifiedName();
         Person person = studentCandidacy.getPerson();
         StudentCurricularPlan studentCurricularPlan = studentCandidacy.getRegistration().getStudentCurricularPlan(executionYear);
-        String degreeTypeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getDegreeTypeName();
-        String degreeCode = studentCandidacy.getDegreeCurricularPlan().getDegree().getMinistryCode();
-        String degreeName = studentCandidacy.getDegreeCurricularPlan().getDegree().getNameI18N().getContent();
+        Degree studentCandidacyDegree =
+                studentCandidacy.getRegistration().getFirstStudentCurricularPlan().getDegreeCurricularPlan().getDegree();
+        String degreeTypeName = studentCandidacyDegree.getDegreeTypeName();
+        String degreeCode = studentCandidacyDegree.getMinistryCode();
+        String degreeName = studentCandidacyDegree.getNameI18N().getContent();
         // TODO send to a bundle and to a method in Util
         String degreeLevel = "";
         if (degreeTypeName.contains("Licenciatura")) {
@@ -1871,7 +1873,6 @@ public class RegistrationDGESStateBean {
             }
         }
 
-        Degree studentCandidacyDegree = studentCandidacy.getDegreeCurricularPlan().getDegree();
         String institutionName = "";
         Unit institutionUnit = Bennu.getInstance().getInstitutionUnit();
         if (institutionUnit != null) {
