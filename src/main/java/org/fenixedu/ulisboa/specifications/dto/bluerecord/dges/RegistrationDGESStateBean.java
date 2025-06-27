@@ -33,6 +33,7 @@ import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
+import org.fenixedu.academic.domain.student.personaldata.EducationLevelType;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.ulisboa.specifications.domain.MobilityRegistatrionUlisboaInformation;
@@ -129,6 +130,7 @@ public class RegistrationDGESStateBean {
     private String precedentDistrict;
     private String precedentDistrictSubdivision;
     private String precedentSchoolLevel;
+    private String precedentEducationLevelType;
     private String precedentInstitution;
     private String precedentDegreeDesignation;
     private String precedentConclusionGrade;
@@ -208,7 +210,8 @@ public class RegistrationDGESStateBean {
             final String motherProfessionCategoryType, final String salarySpan,
             final String disabilityType, final String needsDisabilitySupport, final String universityDiscoveryString,
             final String universityChoiceString, final String precedentCountry, final String precedentDistrict,
-            final String precedentDistrictSubdivision, final String precedentSchoolLevel, final String precedentInstitution,
+            final String precedentDistrictSubdivision, final String precedentSchoolLevel,
+            final String precedentEducationLevelType, final String precedentInstitution,
             final String precedentDegreeDesignation, final String precedentConclusionGrade, final String precedentConclusionYear,
             final String precedentHighSchoolType, final String precendentDegreeCycle, final String institutionalEmail,
             final String defaultEmail, final String phone, final String telephone, final String vaccinationValidity,
@@ -308,6 +311,7 @@ public class RegistrationDGESStateBean {
         this.precedentDistrict = StringUtils.trim(precedentDistrict);
         this.precedentDistrictSubdivision = StringUtils.trim(precedentDistrictSubdivision);
         this.precedentSchoolLevel = StringUtils.trim(precedentSchoolLevel);
+        this.precedentEducationLevelType = StringUtils.trim(precedentEducationLevelType);
         this.precedentInstitution = StringUtils.trim(precedentInstitution);
         this.precedentDegreeDesignation = StringUtils.trim(precedentDegreeDesignation);
         this.precedentConclusionGrade = StringUtils.trim(precedentConclusionGrade);
@@ -833,6 +837,14 @@ public class RegistrationDGESStateBean {
 
     public void setPrecedentSchoolLevel(final String precedentSchoolLevel) {
         this.precedentSchoolLevel = precedentSchoolLevel;
+    }
+
+    public String getPrecedentEducationLevelType() {
+        return precedentEducationLevelType;
+    }
+
+    public void setPrecedentEducationLevelType(final String precedentEducationLevelType) {
+        this.precedentEducationLevelType = precedentEducationLevelType;
     }
 
     public String getPrecedentInstitution() {
@@ -1948,6 +1960,7 @@ public class RegistrationDGESStateBean {
         String precedentDistrict = "";
         String precedentDistrictSubdivision = "";
         String precedentSchoolLevel = "";
+        String precedentEducationLevelType = "";
         String precedentInstitution = "";
         String precedentDegreeDesignation = "";
         String precedentConclusionGrade = "";
@@ -1977,6 +1990,16 @@ public class RegistrationDGESStateBean {
                     precedentSchoolLevel = "";
                 }
 
+            }
+            EducationLevelType educationLevelType = information.getEducationLevelType();
+            if (educationLevelType != null) {
+                precedentEducationLevelType = educationLevelType.getName().getContent();
+                if (educationLevelType.getOther()) {
+                    precedentEducationLevelType = information.getOtherSchoolLevel();
+                }
+                if (precedentEducationLevelType == null) {
+                    precedentEducationLevelType = "";
+                }
             }
             precedentInstitution = information.getInstitutionName();
             precedentDegreeDesignation = information.getDegreeDesignation();
@@ -2044,10 +2067,10 @@ public class RegistrationDGESStateBean {
             }
         }
 
-        String precendentDegreeCycle = "";
-        if (precedentSchoolLevel.contains("Bacharelato") || precedentSchoolLevel.contains("Licenciatura")) {
+        String precendentDegreeCycle;
+        if (precedentEducationLevelType.contains("Bacharelato") || precedentEducationLevelType.contains("Licenciatura")) {
             precendentDegreeCycle = CycleType.FIRST_CYCLE.getDescription();
-        } else if (precedentSchoolLevel.contains("Mestrado")) {
+        } else if (precedentEducationLevelType.contains("Mestrado")) {
             precendentDegreeCycle = CycleType.SECOND_CYCLE.getDescription();
         } else {
             precendentDegreeCycle = "----";
@@ -2066,10 +2089,9 @@ public class RegistrationDGESStateBean {
                 fatherName, fatherSchoolLevel, fatherEducationLevelType, fatherProfessionalCondition,
                 fatherProfessionalStatusType, fatherProfessionType, fatherProfessionCategoryType, motherName, motherSchoolLevel,
                 motherEducationLevelType, motherProfessionalCondition, motherProfessionalStatusType, motherProfessionType,
-                motherProfessionCategoryType, salarySpan, disabilityType,
-                needsDisabilitySupport,
-                universityDiscoveryString,
+                motherProfessionCategoryType, salarySpan, disabilityType, needsDisabilitySupport, universityDiscoveryString,
                 universityChoiceString, precedentCountry, precedentDistrict, precedentDistrictSubdivision, precedentSchoolLevel,
+                precedentEducationLevelType,
                 precedentInstitution, precedentDegreeDesignation, precedentConclusionGrade, precedentConclusionYear,
                 precedentHighSchoolType, precendentDegreeCycle, institutionalEmail, defaultEmail, phone, telephone,
                 vaccinationValidity, grantOwnerType, grantOwnerProvider, flunkedPreHighSchool, flunkedPreHighSchoolTimes,
