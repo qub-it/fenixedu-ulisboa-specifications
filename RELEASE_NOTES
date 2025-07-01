@@ -1,4 +1,4 @@
-- Refactor: Refactors RegistrationDGESStateBean to handle new entities EducationLevelType, ProfessionCategoryType, ProfessionalStatusType [#qubIT-Fenix-7009]
+- Refactor: Refactors RegistrationDGESStateBean and IngressionServices to handle new entities EducationLevelType, ProfessionCategoryType, ProfessionalStatusType [#qubIT-Fenix-7009]
 
 7.24.7 (04-07-2025)
 - Refactor: Moves StudentCandidacy fields to Registration [#qubIT-Fenix-6559]
