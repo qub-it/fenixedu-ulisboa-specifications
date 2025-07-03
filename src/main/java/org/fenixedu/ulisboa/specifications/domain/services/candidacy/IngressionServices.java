@@ -11,7 +11,7 @@ public class IngressionServices {
     public static boolean isCompletePrecedentDegreeInformationMissing(final Registration registration) {
         final PrecedentDegreeInformation pdi = registration.getCompletedDegreeInformation();
 
-        if (pdi.getSchoolLevel() != null && !pdi.getSchoolLevel().isHigherEducation()) {
+        if (pdi.getEducationLevelType() != null && !pdi.getEducationLevelType().getHigherEducation()) {
             return false;
         }
 
