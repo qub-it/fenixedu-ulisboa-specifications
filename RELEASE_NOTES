@@ -1,3 +1,5 @@
+- Refactor: Moves StudentCandidacy fields to Registration [#qubIT-Fenix-6559]
+
 7.24.6 (12-06-2025)
 - Refactor: Remove StudentCandidacy#ExecutionDegree references [#qubIT-Fenix-6559]
 - Refactor: Remove dependency of StudentCandidacy from StudentActive algorithm [#qubIT-Fenix-6559]

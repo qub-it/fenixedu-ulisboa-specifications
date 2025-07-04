@@ -30,6 +30,7 @@ import org.fenixedu.academic.domain.organizationalStructure.AcademicalInstitutio
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
 import org.fenixedu.academic.domain.student.PersonalIngressionData;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
+import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.RegistrationRegimeType;
 import org.fenixedu.academic.domain.student.RegistrationServices;
 import org.fenixedu.academic.domain.student.curriculum.Curriculum;
@@ -1341,6 +1342,7 @@ public class RegistrationDGESStateBean {
 
     /* TODO: Remove to DTO with RDGESSBean */
     public static RegistrationDGESStateBean populateBean(final StudentCandidacy studentCandidacy) {
+        Registration registration = studentCandidacy.getRegistration();
         ExecutionYear executionYear = studentCandidacy.getRegistration().getRegistrationYear();
         String executionYearName = executionYear.getQualifiedName();
         Person person = studentCandidacy.getPerson();
@@ -1363,8 +1365,8 @@ public class RegistrationDGESStateBean {
         }
 
         String entryGrade = "";
-        if (studentCandidacy.getEntryGrade() != null) {
-            entryGrade = studentCandidacy.getEntryGrade().toString();
+        if (registration.getEntryGrade() != null) {
+            entryGrade = registration.getEntryGrade().toString();
         }
 
         String degreeBranch = "";
@@ -1463,10 +1465,10 @@ public class RegistrationDGESStateBean {
 
         String gender = person.getGender().getLocalizedName();
         String ingressionType = "";
-        if (studentCandidacy.getIngressionType() != null) {
-            ingressionType = studentCandidacy.getIngressionType().getLocalizedName();
+        if (registration.getIngressionType() != null) {
+            ingressionType = registration.getIngressionType().getLocalizedName();
         }
-        Integer placingOption = studentCandidacy.getPlacingOption();
+        Integer placingOption = registration.getPlacingOption();
         String firstOptionDegree = "";
         String firstOptionInstitution = "";
         String isDislocated = "";
