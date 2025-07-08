@@ -45,6 +45,7 @@ import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 
+// FIXME: remove ProfessionType, ProfessionalCondition and SchoolLevelType deprecated code - #qubIT-Fenix-7009
 public class RegistrationDGESStateBean {
 
     public static Comparator<PartyContact> CONTACT_COMPARATOR_BY_MODIFIED_DATE = (contact, otherContact) -> {
