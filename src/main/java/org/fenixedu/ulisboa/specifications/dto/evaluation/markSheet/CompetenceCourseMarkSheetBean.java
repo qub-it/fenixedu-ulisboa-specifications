@@ -318,16 +318,14 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         // set available options
         final Set<Person> available;
         if (isByTeacher()) {
-            MarkSheetSettings marksheetSettings =
-                    getCompetenceCourse().getDepartmentUnit(getExecutionInterval()).getMarkSheetSettings();
 
-            if (marksheetSettings.getAllowTeacherToChooseCertifier()) {
+            if (MarkSheetSettings.getInstance().getAllowTeacherToChooseCertifier()) {
                 available = teachers;
             } else {
                 available = Sets.newHashSet(Authenticate.getUser().getPerson());
             }
 
-            if (marksheetSettings.getLimitCertifierToResponsibleTeacher()) {
+            if (MarkSheetSettings.getInstance().getLimitCertifierToResponsibleTeacher()) {
 
                 for (final Iterator<Person> iterator = available.iterator(); iterator.hasNext();) {
                     if (!this.responsibles.contains(iterator.next())) {
@@ -358,10 +356,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public boolean getLimitTeacherCreation() {
-        MarkSheetSettings marksheetSettings =
-                getCompetenceCourse().getDepartmentUnit(getExecutionInterval()).getMarkSheetSettings();
-
-        return isByTeacher() && marksheetSettings.getLimitCreationToResponsibleTeacher()
+        return isByTeacher() && MarkSheetSettings.getInstance().getLimitCreationToResponsibleTeacher()
                 && !this.responsibles.contains(Authenticate.getUser().getPerson());
     }
 
