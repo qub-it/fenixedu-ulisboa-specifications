@@ -16,7 +16,6 @@ import org.fenixedu.academic.domain.DistrictSubdivision;
 import org.fenixedu.academic.domain.DomainObjectUtil;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Person;
-import org.fenixedu.academic.domain.SchoolLevelType;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.candidacy.CandidacySituationType;
 import org.fenixedu.academic.domain.candidacy.StudentCandidacy;
@@ -45,7 +44,6 @@ import org.fenixedu.ulisboa.specifications.domain.UniversityDiscoveryMeansAnswer
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.DateTime;
 
-// FIXME: remove ProfessionType, ProfessionalCondition and SchoolLevelType deprecated code - #qubIT-Fenix-7009
 public class RegistrationDGESStateBean {
 
     public static Comparator<PartyContact> CONTACT_COMPARATOR_BY_MODIFIED_DATE = (contact, otherContact) -> {
@@ -105,23 +103,15 @@ public class RegistrationDGESStateBean {
     private String areaCodeOfDislocated;
     private String profession;
     private String professionTimeType;
-    private String professionalCondition;
     private String professionalStatusType;
-    private String professionType;
     private String professionCategoryType;
     private String fatherName;
-    private String fatherSchoolLevel;
     private String fatherEducationLevelType;
-    private String fatherProfessionalCondition;
     private String fatherProfessionalStatusType;
-    private String fatherProfessionType;
     private String fatherProfessionCategoryType;
     private String motherName;
-    private String motherSchoolLevel;
     private String motherEducationLevelType;
-    private String motherProfessionalCondition;
     private String motherProfessionalStatusType;
-    private String motherProfessionType;
     private String motherProfessionCategoryType;
     private String salarySpan;
     private String disabilityType;
@@ -131,7 +121,6 @@ public class RegistrationDGESStateBean {
     private String precedentCountry;
     private String precedentDistrict;
     private String precedentDistrictSubdivision;
-    private String precedentSchoolLevel;
     private String precedentEducationLevelType;
     private String precedentInstitution;
     private String precedentDegreeDesignation;
@@ -202,17 +191,14 @@ public class RegistrationDGESStateBean {
             final String addressOfResidence, final String areaCodeOfResidence, final String countryOfDislocated,
             final String districtOfDislocated, final String districtSubdivisionOfDislocated, final String parishOfDislocated,
             final String addressOfDislocated, final String areaCodeOfDislocated, final String profession,
-            final String professionTimeType, final String professionalCondition, final String professionalStatusType,
-            final String professionType, final String professionCategoryType, final String fatherName,
-            final String fatherSchoolLevel, final String fatherEducationLevelType, final String fatherProfessionalCondition,
-            final String fatherProfessionalStatusType, final String fatherProfessionType,
-            final String fatherProfessionCategoryType, final String motherName, final String motherSchoolLevel,
-            final String motherEducationLevelType, final String motherProfessionalCondition,
-            final String motherProfessionalStatusType, final String motherProfessionType,
+            final String professionTimeType, final String professionalStatusType, final String professionCategoryType,
+            final String fatherName, final String fatherEducationLevelType, final String fatherProfessionalStatusType,
+            final String fatherProfessionCategoryType, final String motherName, final String motherEducationLevelType,
+            final String motherProfessionalStatusType,
             final String motherProfessionCategoryType, final String salarySpan,
             final String disabilityType, final String needsDisabilitySupport, final String universityDiscoveryString,
             final String universityChoiceString, final String precedentCountry, final String precedentDistrict,
-            final String precedentDistrictSubdivision, final String precedentSchoolLevel,
+            final String precedentDistrictSubdivision,
             final String precedentEducationLevelType, final String precedentInstitution,
             final String precedentDegreeDesignation, final String precedentConclusionGrade, final String precedentConclusionYear,
             final String precedentHighSchoolType, final String precendentDegreeCycle, final String institutionalEmail,
@@ -286,23 +272,15 @@ public class RegistrationDGESStateBean {
         this.areaCodeOfDislocated = StringUtils.trim(areaCodeOfDislocated);
         this.profession = StringUtils.trim(profession);
         this.professionTimeType = StringUtils.trim(professionTimeType);
-        this.professionalCondition = StringUtils.trim(professionalCondition);
         this.professionalStatusType = StringUtils.trim(professionalStatusType);
-        this.professionType = StringUtils.trim(professionType);
         this.professionCategoryType = StringUtils.trim(professionCategoryType);
         this.fatherName = StringUtils.trim(fatherName);
-        this.fatherSchoolLevel = StringUtils.trim(fatherSchoolLevel);
         this.fatherEducationLevelType = StringUtils.trim(fatherEducationLevelType);
-        this.fatherProfessionalCondition = StringUtils.trim(fatherProfessionalCondition);
         this.fatherProfessionalStatusType = StringUtils.trim(fatherProfessionalStatusType);
-        this.fatherProfessionType = StringUtils.trim(fatherProfessionType);
         this.fatherProfessionCategoryType = StringUtils.trim(fatherProfessionCategoryType);
         this.motherName = StringUtils.trim(motherName);
-        this.motherSchoolLevel = StringUtils.trim(motherSchoolLevel);
         this.motherEducationLevelType = StringUtils.trim(motherEducationLevelType);
-        this.motherProfessionalCondition = StringUtils.trim(motherProfessionalCondition);
         this.motherProfessionalStatusType = StringUtils.trim(motherProfessionalStatusType);
-        this.motherProfessionType = StringUtils.trim(motherProfessionType);
         this.motherProfessionCategoryType = StringUtils.trim(motherProfessionCategoryType);
         this.salarySpan = StringUtils.trim(salarySpan);
         this.disabilityType = StringUtils.trim(disabilityType);
@@ -312,7 +290,6 @@ public class RegistrationDGESStateBean {
         this.precedentCountry = StringUtils.trim(precedentCountry);
         this.precedentDistrict = StringUtils.trim(precedentDistrict);
         this.precedentDistrictSubdivision = StringUtils.trim(precedentDistrictSubdivision);
-        this.precedentSchoolLevel = StringUtils.trim(precedentSchoolLevel);
         this.precedentEducationLevelType = StringUtils.trim(precedentEducationLevelType);
         this.precedentInstitution = StringUtils.trim(precedentInstitution);
         this.precedentDegreeDesignation = StringUtils.trim(precedentDegreeDesignation);
@@ -513,28 +490,12 @@ public class RegistrationDGESStateBean {
         this.professionTimeType = professionTimeType;
     }
 
-    public String getProfessionalCondition() {
-        return professionalCondition;
-    }
-
-    public void setProfessionalCondition(final String professionalCondition) {
-        this.professionalCondition = professionalCondition;
-    }
-
     public String getProfessionalStatusType() {
         return professionalStatusType;
     }
 
     public void setProfessionalStatusType(final String professionalStatusType) {
         this.professionalStatusType = professionalStatusType;
-    }
-
-    public String getProfessionType() {
-        return professionType;
-    }
-
-    public void setProfessionType(final String professionType) {
-        this.professionType = professionType;
     }
 
     public String getProfessionCategoryType() {
@@ -553,14 +514,6 @@ public class RegistrationDGESStateBean {
         this.fatherName = fatherName;
     }
 
-    public String getFatherSchoolLevel() {
-        return fatherSchoolLevel;
-    }
-
-    public void setFatherSchoolLevel(final String fatherSchoolLevel) {
-        this.fatherSchoolLevel = fatherSchoolLevel;
-    }
-
     public String getFatherEducationLevelType() {
         return fatherEducationLevelType;
     }
@@ -569,28 +522,12 @@ public class RegistrationDGESStateBean {
         this.fatherEducationLevelType = fatherEducationLevelType;
     }
 
-    public String getFatherProfessionalCondition() {
-        return fatherProfessionalCondition;
-    }
-
-    public void setFatherProfessionalCondition(final String fatherProfessionalCondition) {
-        this.fatherProfessionalCondition = fatherProfessionalCondition;
-    }
-
     public String getFatherProfessionalStatusType() {
         return fatherProfessionalStatusType;
     }
 
     public void setFatherProfessionalStatusType(final String fatherProfessionalStatusType) {
         this.fatherProfessionalStatusType = fatherProfessionalStatusType;
-    }
-
-    public String getFatherProfessionType() {
-        return fatherProfessionType;
-    }
-
-    public void setFatherProfessionType(final String fatherProfessionType) {
-        this.fatherProfessionType = fatherProfessionType;
     }
 
     public String getFatherProfessionCategoryType() {
@@ -609,14 +546,6 @@ public class RegistrationDGESStateBean {
         this.motherName = motherName;
     }
 
-    public String getMotherSchoolLevel() {
-        return motherSchoolLevel;
-    }
-
-    public void setMotherSchoolLevel(final String motherSchoolLevel) {
-        this.motherSchoolLevel = motherSchoolLevel;
-    }
-
     public String getMotherEducationLevelType() {
         return motherEducationLevelType;
     }
@@ -625,28 +554,12 @@ public class RegistrationDGESStateBean {
         this.motherEducationLevelType = motherEducationLevelType;
     }
 
-    public String getMotherProfessionalCondition() {
-        return motherProfessionalCondition;
-    }
-
-    public void setMotherProfessionalCondition(final String motherProfessionalCondition) {
-        this.motherProfessionalCondition = motherProfessionalCondition;
-    }
-
     public String getMotherProfessionalStatusType() {
         return motherProfessionalStatusType;
     }
 
     public void setMotherProfessionalStatusType(final String motherProfessionalStatusType) {
         this.motherProfessionalStatusType = motherProfessionalStatusType;
-    }
-
-    public String getMotherProfessionType() {
-        return motherProfessionType;
-    }
-
-    public void setMotherProfessionType(final String motherProfessionType) {
-        this.motherProfessionType = motherProfessionType;
     }
 
     public String getMotherProfessionCategoryType() {
@@ -831,14 +744,6 @@ public class RegistrationDGESStateBean {
 
     public void setPrecedentDistrictSubdivision(final String precedentDistrictSubdivision) {
         this.precedentDistrictSubdivision = precedentDistrictSubdivision;
-    }
-
-    public String getPrecedentSchoolLevel() {
-        return precedentSchoolLevel;
-    }
-
-    public void setPrecedentSchoolLevel(final String precedentSchoolLevel) {
-        this.precedentSchoolLevel = precedentSchoolLevel;
     }
 
     public String getPrecedentEducationLevelType() {
@@ -1572,23 +1477,15 @@ public class RegistrationDGESStateBean {
         String dislocatedResidenceType = "";
         String profession = person.getProfession();
         String professionTimeType = "";
-        String professionalCondition = "";
         String professionalStatusType = "";
-        String professionType = "";
         String professionCategoryType = "";
         String fatherName = person.getNameOfFather();
-        String fatherSchoolLevel = "";
         String fatherEducationLevelType = "";
-        String fatherProfessionalCondition = "";
         String fatherProfessionalStatusType = "";
-        String fatherProfessionType = "";
         String fatherProfessionCategoryType = "";
         String motherName = person.getNameOfMother();
-        String motherSchoolLevel = "";
         String motherEducationLevelType = "";
-        String motherProfessionalCondition = "";
         String motherProfessionalStatusType = "";
-        String motherProfessionType = "";
         String motherProfessionCategoryType = "";
         String salarySpan = "";
         String disabilityType = "";
@@ -1655,50 +1552,26 @@ public class RegistrationDGESStateBean {
         }
 
         if (pid != null) {
-            if (pid.getProfessionalCondition() != null) {
-                professionalCondition = pid.getProfessionalCondition().getLocalizedName();
-            }
             if (pid.getProfessionalStatusType() != null) {
                 professionalStatusType = pid.getProfessionalStatusType().getName().getContent();
-            }
-            if (pid.getProfessionType() != null) {
-                professionType = pid.getProfessionType().getLocalizedName();
             }
             if (pid.getProfessionCategoryType() != null) {
                 professionCategoryType = pid.getProfessionCategoryType().getName().getContent();
             }
-            if (pid.getFatherSchoolLevel() != null) {
-                fatherSchoolLevel = pid.getFatherSchoolLevel().getLocalizedName();
-            }
             if (pid.getFatherEducationLevelType() != null) {
                 fatherEducationLevelType = pid.getFatherEducationLevelType().getName().getContent();
-            }
-            if (pid.getFatherProfessionalCondition() != null) {
-                fatherProfessionalCondition = pid.getFatherProfessionalCondition().getLocalizedName();
             }
             if (pid.getFatherProfessionalStatusType() != null) {
                 fatherProfessionalStatusType = pid.getFatherProfessionalStatusType().getName().getContent();
             }
-            if (pid.getFatherProfessionType() != null) {
-                fatherProfessionType = pid.getFatherProfessionType().getLocalizedName();
-            }
             if (pid.getFatherProfessionCategoryType() != null) {
                 fatherProfessionCategoryType = pid.getFatherProfessionCategoryType().getName().getContent();
-            }
-            if (pid.getMotherSchoolLevel() != null) {
-                motherSchoolLevel = pid.getMotherSchoolLevel().getLocalizedName();
             }
             if (pid.getMotherEducationLevelType() != null) {
                 motherEducationLevelType = pid.getMotherEducationLevelType().getName().getContent();
             }
-            if (pid.getMotherProfessionalCondition() != null) {
-                motherProfessionalCondition = pid.getMotherProfessionalCondition().getLocalizedName();
-            }
             if (pid.getMotherProfessionalStatusType() != null) {
                 motherProfessionalStatusType = pid.getMotherProfessionalStatusType().getName().getContent();
-            }
-            if (pid.getMotherProfessionType() != null) {
-                motherProfessionType = pid.getMotherProfessionType().getLocalizedName();
             }
             if (pid.getMotherProfessionCategoryType() != null) {
                 motherProfessionCategoryType = pid.getMotherProfessionCategoryType().getName().getContent();
@@ -1962,7 +1835,6 @@ public class RegistrationDGESStateBean {
         String precedentCountry = "";
         String precedentDistrict = "";
         String precedentDistrictSubdivision = "";
-        String precedentSchoolLevel = "";
         String precedentEducationLevelType = "";
         String precedentInstitution = "";
         String precedentDegreeDesignation = "";
@@ -1981,18 +1853,6 @@ public class RegistrationDGESStateBean {
             DistrictSubdivision districtSubdivision = information.getDistrictSubdivision();
             if (districtSubdivision != null) {
                 precedentDistrictSubdivision = districtSubdivision.getName();
-            }
-            SchoolLevelType schoolLevelType = information.getSchoolLevel();
-            if (schoolLevelType != null) {
-                precedentSchoolLevel = schoolLevelType.getLocalizedName();
-                if (schoolLevelType.isOther()) {
-                    precedentSchoolLevel = information.getOtherSchoolLevel();
-                }
-                //Inof other can be null or schoolLevelType without defined label
-                if (precedentSchoolLevel == null) {
-                    precedentSchoolLevel = "";
-                }
-
             }
             EducationLevelType educationLevelType = information.getEducationLevelType();
             if (educationLevelType != null) {
@@ -2088,12 +1948,11 @@ public class RegistrationDGESStateBean {
                 dislocatedResidenceType, countryOfResidence, districtOfResidence, districtSubdivisionOfResidence,
                 parishOfResidence, addressOfResidence, areaCodeOfResidence, countryOfDislocated, districtOfDislocated,
                 districtSubdivisionOfDislocated, parishOfDislocated, addressOfDislocated, areaCodeOfDislocated, profession,
-                professionTimeType, professionalCondition, professionalStatusType, professionType, professionCategoryType,
-                fatherName, fatherSchoolLevel, fatherEducationLevelType, fatherProfessionalCondition,
-                fatherProfessionalStatusType, fatherProfessionType, fatherProfessionCategoryType, motherName, motherSchoolLevel,
-                motherEducationLevelType, motherProfessionalCondition, motherProfessionalStatusType, motherProfessionType,
+                professionTimeType, professionalStatusType, professionCategoryType, fatherName, fatherEducationLevelType,
+                fatherProfessionalStatusType, fatherProfessionCategoryType, motherName, motherEducationLevelType,
+                motherProfessionalStatusType,
                 motherProfessionCategoryType, salarySpan, disabilityType, needsDisabilitySupport, universityDiscoveryString,
-                universityChoiceString, precedentCountry, precedentDistrict, precedentDistrictSubdivision, precedentSchoolLevel,
+                universityChoiceString, precedentCountry, precedentDistrict, precedentDistrictSubdivision,
                 precedentEducationLevelType,
                 precedentInstitution, precedentDegreeDesignation, precedentConclusionGrade, precedentConclusionYear,
                 precedentHighSchoolType, precendentDegreeCycle, institutionalEmail, defaultEmail, phone, telephone,
