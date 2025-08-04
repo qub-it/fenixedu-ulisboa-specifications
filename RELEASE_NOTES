@@ -1,3 +1,4 @@
+7.24.10 (04-08-2025)
 - Refactor: Moves RegistrationDgesStateBean to customers-ulisboa [#qubIT-Fenix-6559]
 - Refactor: Removes unused FirstTimeCandidacyDocumentsController endpoint [#qubIT-Fenix-6559]
 
