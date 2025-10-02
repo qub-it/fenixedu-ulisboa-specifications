@@ -1,4 +1,5 @@
 - Refactor: Remove deprecated extended degree info controllers [#qubIT-Fenix-7466]
+- Refactor: Refactors MarkSheetSettings to allow multiple instances [#qubIT-Fenix-7005]
 
 7.24.10 (04-08-2025)
 - Refactor: Moves RegistrationDgesStateBean to customers-ulisboa [#qubIT-Fenix-6559]
