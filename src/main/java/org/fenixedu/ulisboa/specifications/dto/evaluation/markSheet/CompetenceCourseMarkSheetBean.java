@@ -31,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -318,14 +319,15 @@ public class CompetenceCourseMarkSheetBean implements IBean {
         // set available options
         final Set<Person> available;
         if (isByTeacher()) {
+            Optional<MarkSheetSettings> markSheetSettings = MarkSheetSettings.findByCompetenceCourse(getCompetenceCourse());
 
-            if (MarkSheetSettings.getInstance().getAllowTeacherToChooseCertifier()) {
+            if (markSheetSettings.map(MarkSheetSettings::getAllowTeacherToChooseCertifier).orElse(false)) {
                 available = teachers;
             } else {
                 available = Sets.newHashSet(Authenticate.getUser().getPerson());
             }
 
-            if (MarkSheetSettings.getInstance().getLimitCertifierToResponsibleTeacher()) {
+            if (markSheetSettings.map(MarkSheetSettings::getLimitCertifierToResponsibleTeacher).orElse(false)) {
 
                 for (final Iterator<Person> iterator = available.iterator(); iterator.hasNext();) {
                     if (!this.responsibles.contains(iterator.next())) {
@@ -356,7 +358,8 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public boolean getLimitTeacherCreation() {
-        return isByTeacher() && MarkSheetSettings.getInstance().getLimitCreationToResponsibleTeacher()
+        Optional<MarkSheetSettings> markSheetSettings = MarkSheetSettings.findByCompetenceCourse(getCompetenceCourse());
+        return isByTeacher() && markSheetSettings.map(MarkSheetSettings::getLimitCreationToResponsibleTeacher).orElse(false)
                 && !this.responsibles.contains(Authenticate.getUser().getPerson());
     }
 
