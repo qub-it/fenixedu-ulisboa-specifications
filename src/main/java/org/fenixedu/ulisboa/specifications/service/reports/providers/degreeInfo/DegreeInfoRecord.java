@@ -37,4 +37,8 @@ public record DegreeInfoRecord(DegreeInfo degreeInfo) {
     public LocalizedString getSupplementOtherSources() {
         return DynamicField.getFieldValue(degreeInfo, DegreeInfo.SUPPLEMENT_OTHER_SOURCES);
     }
+
+    public LocalizedString getQualificationLevel() {
+        return DynamicField.getFieldValue(degreeInfo, DegreeInfo.QUALIFICATION_LEVEL);
+    }
 }

@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.DegreeInfo;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
@@ -70,7 +68,8 @@ public class ConclusionInformationDataProvider implements IReportDataProvider {
 
         public ConclusionInformation(final RegistrationConclusionBean bean) {
             this.conclusionBean = bean;
-            this.degreeInfoRecord = new DegreeInfoRecord(getDegreeInfo());
+            this.degreeInfoRecord = new DegreeInfoRecord(conclusionBean.getRegistration().getDegree()
+                    .getMostRecentDegreeInfo(conclusionBean.getConclusionYear().getAcademicInterval()));
         }
 
         public RegistrationConclusionBean getConclusionBean() {
@@ -86,9 +85,8 @@ public class ConclusionInformationDataProvider implements IReportDataProvider {
             return conclusionBean.getConclusionDate().toLocalDate();
         }
 
-        public DegreeInfo getDegreeInfo() {
-            final ExecutionYear conclusionYear = conclusionBean.getConclusionYear();
-            return conclusionBean.getRegistration().getDegree().getMostRecentDegreeInfo(conclusionYear.getAcademicInterval());
+        public DegreeInfoRecord getDegreeInfo() {
+            return degreeInfoRecord;
         }
 
         public DegreeInfoRecord getExtendedDegreeInfo() {
