@@ -6,10 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.fenixedu.academic.domain.DegreeInfo;
-import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.StudentCurricularPlan;
-import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ExtraCurricularActivity;
@@ -67,9 +64,12 @@ public class ConclusionInformationDataProvider implements IReportDataProvider {
 
     public class ConclusionInformation {
         protected RegistrationConclusionBean conclusionBean;
+        private final DegreeInfoRecord degreeInfoRecord;
 
         public ConclusionInformation(final RegistrationConclusionBean bean) {
             this.conclusionBean = bean;
+            this.degreeInfoRecord = new DegreeInfoRecord(conclusionBean.getRegistration().getDegree()
+                    .getMostRecentDegreeInfo(conclusionBean.getConclusionYear().getAcademicInterval()));
         }
 
         public RegistrationConclusionBean getConclusionBean() {
@@ -85,14 +85,12 @@ public class ConclusionInformationDataProvider implements IReportDataProvider {
             return conclusionBean.getConclusionDate().toLocalDate();
         }
 
-        public DegreeInfo getDegreeInfo() {
-            final ExecutionYear conclusionYear = conclusionBean.getConclusionYear();
-            return conclusionBean.getRegistration().getDegree().getMostRecentDegreeInfo(conclusionYear.getAcademicInterval());
+        public DegreeInfoRecord getDegreeInfo() {
+            return degreeInfoRecord;
         }
 
-        public ExtendedDegreeInfo getExtendedDegreeInfo() {
-            final ExecutionYear conclusionYear = conclusionBean.getConclusionYear();
-            return ExtendedDegreeInfo.getMostRecent(conclusionYear, conclusionBean.getRegistration().getDegree());
+        public DegreeInfoRecord getExtendedDegreeInfo() {
+            return this.degreeInfoRecord;
         }
 
         public String getAverage() {
