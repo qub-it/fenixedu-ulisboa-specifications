@@ -1,3 +1,4 @@
+7.24.12 (14-11-2025)
 - Refactor: Refactor conclusion information provider to replace extended degree info hardcoded fields with dynamic fields [#qubIT-Fenix-6512]
 
 7.24.11 (23-10-2025)
