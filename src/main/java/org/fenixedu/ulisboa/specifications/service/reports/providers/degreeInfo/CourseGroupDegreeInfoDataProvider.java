@@ -1,51 +1,41 @@
 package org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo;
 
-import org.fenixedu.academic.domain.Degree;
-import org.fenixedu.academic.domain.ExecutionYear;
-import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
-import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
-import org.fenixedu.academic.domain.student.Registration;
-import org.fenixedu.academic.domain.student.curriculum.ConclusionProcess;
-import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
-
 import com.qubit.terra.docs.util.IDocumentFieldsData;
 import com.qubit.terra.docs.util.IReportDataProvider;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.student.Registration;
+import org.fenixedu.academic.domain.student.curriculum.conclusion.RegistrationConclusionServices;
+import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
+import org.fenixedu.commons.i18n.LocalizedString;
+
+import java.util.Map;
+import java.util.Optional;
 
 public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
 
     protected static final String KEY = "degreeDocumentInfo";
 
-    protected CourseGroupDegreeInfo courseGroupDegreeInfo;
+    protected CourseGroupDegreeInfoBean courseGroupDegreeInfo;
 
     public CourseGroupDegreeInfoDataProvider(final Registration registration, ExecutionYear executionYear,
             final ProgramConclusion programConclusion) {
-        final Degree degree = registration.getDegree();
 
-        final ExecutionYear conclusionYear = ProgramConclusion.getConclusionProcess(registration.getLastStudentCurricularPlan())
-                .map(ConclusionProcess::getConclusionYear).orElse(null);
-        if (conclusionYear != null) {
-            executionYear = conclusionYear;
+        courseGroupDegreeInfo = findConclusionTitle(registration, programConclusion).filter(title -> !title.isEmpty())
+                .map(title -> new CourseGroupDegreeInfoBean(title)).orElse(null);
+    }
+
+    private static Optional<LocalizedString> findConclusionTitle(Registration registration, ProgramConclusion programConclusion) {
+        final Map<ProgramConclusion, RegistrationConclusionBean> conclusions =
+                RegistrationConclusionServices.getConclusions(registration);
+
+        if (programConclusion != null) {
+            final RegistrationConclusionBean conclusionBean = conclusions.get(programConclusion);
+            return Optional.ofNullable(conclusionBean).map(cb -> cb.getCurriculumGroup().getDegreeModule().getConclusionTitle());
+        } else {
+            return conclusions.entrySet().stream().filter(e -> e.getKey().isTerminal())
+                    .map(e -> e.getValue().getCurriculumGroup().getDegreeModule().getConclusionTitle()).findAny();
         }
-
-        //Try to get last custom name if there is one for combination degree+programConclusion
-        while (courseGroupDegreeInfo == null && executionYear != null
-                && executionYear.isAfterOrEquals(registration.getStartExecutionYear())) {
-            final ExtendedDegreeInfo extendedDegreeInfo = ExtendedDegreeInfo.getMostRecent(executionYear, degree);
-            if (extendedDegreeInfo != null) {
-
-                if (programConclusion == null) {
-                    courseGroupDegreeInfo = extendedDegreeInfo.getCourseGroupDegreeInfosSet().stream()
-                            .filter(di -> di.getCourseGroup().getProgramConclusion().isTerminal()).findFirst().orElse(null);
-                } else {
-                    courseGroupDegreeInfo = extendedDegreeInfo.getCourseGroupDegreeInfosSet().stream()
-                            .filter(di -> di.getCourseGroup().getProgramConclusion() == programConclusion).findFirst()
-                            .orElse(null);
-                }
-
-            }
-            executionYear = executionYear.getPreviousExecutionYear();
-        }
-
     }
 
     @Override
@@ -61,6 +51,19 @@ public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
     @Override
     public Object valueForKey(final String key) {
         return handleKey(key) ? courseGroupDegreeInfo : null;
+    }
+
+    public static class CourseGroupDegreeInfoBean {
+
+        private LocalizedString degreeName;
+
+        public CourseGroupDegreeInfoBean(final LocalizedString degreeName) {
+            this.degreeName = degreeName;
+        }
+
+        public LocalizedString getDegreeName() {
+            return degreeName;
+        }
     }
 
 }
