@@ -64,12 +64,14 @@ public class ConclusionInformationDataProvider implements IReportDataProvider {
 
     public class ConclusionInformation {
         protected RegistrationConclusionBean conclusionBean;
-        private final DegreeInfoRecord degreeInfoRecord;
+        private DegreeInfoRecord degreeInfoRecord;
 
         public ConclusionInformation(final RegistrationConclusionBean bean) {
             this.conclusionBean = bean;
-            this.degreeInfoRecord = new DegreeInfoRecord(conclusionBean.getRegistration().getDegree()
-                    .getMostRecentDegreeInfo(conclusionBean.getConclusionYear().getAcademicInterval()));
+            if (conclusionBean != null) {
+                this.degreeInfoRecord = new DegreeInfoRecord(
+                        conclusionBean.getRegistration().getDegree().getMostRecentDegreeInfo(conclusionBean.getConclusionYear()));
+            }
         }
 
         public RegistrationConclusionBean getConclusionBean() {
