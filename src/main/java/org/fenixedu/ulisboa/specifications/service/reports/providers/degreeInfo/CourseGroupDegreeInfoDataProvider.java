@@ -10,6 +10,7 @@ import org.fenixedu.academic.dto.student.RegistrationConclusionBean;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
@@ -34,7 +35,8 @@ public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
             return Optional.ofNullable(conclusionBean).map(cb -> cb.getCurriculumGroup().getDegreeModule().getConclusionTitle());
         } else {
             return conclusions.entrySet().stream().filter(e -> e.getKey().isTerminal())
-                    .map(e -> e.getValue().getCurriculumGroup().getDegreeModule().getConclusionTitle()).findAny();
+                    .map(e -> e.getValue().getCurriculumGroup().getDegreeModule().getConclusionTitle()).filter(Objects::nonNull)
+                    .findAny();
         }
     }
 
