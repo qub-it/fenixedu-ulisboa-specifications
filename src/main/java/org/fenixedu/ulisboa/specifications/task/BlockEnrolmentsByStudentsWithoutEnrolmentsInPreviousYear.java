@@ -21,6 +21,10 @@ import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
 
 @Task(englishTitle = "Block Enrolments By Students Without Enrolments In Previous Year", readOnly = true)
+@Deprecated
+// TODO (#qubIT-Fenix-7271 )
+//
+// Replace with RegistrationDeactivationTask
 public class BlockEnrolmentsByStudentsWithoutEnrolmentsInPreviousYear extends CronTask {
 
     private static final String BUNDLE = "resources.FenixeduUlisboaSpecificationsResources";

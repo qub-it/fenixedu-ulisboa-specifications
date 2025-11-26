@@ -39,6 +39,7 @@ import org.fenixedu.academic.domain.StudentCurricularPlan;
 import org.fenixedu.academic.domain.administrativeOffice.AdministrativeOffice;
 import org.fenixedu.academic.domain.degreeStructure.CycleType;
 import org.fenixedu.academic.domain.degreeStructure.ProgramConclusion;
+import org.fenixedu.academic.domain.exceptions.DomainException;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituation;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituationType;
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
@@ -49,7 +50,10 @@ import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
 import org.fenixedu.academic.domain.studentCurriculum.ExternalEnrolment;
+import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicTaxTreasuryEvent;
+import org.fenixedu.academic.domain.treasury.IAcademicTreasuryEvent;
 import org.fenixedu.academic.domain.treasury.ITreasuryBridgeAPI;
+import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academic.dto.CommunicationMessageDTO;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestBean;
 import org.fenixedu.academic.dto.serviceRequests.AcademicServiceRequestCreateBean;
@@ -57,6 +61,7 @@ import org.fenixedu.academic.predicate.AccessControl;
 import org.fenixedu.academic.servlet.FenixInitializer;
 import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
 import org.fenixedu.academictreasury.domain.serviceRequests.ITreasuryServiceRequest;
+import org.fenixedu.academictreasury.services.PersonServices;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
@@ -71,6 +76,7 @@ import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter;
 import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter.PrintedDocument;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -115,7 +121,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         setRegistration(registration);
         setIsValid(true);
         setRequestedOnline(requestedOnline);
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
+        Signal.emit(ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
     }
 
     @Override
@@ -277,7 +283,7 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
 
         request.processRequest(bean.isForceUpdate(), false);
 
-        Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(request));
+        Signal.emit(ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(request));
     }
 
     public void update(final ULisboaServiceRequestBean bean) {
@@ -759,9 +765,9 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     @Atomic
     public void transitStateTransation(final AcademicServiceRequestSituationType type, final String justification) {
         if (type == AcademicServiceRequestSituationType.CANCELLED || type == AcademicServiceRequestSituationType.REJECTED) {
-            Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT, new DomainObjectEvent<>(this));
+            Signal.emit(ACADEMIC_SERVICE_REQUEST_REJECT_OR_CANCEL_EVENT, new DomainObjectEvent<>(this));
         } else {
-            Signal.emit(ITreasuryBridgeAPI.ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
+            Signal.emit(ACADEMIC_SERVICE_REQUEST_NEW_SITUATION_EVENT, new DomainObjectEvent<>(this));
         }
 
         AcademicServiceRequestBean bean = new AcademicServiceRequestBean(type, AccessControl.getPerson(), justification);
@@ -963,6 +969,37 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         });
     }
 
+    /**
+     * Return the URL for debt account of this student
+     */
+    // ANIL 2025-11-26 (#qubIT-Fenix-6552)
+    // Move from AcademicServiceRequest, to remove dependency from TreasuryBridgeAPI
+    public String getPaymentURL() {
+        return getAcademicTreasuryEvent() != null ? getAcademicTreasuryEvent().getDebtAccountURL() : null;
+    }
+
+    // ANIL 2025-11-26 (#qubIT-Fenix-6552)
+    // Move from AcademicServiceRequest, to remove dependency from TreasuryBridgeAPI
+    protected boolean isPaid() {
+        if (!isPayable()) {
+            return true;
+        }
+
+        return getAcademicTreasuryEvent() != null && getAcademicTreasuryEvent().isPayed();
+    }
+
+    // ANIL 2025-11-26 (#qubIT-Fenix-6552)
+    // Move from AcademicServiceRequest, to remove dependency from TreasuryBridgeAPI
+    final public boolean getIsPayed() {
+        return isPaid();
+    }
+
+    protected void assertPayedEvents() {
+        if (PersonServices.isAcademicalActsBlocked(getPerson(), new LocalDate())) {
+            throw new DomainException("DocumentRequest.student.has.not.payed.debts");
+        }
+    }
+
     /// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /*
      * ****************
@@ -989,7 +1026,6 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     }
 
     @Deprecated
-    @Override
     public boolean isPayedUponCreation() {
         throw new ULisboaSpecificationsDomainException("error.serviceRequests.ULisboaServiceRequest.deprecated.method");
     }
