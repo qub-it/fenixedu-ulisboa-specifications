@@ -1,3 +1,5 @@
+- Refactor: Move ServiceRequestDataProvider from fenixedu-qub-docs to fenixedu-ulisboa-specifications [#qubIT-Fenix-6552]
+
 7.24.15 (26-11-2025)
 - Refactor: Move some properties and methods from ITreasuryBridgeAPI [#qubIT-Fenix-6552]
 

@@ -56,7 +56,6 @@ import org.fenixedu.qubdocs.academic.documentRequests.providers.ExtraCurriculumE
 import org.fenixedu.qubdocs.academic.documentRequests.providers.FlunkedEnrolmentsDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.LocalizedDatesProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.RegistrationDataProvider;
-import org.fenixedu.qubdocs.academic.documentRequests.providers.ServiceRequestDataProvider;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.StandaloneCurriculumEntriesDataProvider;
 import org.fenixedu.qubdocs.base.providers.InstitutionConfigurationReportDataProvider;
 import org.fenixedu.qubdocs.base.providers.PersonReportDataProvider;
@@ -77,6 +76,7 @@ import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.CourseGroupDegreeInfoDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.CurriculumAggregatorDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.request.DiplomaRequestDataProvider;
+import org.fenixedu.ulisboa.specifications.service.reports.providers.request.ServiceRequestDataProvider;
 import org.fenixedu.ulisboa.specifications.service.reports.providers.textbox.InstitutionTextBoxInformationDataProvider;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
