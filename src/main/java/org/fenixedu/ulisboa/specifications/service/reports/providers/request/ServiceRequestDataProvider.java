@@ -31,8 +31,6 @@ import com.qubit.terra.docs.util.IDocumentFieldsData;
 import com.qubit.terra.docs.util.IReportDataProvider;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequest;
-import org.fenixedu.academic.domain.treasury.IAcademicServiceRequestAndAcademicTaxTreasuryEvent;
-import org.fenixedu.academic.domain.treasury.TreasuryBridgeAPIFactory;
 import org.fenixedu.academictreasury.domain.event.AcademicTreasuryEvent;
 import org.fenixedu.qubdocs.util.reports.helpers.MoneyHelper;
 import org.joda.time.DateTime;
