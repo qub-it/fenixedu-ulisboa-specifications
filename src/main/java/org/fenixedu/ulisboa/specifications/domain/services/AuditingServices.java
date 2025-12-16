@@ -13,7 +13,7 @@ public class AuditingServices {
             return null;
         }
         
-        return FenixEDUTreasuryPlatformDependentServices.readVersioningCreatorUsername(input);
+        return FenixEDUTreasuryPlatformDependentServices.getVersioningCreatorUsername(input);
     }
 
     public static DateTime getCreationDate(final Object input) {
@@ -21,7 +21,7 @@ public class AuditingServices {
             return null;
         }
         
-        return FenixEDUTreasuryPlatformDependentServices.readVersioningCreationDate(input);
+        return FenixEDUTreasuryPlatformDependentServices.getVersioningCreationDate(input);
     }
 
     public static String getUpdaterUsername(final Object input) {
@@ -29,7 +29,7 @@ public class AuditingServices {
             return null;
         }
         
-        return FenixEDUTreasuryPlatformDependentServices.readVersioningUpdatorUsername(input);
+        return FenixEDUTreasuryPlatformDependentServices.getVersioningUpdatorUsername(input);
     }
 
     public static DateTime getUpdateDate(final Object input) {
@@ -37,7 +37,7 @@ public class AuditingServices {
             return null;
         }
         
-        return FenixEDUTreasuryPlatformDependentServices.readVersioningUpdateDate(input);
+        return FenixEDUTreasuryPlatformDependentServices.getVersioningUpdateDate(input);
     }
 
     static final private String SINGLE_SPACE = " ";

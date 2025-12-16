@@ -1,4 +1,5 @@
 - Refactor: Remove references of TreasuryBridgeAPIFactory [#qubIT-Fenix-6552]
+- Refactor: Replace ITreasuryPlatformDependentServices#versioning* methods by static FenixEDUTreasuryPlatformDependentServices#getVersioning* [#qubIT-Fenix-7855]
 
 7.25.0 (28-11-2025)
 - Refactor: Move ServiceRequestDataProvider from fenixedu-qub-docs to fenixedu-ulisboa-specifications [#qubIT-Fenix-6552]
