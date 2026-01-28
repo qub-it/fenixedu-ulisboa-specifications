@@ -32,11 +32,10 @@ public class CourseGroupDegreeInfoDataProvider implements IReportDataProvider {
 
         if (programConclusion != null) {
             final RegistrationConclusionBean conclusionBean = conclusions.get(programConclusion);
-            return Optional.ofNullable(conclusionBean).map(cb -> cb.getCurriculumGroup().getDegreeModule().getConclusionTitle());
+            return Optional.ofNullable(conclusionBean).map(cb -> cb.getRawConclusionTitle());
         } else {
             return conclusions.entrySet().stream().filter(e -> e.getKey().isTerminal())
-                    .map(e -> e.getValue().getCurriculumGroup().getDegreeModule().getConclusionTitle()).filter(Objects::nonNull)
-                    .findAny();
+                    .map(e -> e.getValue().getRawConclusionTitle()).filter(Objects::nonNull).findAny();
         }
     }
 

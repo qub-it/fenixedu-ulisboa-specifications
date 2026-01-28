@@ -140,19 +140,9 @@ public class ConclusionInformationDataProvider implements IReportDataProvider {
         }
 
         public BigDecimal getDismissalCredits() {
-
-            final CurriculumGroup curriculumGroup = this.conclusionBean.getCurriculumGroup();
-            final StudentCurricularPlan studentCurricularPlan = curriculumGroup.getStudentCurricularPlan();
-            final List<Dismissal> dismissals = studentCurricularPlan.getDismissals().stream()
-                    .filter(d -> d.getCredits().isCredits() && curriculumGroup.hasCurriculumModule(d.getCurriculumGroup()))
-                    .collect(Collectors.toList());
-
-            BigDecimal sum = BigDecimal.ZERO;
-            for (Dismissal dismissal : dismissals) {
-                sum = sum.add(dismissal.getEctsCreditsForCurriculum());
-            }
-
-            return sum;
+            return conclusionBean.getCurriculumForConclusion().getCurricularYearEntries().stream().filter(e -> e instanceof Dismissal)
+                    .map(Dismissal.class::cast).filter(d -> d.getCredits().isCredits()).map(d -> d.getEctsCreditsForCurriculum())
+                    .collect(Collectors.reducing(BigDecimal.ZERO, BigDecimal::add));
         }
 
         public boolean isDismissalCreditsGiven() {
