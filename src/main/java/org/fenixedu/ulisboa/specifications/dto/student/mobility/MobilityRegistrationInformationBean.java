@@ -26,6 +26,7 @@ import org.fenixedu.academic.domain.student.mobility.MobilityScientificArea;
 import org.fenixedu.bennu.IBean;
 import org.fenixedu.bennu.TupleDataSourceBean;
 import org.fenixedu.bennu.core.domain.Bennu;
+import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.ulisboa.specifications.util.ULisboaSpecificationsUtil;
 import org.joda.time.LocalDate;
 
@@ -71,6 +72,7 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
     protected CourseGroup branchCourseGroup;
 
     protected String remarks;
+    protected LocalizedString externalRemarks;
     protected Unit countryUnit;
     protected Unit foreignInstitutionUnit;
 
@@ -126,6 +128,7 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
         setBranchCourseGroup(mobilityRegistrationInformation.getBranchCourseGroup());
 
         setRemarks(mobilityRegistrationInformation.getRemarks());
+        setExternalRemarks(mobilityRegistrationInformation.getExternalRemarks());
         setDegreeBased(mobilityRegistrationInformation.getDegreeBased());
         setNational(mobilityRegistrationInformation.getNational());
 
@@ -486,6 +489,14 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public LocalizedString getExternalRemarks() {
+        return externalRemarks;
+    }
+
+    public void setExternalRemarks(LocalizedString externalRemarks) {
+        this.externalRemarks = externalRemarks;
     }
 
     public boolean isNational() {
