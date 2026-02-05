@@ -1,4 +1,4 @@
-- Refactor: Updates references to deprecated MobilityRegistrationInformation methods [#ISCTE-FENIXEDU-1403]
+- Refactor: Updates references to deprecated MobilityRegistrationInformation methods [#qubIT-Fenix-7989]
 
 7.25.1 (30-01-2026)
 - Refactor: Remove references of TreasuryBridgeAPIFactory [#qubIT-Fenix-6552]
