@@ -120,7 +120,8 @@ public class MobilityRegistrationInformationController extends FenixeduUlisboaSp
                     MobilityRegistrationInformation.createIncoming(bean.getRegistration(), bean.isNational(),
                             bean.getProgramDuration(), bean.getBegin(), bean.getEnd(), bean.getBeginDate(), bean.getEndDate(),
                             bean.getMobilityActivityType(), bean.getMobilityProgramType(), bean.getCountryUnit(),
-                            bean.getForeignInstitutionUnit(), bean.getRemarks(), bean.getOriginMobilityProgrammeLevel(),
+                            bean.getForeignInstitutionUnit(), bean.getRemarks(), bean.getExternalRemarks(),
+                            bean.getOriginMobilityProgrammeLevel(),
                             bean.getOtherOriginMobilityProgrammeLevel(), bean.isDegreeBased(), bean.getDegreeCurricularPlan(),
                             bean.getBranchCourseGroup(), bean.getMobilityScientificArea(),
                             bean.getIncomingMobilityProgrammeLevel(), bean.getOtherIncomingMobilityProgrammeLevel());
@@ -130,7 +131,7 @@ public class MobilityRegistrationInformationController extends FenixeduUlisboaSp
                     MobilityRegistrationInformation.createOutgoing(bean.getRegistration(), bean.isNational(),
                             bean.getProgramDuration(), bean.getBegin(), bean.getEnd(), bean.getBeginDate(), bean.getEndDate(),
                             bean.getMobilityActivityType(), bean.getMobilityProgramType(), bean.getCountryUnit(),
-                            bean.getForeignInstitutionUnit(), bean.getRemarks());
+                            bean.getForeignInstitutionUnit(), bean.getRemarks(), bean.getExternalRemarks());
                 });
             }
 
@@ -179,7 +180,8 @@ public class MobilityRegistrationInformationController extends FenixeduUlisboaSp
                 FenixFramework.atomic(() -> bean.getMobilityRegistrationInformation().editIncoming(bean.isNational(),
                         bean.getProgramDuration(), bean.getBegin(), bean.getEnd(), bean.getBeginDate(), bean.getEndDate(),
                         bean.getMobilityActivityType(), bean.getMobilityProgramType(), bean.getCountryUnit(),
-                        bean.getForeignInstitutionUnit(), bean.getRemarks(), bean.getOriginMobilityProgrammeLevel(),
+                        bean.getForeignInstitutionUnit(), bean.getRemarks(), bean.getExternalRemarks(),
+                        bean.getOriginMobilityProgrammeLevel(),
                         bean.getOtherOriginMobilityProgrammeLevel(), bean.isDegreeBased(), bean.getDegreeCurricularPlan(),
                         bean.getBranchCourseGroup(), bean.getMobilityScientificArea(), bean.getIncomingMobilityProgrammeLevel(),
                         bean.getOtherIncomingMobilityProgrammeLevel()));
@@ -187,7 +189,7 @@ public class MobilityRegistrationInformationController extends FenixeduUlisboaSp
                 FenixFramework.atomic(() -> bean.getMobilityRegistrationInformation().editOutgoing(bean.isNational(),
                         bean.getProgramDuration(), bean.getBegin(), bean.getEnd(), bean.getBeginDate(), bean.getEndDate(),
                         bean.getMobilityActivityType(), bean.getMobilityProgramType(), bean.getCountryUnit(),
-                        bean.getForeignInstitutionUnit(), bean.getRemarks()));
+                        bean.getForeignInstitutionUnit(), bean.getRemarks(), bean.getExternalRemarks()));
             }
 
             return redirect(String.format("%s/%s", SEARCH_URL, mobilityRegistrationInformation.getRegistration().getExternalId()),
