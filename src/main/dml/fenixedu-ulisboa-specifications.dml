@@ -1076,25 +1076,6 @@ relation MobilityRegistatrionUlisboaInformationIncomingCountry {
     }
 }
 
-// ========================= Student active override ==============================
-
-class student.ActiveStudentOverride {
-	IDDocumentType idDocumentType;
-	String idDocumentNumber;
-	String oldStudentNumber;
-}
-
-relation ActiveStudentOverrideBennu {
-    public student.ActiveStudentOverride playsRole activeStudentOverrides {
-        multiplicity *;
-    }
-
-    protected .org.fenixedu.bennu.core.domain.Bennu playsRole bennu {
-        multiplicity 1..1;
-    }
-}
-// ========================= End Student active override ==============================
-
 class tuitionpenalty.TuitionPenaltyConfiguration {
 }
 
