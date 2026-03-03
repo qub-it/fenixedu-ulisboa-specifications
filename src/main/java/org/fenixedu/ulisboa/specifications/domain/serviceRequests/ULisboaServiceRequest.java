@@ -602,7 +602,8 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     protected boolean hasMissingPersonalInfo() {
         return getPerson() == null || Strings.isNullOrEmpty(
                 getPerson().getName()) || getPerson().getDateOfBirthYearMonthDay() == null || Strings.isNullOrEmpty(
-                getPerson().getDocumentIdNumber()) || getPerson().getIdDocumentType() == null;
+                getPerson().getDefaultIdentificationDocument().getValue())
+                || getPerson().getDefaultIdentificationDocument().getIdentificationDocumentType() == null;
     }
 
     public ServiceRequestProperty findProperty(final String slotCode) {
