@@ -468,15 +468,6 @@ ${portal.toolkit()}
 	    </a>
     </c:if>
 
-    <c:if test="${ serviceRequest.paymentURL != null }">
-        &nbsp;|&nbsp;
-        <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
-        &nbsp; 
-            <a class="" href="${pageContext.request.contextPath}${serviceRequest.paymentURL }">
-            <spring:message code="label.event.payments" />
-        </a>
-    </c:if>
-
     <c:choose>
         <c:when test="${ serviceRequest.academicServiceRequestSituationType == 'DELIVERED' || serviceRequest.academicServiceRequestSituationType == 'CANCELLED' || serviceRequest.academicServiceRequestSituationType == 'REJECTED' }">
             &nbsp;|&nbsp;

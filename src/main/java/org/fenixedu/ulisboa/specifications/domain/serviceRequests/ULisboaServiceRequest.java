@@ -966,15 +966,6 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         });
     }
 
-    /**
-     * Return the URL for debt account of this student
-     */
-    // ANIL 2025-11-26 (#qubIT-Fenix-6552)
-    // Move from AcademicServiceRequest, to remove dependency from TreasuryBridgeAPI
-    public String getPaymentURL() {
-        return getAcademicTreasuryEvent() != null ? getAcademicTreasuryEvent().getDebtAccountURL() : null;
-    }
-
     // ANIL 2025-11-26 (#qubIT-Fenix-6552)
     // Move from AcademicServiceRequest, to remove dependency from TreasuryBridgeAPI
     protected boolean isPaid() {
