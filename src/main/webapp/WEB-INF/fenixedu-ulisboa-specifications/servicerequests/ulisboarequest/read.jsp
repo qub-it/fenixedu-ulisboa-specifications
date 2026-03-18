@@ -627,11 +627,11 @@ ${portal.toolkit()}
                 </tr>
                 <tr>
                     <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.documentType" /></th>
-                    <td><c:out value='${registration.student.person.idDocumentType.localizedName }' /></td>
+                    <td><c:out value='${registration.student.person.defaultIdentificationDocument.identificationDocumentType.name.content}' /></td>
                 </tr>
                 <tr>
                     <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.documentNumber" /></th>
-                    <td><c:out value='${registration.student.person.documentIdNumber}' /></td>
+                    <td><c:out value='${registration.student.person.defaultIdentificationDocument.value}' /></td>
                 </tr>
                 <tr>
                     <th scope="row" class="col-xs-3"><spring:message code="label.Registration.student.number" /></th>
