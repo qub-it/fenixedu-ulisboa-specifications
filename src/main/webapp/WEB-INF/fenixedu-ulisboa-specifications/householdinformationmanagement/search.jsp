@@ -148,7 +148,7 @@ ${portal.toolkit()}
 							<spring:message code="label.HouseholdInformationForm.idDocumentType" />
 						</th>
 						<td>
-							<c:out value='${student.person.idDocumentType.localizedName}' />
+							<c:out value='${student.person.defaultIdentificationDocument.identificationDocumentType.name.content}' />
 						</td>
 					</tr>
 					<tr>
@@ -156,7 +156,7 @@ ${portal.toolkit()}
 							<spring:message code="label.HouseholdInformationForm.documentIdNumber" />
 						</th>
 						<td>
-							<c:out value='${student.person.documentIdNumber}' />
+							<c:out value='${student.person.defaultIdentificationDocument.value}' />
 						</td>
 					</tr>
 					<tr>

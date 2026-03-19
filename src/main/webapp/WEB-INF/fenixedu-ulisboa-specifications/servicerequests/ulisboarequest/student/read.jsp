@@ -86,7 +86,7 @@ ${portal.toolkit()}
 </div>
 <p>
     <strong>
-        <c:out value="${registration.student.name} (${registration.student.number }) - ${registration.student.person.idDocumentType.localizedName} (${registration.student.person.documentIdNumber})" />
+        <c:out value="${registration.student.name} (${registration.student.number }) - ${registration.student.person.defaultIdentificationDocument.identificationDocumentType.name.content} (${registration.student.person.defaultIdentificationDocument.value})" />
     </strong>
 </p>
 
