@@ -28,9 +28,12 @@ package org.fenixedu.ulisboa.specifications.domain.curricularRules;
 import java.util.List;
 
 import org.fenixedu.academic.domain.ExecutionInterval;
+import org.fenixedu.academic.domain.ExecutionYear;
+import org.fenixedu.academic.domain.curricularRules.CurricularRule;
 import org.fenixedu.academic.domain.curricularRules.CurricularRuleType;
 import org.fenixedu.academic.domain.curricularRules.executors.RuleResult;
 import org.fenixedu.academic.domain.curricularRules.executors.verifyExecutors.VerifyRuleExecutor;
+import org.fenixedu.academic.domain.degreeStructure.Context;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.degreeStructure.DegreeModule;
 import org.fenixedu.academic.domain.enrolment.EnrolmentContext;
@@ -88,4 +91,13 @@ public class CurriculumAggregatorApproval extends CurriculumAggregatorApproval_B
         return false;
     }
 
+    @Override
+    public CurricularRule duplicate(DegreeModule targetModule, ExecutionYear targetExecutionYear) {
+        CourseGroup targetCourseGroup =
+                getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
+                        .map(Context::getParentCourseGroup).orElse(null);
+
+        return new CurriculumAggregatorApproval(targetModule, targetCourseGroup, targetExecutionYear.getFirstExecutionPeriod(),
+                null);
+    }
 }
