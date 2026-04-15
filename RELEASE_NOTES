@@ -1,3 +1,5 @@
+- Refactor: Replace old person extra info references with identification document field [#qubIT-Fenix-6491]
+
 7.25.5 (23-03-2026)
 - Refactor: Replace id document references in jsp files [#qubIT-Fenix-6491]
 
