@@ -97,7 +97,7 @@ public class CurriculumAggregatorApproval extends CurriculumAggregatorApproval_B
                 getContextCourseGroup() == null ? null : targetModule.getParentContextsSet().stream().findFirst()
                         .map(Context::getParentCourseGroup).orElse(null);
 
-        return new CurriculumAggregatorApproval(targetModule, targetCourseGroup, targetExecutionYear.getFirstExecutionPeriod(),
+        return new CurriculumAggregatorApproval(targetModule, targetCourseGroup, targetExecutionYear,
                 null);
     }
 }
