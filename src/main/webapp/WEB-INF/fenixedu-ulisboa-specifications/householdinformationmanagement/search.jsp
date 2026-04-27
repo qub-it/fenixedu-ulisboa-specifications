@@ -164,14 +164,9 @@ ${portal.toolkit()}
 							<spring:message code="label.HouseholdInformationForm.documentIdControlNumber" />
 						</th>
 						<td>
-							<c:choose>
-								<c:when test="${not empty student.person.identificationDocumentSeriesNumberValue}">
-									<c:out value='${student.person.identificationDocumentSeriesNumberValue}' />
-								</c:when>
-								<c:when test="${not empty student.person.identificationDocumentExtraDigitValue}">
-									<c:out value='${student.person.identificationDocumentExtraDigitValue}' />
-								</c:when>
-							</c:choose>
+						    <c:if test="${not empty student.person.defaultIdentificationDocument.extraInfo}">
+                                <c:out value="${student.person.defaultIdentificationDocument.extraInfo}" />
+                            </c:if>
 						</td>
 					</tr>
 				</tbody>

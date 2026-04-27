@@ -12,11 +12,11 @@ import com.google.common.base.Strings;
 public class IdentityCardUtils {
 
     public static String getDigitControlFromPerson(final Person person) {
-        return person.getIdentificationDocumentSeriesNumber();
+        return person.getDefaultIdentificationDocument().getExtraInfo();
     }
 
     public static void editDigitControlOnPerson(final Person person, final String digitControl) {
-        person.setIdentificationDocumentSeriesNumber(digitControl);
+        person.getDefaultIdentificationDocument().setExtraInfo(digitControl);
     }
 
     public static boolean validate(final String idDocumentNumber, final String digitControl) {
