@@ -1,3 +1,5 @@
+- Bug Fix: Do not include the name of the owner of fiscal number, in the message that a fiscal number already exists [#qubIT-Fenix-8398]
+
 7.25.6 (27-04-2026)
 - Refactor: Replace old person extra info references with identification document field [#qubIT-Fenix-6491]
 - Improvement: Expands support for copying curricular rules when duplicating degree curricular plans [#qubIT-Fenix-5206]
