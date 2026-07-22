@@ -54,8 +54,8 @@ public class CurriculumAggregatorDataProvider implements IReportDataProvider {
         if (descendentApprovements == null || descendentApprovements.isEmpty()) {
             return false;
         }
-        return KEY.equals(key) || KEY_FOR_REMARKS.equals(key) || KEY_FOR_TOTAL_UNITS.equals(key)
-                || KEY_FOR_TOTAL_ECTS.equals(key);
+        return KEY.equals(key) || KEY_FOR_REMARKS.equals(key) || KEY_FOR_TOTAL_UNITS.equals(key) || KEY_FOR_TOTAL_ECTS.equals(
+                key);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class CurriculumAggregatorDataProvider implements IReportDataProvider {
     }
 
     protected void init() {
-        final ICurriculum curriculum = RegistrationServices.getCurriculum(registration, null);
+        final ICurriculum curriculum = RegistrationServices.getFullCurriculum(registration.getLastStudentCurricularPlan());
 
         descendentApprovements = curriculum.getCurricularYearEntries().stream().map(CurriculumLine.class::cast)
                 .flatMap(line -> CurriculumAggregatorServices.getDescendentApprovedCurriculumLines(line).stream())

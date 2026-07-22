@@ -1,3 +1,5 @@
+- Refactor: Make calls to curriculum computation compliant with new API [#qubIT-Fenix-7408]
+
 7.25.7 (13-05-2026)
 - Bug Fix: Do not include the name of the owner of fiscal number, in the message that a fiscal number already exists [#qubIT-Fenix-8398]
 
