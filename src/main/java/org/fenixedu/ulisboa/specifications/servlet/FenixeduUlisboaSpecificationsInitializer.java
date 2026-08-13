@@ -38,7 +38,6 @@ import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
-import org.fenixedu.cms.domain.Site;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
 import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
@@ -159,11 +158,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
         FenixFramework.getDomainModel().registerDeletionListener(Degree.class, degree -> {
             degree.getFirstYearRegistrationConfigurationsSet().forEach(c -> c.delete());
-
-            Site site = degree.getSite();
-            if (site != null) {
-                site.delete();
-            }
         });
     }
 
