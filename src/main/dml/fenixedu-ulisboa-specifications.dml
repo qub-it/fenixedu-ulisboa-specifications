@@ -1244,3 +1244,9 @@ class student.registrationStates.TransitionalState extends .org.fenixedu.academi
 class student.registrationStates.TransitedState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
 class student.registrationStates.InactiveState extends .org.fenixedu.academic.domain.student.registrationStates.RegistrationState {}
 
+
+package org.fenixedu.learning.domain;
+
+class executionCourse.ExecutionCourseSite extends .org.fenixedu.cms.domain.Site {}
+class degree.DegreeSite extends .org.fenixedu.cms.domain.Site {}
+

@@ -67,7 +67,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.fenixedu</groupId>
-			<artifactId>fenixedu-spaces</artifactId>
+			<artifactId>fenixedu-learning</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
