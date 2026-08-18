@@ -38,9 +38,9 @@ import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
-import org.fenixedu.cms.domain.Site;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
 import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
+import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.MaximumNumberOfCreditsForEnrolmentPeriodEnforcer;
 import org.fenixedu.ulisboa.specifications.domain.ULisboaPortalConfiguration;
@@ -155,16 +155,8 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
 
     private void setupListenerForDegreeDelete() {
         //we need to delete FirstTime Configuration when a degree is deleted
-//        Degree.getRelationDegreeFirstYearRegistrationConfiguration().removeListener(new Relation
-
-        FenixFramework.getDomainModel().registerDeletionListener(Degree.class, degree -> {
-            degree.getFirstYearRegistrationConfigurationsSet().forEach(c -> c.delete());
-
-            Site site = degree.getSite();
-            if (site != null) {
-                site.delete();
-            }
-        });
+        FenixFramework.getDomainModel().registerDeletionListener(Degree.class,
+                degree -> degree.getFirstYearRegistrationConfigurationsSet().forEach(FirstYearRegistrationConfiguration::delete));
     }
 
     static private void configurePortal() {

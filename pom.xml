@@ -66,10 +66,6 @@
 			<artifactId>qub-foundation-core-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.fenixedu</groupId>
-			<artifactId>fenixedu-learning</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.qubit.solution.fenixedu</groupId>
 			<artifactId>fenixedu-academic-core</artifactId>
 		</dependency>
@@ -187,6 +183,10 @@
 		<dependency>
 			<groupId>org.fenixedu</groupId>
 			<artifactId>fenixedu-legal-pt</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.fenixedu</groupId>
+			<artifactId>fenixedu-cms</artifactId>
 		</dependency>
 	</dependencies>
 
