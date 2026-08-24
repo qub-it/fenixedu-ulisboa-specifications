@@ -13,6 +13,7 @@ import org.fenixedu.academic.domain.student.curriculum.ICurriculum;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.student.curriculum.creditstransfer.CreditsTransferRemarksCollection;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
+import org.fenixedu.academic.domain.time.calendarStructure.AcademicPeriod;
 import org.fenixedu.commons.i18n.LocalizedString;
 import org.fenixedu.qubdocs.academic.documentRequests.providers.ICreditsTransferRemarksCollection;
 import org.fenixedu.qubdocs.util.CurriculumEntryServices;
@@ -51,7 +52,7 @@ public class CurriculumEntryServicesImpl implements CurriculumEntryServices {
 
     @Override
     public CurricularPeriod getCurricularPeriod(final DegreeCurricularPlan dcp, final int year, final Integer semester) {
-        return CurricularPeriodServices.getCurricularPeriod(dcp, year, semester);
+        return dcp.getCurricularPeriodFor(year, semester, AcademicPeriod.SEMESTER);
     }
 
     @Override
