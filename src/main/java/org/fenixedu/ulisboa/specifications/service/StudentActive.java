@@ -51,7 +51,7 @@ public class StudentActive {
 
         if (student != null) {
             Predicate<? super Registration> registrationHasEnrolmentsInLast2Years = registration -> hasAnyEnrolment(registration);
-            List<Registration> activeRegistrations = student.getActiveRegistrations();
+            List<Registration> activeRegistrations = student.getActiveRegistrationStream().toList();
             hasActiveRegistrationsWithEnrolments = !activeRegistrations.stream().filter(registrationHasEnrolmentsInLast2Years)
                     .collect(Collectors.toList()).isEmpty();
 
