@@ -408,7 +408,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
 
         final EvaluationSeason entrySeason = entryEvaluation == null ? null : entryEvaluation.getEvaluationSeason();
         if (entrySeason != null && entrySeason.isImprovement()
-                && enrolment.getExecutionYear() != entryEvaluation.getExecutionPeriod().getExecutionYear()) {
+                && enrolment.getExecutionYear() != entryEvaluation.getExecutionInterval().getExecutionYear()) {
 
             // must prepare enrolment evaluation in aggregator enrolment if entry enrolment had an improvement in a different year
             result = EvaluationSeason.readSpecialAuthorizations().filter(i -> i.isImprovement()).findAny().orElse(null);
