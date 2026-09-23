@@ -1,6 +1,6 @@
 package com.qubit.qubEdu.module.candidacies.ui.customer;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;
 import org.fenixedu.treasury.domain.debt.DebtAccount;

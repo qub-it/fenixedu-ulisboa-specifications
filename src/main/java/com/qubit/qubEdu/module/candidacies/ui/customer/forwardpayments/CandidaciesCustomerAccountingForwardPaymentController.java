@@ -2,8 +2,8 @@ package com.qubit.qubEdu.module.candidacies.ui.customer.forwardpayments;
 
 import static org.fenixedu.treasury.util.TreasuryConstants.treasuryBundle;
 
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.fenixedu.academictreasury.domain.customer.PersonCustomer;
 import org.fenixedu.academictreasury.domain.exceptions.AcademicTreasuryDomainException;

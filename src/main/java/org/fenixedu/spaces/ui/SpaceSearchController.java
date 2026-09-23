@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.servlet.UnavailableException;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.UnavailableException;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.fenixedu.bennu.core.security.Authenticate;
 import org.fenixedu.bennu.spring.portal.SpringFunctionality;

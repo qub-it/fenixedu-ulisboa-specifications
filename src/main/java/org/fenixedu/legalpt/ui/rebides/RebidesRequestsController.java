@@ -3,7 +3,7 @@ package org.fenixedu.legalpt.ui.rebides;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.bennu.TupleDataSourceBean;

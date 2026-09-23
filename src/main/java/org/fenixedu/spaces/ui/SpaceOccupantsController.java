@@ -3,7 +3,7 @@ package org.fenixedu.spaces.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.UnavailableException;
+import jakarta.servlet.UnavailableException;
 
 import org.fenixedu.bennu.core.domain.User;
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;

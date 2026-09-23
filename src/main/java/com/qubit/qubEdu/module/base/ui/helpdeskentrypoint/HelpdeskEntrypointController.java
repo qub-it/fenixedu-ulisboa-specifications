@@ -73,7 +73,7 @@ package com.qubit.qubEdu.module.base.ui.helpdeskentrypoint;
 
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.fenixedu.academic.ui.spring.controller.AcademicAdministrationSpringApplication;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;

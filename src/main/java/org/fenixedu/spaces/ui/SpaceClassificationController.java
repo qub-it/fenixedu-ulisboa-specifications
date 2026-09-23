@@ -18,7 +18,7 @@
  */
 package org.fenixedu.spaces.ui;
 
-import javax.servlet.UnavailableException;
+import jakarta.servlet.UnavailableException;
 
 import org.fenixedu.bennu.core.domain.exceptions.DomainException;
 import org.fenixedu.bennu.core.groups.Group;
