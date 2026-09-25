@@ -54,7 +54,7 @@ public class SecondCycleFirstYearGroup extends CustomGroup {
     }
 
     private boolean isMemberStudent(final Student student) {
-        return student.getActiveRegistrationStream().anyMatch(r -> r.getStartExecutionYear().isCurrent()
+        return student.getActiveRegistrationStream().anyMatch(r -> r.getRegistrationYear().isCurrent()
                 && (r.getDegreeType() == masterBolonha || r.getDegreeType() == phdBolonha));
     }
 
