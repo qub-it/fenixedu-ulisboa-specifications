@@ -1,3 +1,5 @@
+- Refactor: Replaces Registration deprecated methods references [#qubIT-Fenix-9383]
+
 8.0.3 (23-09-2026)
 - Refactor: Replaces deprecated EnrolmentEvaluation#getExecutionPeriod method by getExecutionInterval [#qubIT-Fenix-9300]
 
