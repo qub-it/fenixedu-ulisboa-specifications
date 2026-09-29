@@ -16,7 +16,6 @@ import org.fenixedu.academic.domain.SchoolPeriodDuration;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.academic.domain.organizationalStructure.PartyTypeEnum;
 import org.fenixedu.academic.domain.organizationalStructure.Unit;
-import org.fenixedu.academic.domain.organizationalStructure.UnitUtils;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.mobility.MobilityActivityType;
 import org.fenixedu.academic.domain.student.mobility.MobilityProgramType;
@@ -268,7 +267,7 @@ public class MobilityRegistrationInformationBean implements Serializable, IBean 
 
     private void loadCountryUnitDataSource() {
         final List<TupleDataSourceBean> result = new ArrayList<>(
-                UnitUtils.readAllActiveUnitsByType(PartyTypeEnum.COUNTRY).stream().sorted(Unit.COMPARATOR_BY_NAME_AND_ID)
+                Unit.findAllActiveUnitsByType(PartyTypeEnum.COUNTRY).sorted(Unit.COMPARATOR_BY_NAME_AND_ID)
                         .map(c -> new TupleDataSourceBean(c.getExternalId(), c.getName())).collect(Collectors.toList()));
 
         countryUnitDataSource = result;
