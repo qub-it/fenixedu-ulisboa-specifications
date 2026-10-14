@@ -118,7 +118,7 @@ public class SpecialIngressionsAndOtherCyclesGroup extends CustomGroup {
             return true;
         }
         IngressionType ingressionType = registration.getIngressionType();
-        if (registration.getStartExecutionYear().isCurrent() && ingressionTypes.contains(ingressionType)) {
+        if (registration.getRegistrationYear().isCurrent() && ingressionTypes.contains(ingressionType)) {
             return true;
         }
 
