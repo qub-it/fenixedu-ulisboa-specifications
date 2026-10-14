@@ -2,7 +2,6 @@ package org.fenixedu.ulisboa.specifications.domain;
 
 import java.util.Collection;
 
-import org.fenixedu.academic.domain.degree.ExtendedDegreeInfo;
 import org.fenixedu.academic.domain.degreeStructure.CourseGroup;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.commons.i18n.LocalizedString;
@@ -19,13 +18,6 @@ public class CourseGroupDegreeInfo extends CourseGroupDegreeInfo_Base {
                 courseGroupDegreeInfo.delete();
             }
         });
-
-        FenixFramework.getDomainModel().registerDeletionListener(ExtendedDegreeInfo.class, degreeInfo -> {
-            for (CourseGroupDegreeInfo degreeDocumentInfo : degreeInfo.getCourseGroupDegreeInfosSet()) {
-                degreeDocumentInfo.delete();
-            }
-        });
-
     }
 
     protected CourseGroupDegreeInfo() {
@@ -33,11 +25,9 @@ public class CourseGroupDegreeInfo extends CourseGroupDegreeInfo_Base {
         setBennu(Bennu.getInstance());
     }
 
-    protected CourseGroupDegreeInfo(final LocalizedString name, final ExtendedDegreeInfo extendedDegreeInfo,
-            final CourseGroup courseGroup) {
+    protected CourseGroupDegreeInfo(final LocalizedString name, final CourseGroup courseGroup) {
         this();
         setDegreeName(name);
-        setExtendedDegreeInfo(extendedDegreeInfo);
         setCourseGroup(courseGroup);
 
         checkRules();
@@ -51,24 +41,12 @@ public class CourseGroupDegreeInfo extends CourseGroupDegreeInfo_Base {
         if (getCourseGroup() == null) {
             throw new ULisboaSpecificationsDomainException("error.CourseGroupDegreeInfo.courseGroup.null");
         }
-        int found = 0;
-        for (CourseGroupDegreeInfo info : getExtendedDegreeInfo().getCourseGroupDegreeInfosSet()) {
-            if (info.getCourseGroup() == getCourseGroup()) {
-                found++;
-            }
-        }
-
-        if (found > 1) {
-            throw new ULisboaSpecificationsDomainException("error.CourseGroupDegreeInfo.already.exists.for.value",
-                    getExtendedDegreeInfo().getDegreeInfo().getName().getContent(), getCourseGroup().getName());
-        }
     }
 
     @Atomic
     public void delete() {
         setBennu(null);
         setCourseGroup(null);
-        setExtendedDegreeInfo(null);
 
         deleteDomainObject();
     }
@@ -85,9 +63,8 @@ public class CourseGroupDegreeInfo extends CourseGroupDegreeInfo_Base {
         return Bennu.getInstance().getCourseGroupDegreeInfosSet();
     }
 
-    public static CourseGroupDegreeInfo create(final LocalizedString name, final ExtendedDegreeInfo extendedDegreeInfo,
-            final CourseGroup courseGroup) {
-        return new CourseGroupDegreeInfo(name, extendedDegreeInfo, courseGroup);
+    public static CourseGroupDegreeInfo create(final LocalizedString name, final CourseGroup courseGroup) {
+        return new CourseGroupDegreeInfo(name, courseGroup);
     }
 
 }

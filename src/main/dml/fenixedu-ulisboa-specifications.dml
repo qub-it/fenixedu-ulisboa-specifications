@@ -1161,15 +1161,6 @@ relation BennuCourseGroupDegreeInfo {
     }
 }
 
-relation CourseGroupDegreeInfoExtendedDegreeInfo {
-    CourseGroupDegreeInfo playsRole courseGroupDegreeInfos {
-        multiplicity *;
-    }
-    .org.fenixedu.academic.domain.degree.ExtendedDegreeInfo playsRole extendedDegreeInfo {
-        multiplicity 0..1;
-    }
-}
-
 relation CourseGroupDegreeInfoCourseGroup {
     CourseGroupDegreeInfo playsRole courseGroupDegreeInfos {
         multiplicity *;
