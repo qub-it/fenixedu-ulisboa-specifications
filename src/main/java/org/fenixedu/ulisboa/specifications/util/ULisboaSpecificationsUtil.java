@@ -26,13 +26,12 @@
  */
 package org.fenixedu.ulisboa.specifications.util;
 
-import org.fenixedu.bennu.FenixeduUlisboaSpecificationsSpringConfiguration;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
 
 public class ULisboaSpecificationsUtil {
 
-    public static final String BUNDLE = FenixeduUlisboaSpecificationsSpringConfiguration.BUNDLE.replace('/', '.');
+    public static final String BUNDLE = "resources.FenixeduUlisboaSpecificationsResources";
 
     // @formatter: off
     /**********
