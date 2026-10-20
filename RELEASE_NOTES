@@ -1,3 +1,5 @@
+- Bug fix: Correcting web-fragment with deprecated non jakarta EE information [#qubIT-Omnis-10960]
+
 11.0.0 (20-10-2026)
 - Refactor: Migrate from javaee to jakarta [#qubIT-Omnis-10960]
 
