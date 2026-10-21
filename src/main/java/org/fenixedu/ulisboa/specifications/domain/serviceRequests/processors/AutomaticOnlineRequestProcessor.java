@@ -27,7 +27,7 @@ public class AutomaticOnlineRequestProcessor extends AutomaticOnlineRequestProce
             request.addPrintVariables();
             request.transitToProcessState();
             if (request.isToPrint()) {
-                request.generateDocument();
+//                request.generateDocument();
             }
             request.transitToConcludedState();
             request.transitToDeliverState();

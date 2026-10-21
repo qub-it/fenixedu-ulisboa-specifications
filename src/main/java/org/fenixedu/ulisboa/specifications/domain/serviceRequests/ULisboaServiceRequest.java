@@ -45,7 +45,6 @@ import org.fenixedu.academic.domain.serviceRequests.AcademicServiceRequestSituat
 import org.fenixedu.academic.domain.serviceRequests.ServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.AcademicServiceRequestType;
 import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentPurposeTypeInstance;
-import org.fenixedu.academic.domain.serviceRequests.documentRequests.DocumentSigner;
 import org.fenixedu.academic.domain.student.Registration;
 import org.fenixedu.academic.domain.student.curriculum.ICurriculumEntry;
 import org.fenixedu.academic.domain.studentCurriculum.CurriculumLine;
@@ -63,13 +62,10 @@ import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.bennu.core.signals.DomainObjectEvent;
 import org.fenixedu.bennu.core.signals.Signal;
 import org.fenixedu.commons.i18n.I18N;
-import org.fenixedu.qubdocs.domain.serviceRequests.AcademicServiceRequestTemplate;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.domain.serviceRequests.processors.ULisboaServiceRequestProcessor;
 import org.fenixedu.ulisboa.specifications.dto.ServiceRequestPropertyBean;
 import org.fenixedu.ulisboa.specifications.dto.ULisboaServiceRequestBean;
-import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter;
-import org.fenixedu.ulisboa.specifications.service.reports.DocumentPrinter.PrintedDocument;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -79,7 +75,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.qubit.terra.docs.util.ReportGenerationException;
 
 import pt.ist.fenixframework.Atomic;
 import pt.ist.fenixframework.Atomic.TxMode;
@@ -329,28 +324,6 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
         super.checkRulesToDelete();
     }
 
-    public PrintedDocument generateDocument() {
-        try {
-            PrintedDocument document = DocumentPrinter.print(this);
-            saveDocument(document);
-            return document;
-        } catch (ReportGenerationException rge) {
-            String composedMessage = String.format("QubDocs failed while generating document [%s - %s].", getDescription(),
-                    getServiceRequestNumberYear());
-            logger.error(composedMessage, rge.getCause());
-            throw new ULisboaSpecificationsDomainException(rge, "error.documentRequest.errorGeneratingDocument",
-                    rge.getMessage());
-        } catch (Throwable t) {
-            logger.error(t.getMessage(), t.getCause());
-            throw new ULisboaSpecificationsDomainException(t, "error.documentRequest.errorGeneratingDocument", t.getMessage());
-        }
-    }
-
-    @Atomic(mode = TxMode.WRITE)
-    public ULisboaServiceRequestGeneratedDocument saveDocument(final PrintedDocument printedDoc) {
-        return ULisboaServiceRequestGeneratedDocument.store(this, printedDoc.getContentType(), printedDoc.getFileName(),
-                printedDoc.getData());
-    }
 
     public ULisboaServiceRequestGeneratedDocument downloadDocument() {
         DateTime last = null;
@@ -367,12 +340,6 @@ public class ULisboaServiceRequest extends ULisboaServiceRequest_Base implements
     public List<ServiceRequestProperty> getSortedServiceRequestProperties() {
         return getServiceRequestPropertiesSet().stream().sorted(ServiceRequestProperty.COMPARATE_BY_ENTRY_NUMBER)
                 .collect(Collectors.toList());
-    }
-
-    @Atomic
-    public void setPrintSettings(final DocumentSigner signer, final AcademicServiceRequestTemplate template) {
-        setDocumentSigner(signer);
-        setAcademicServiceRequestTemplate(template);
     }
 
     @Override

@@ -33,12 +33,9 @@ import org.fenixedu.academic.domain.Degree;
 import org.fenixedu.academic.domain.ExecutionYear;
 import org.fenixedu.academic.domain.Grade;
 import org.fenixedu.academic.domain.student.PrecedentDegreeInformation;
-import org.fenixedu.academic.domain.student.gradingTable.CourseGradingTable;
-import org.fenixedu.academic.domain.student.gradingTable.DegreeGradingTable;
 import org.fenixedu.academic.dto.evaluation.markSheet.MarkBean;
 import org.fenixedu.bennu.core.groups.DynamicGroup;
 import org.fenixedu.bennu.portal.domain.PortalConfiguration;
-import org.fenixedu.qubdocs.academic.documentRequests.providers.CurriculumEntry;
 import org.fenixedu.ulisboa.specifications.domain.CourseGroupDegreeInfo;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationConfiguration;
 import org.fenixedu.ulisboa.specifications.domain.FirstYearRegistrationGlobalConfiguration;
@@ -55,9 +52,6 @@ import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAg
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorMarkSheetServices;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorRulesInitializer;
 import org.fenixedu.ulisboa.specifications.domain.studentCurriculum.CurriculumAggregatorServices;
-import org.fenixedu.ulisboa.specifications.service.reports.providers.degreeInfo.ConclusionInformationDataProvider;
-import org.fenixedu.ulisboa.specifications.task.tmp.FixBugProcessorTypeTask;
-import org.fenixedu.ulisboa.specifications.task.tmp.UpdateServiceRequestType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,18 +101,6 @@ public class FenixeduUlisboaSpecificationsInitializer implements ServletContextL
         ServiceRequestSlot.initStaticSlots();
         ServiceRequestOutputType.initOutputTypes();
         ULisboaServiceRequestProcessor.initValidators();
-
-        try {
-            new UpdateServiceRequestType().runTask();
-            new FixBugProcessorTypeTask().runTask();
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        CurriculumEntry.setCourseEctsGradeProviderProvider(entry -> CourseGradingTable.getEctsGrade(entry));
-        ConclusionInformationDataProvider.setDegreeEctsGradeProviderProvider(
-                conclusion -> DegreeGradingTable.getEctsGrade(conclusion));
 
         CourseGroupDegreeInfo.setupDeleteListener();
 

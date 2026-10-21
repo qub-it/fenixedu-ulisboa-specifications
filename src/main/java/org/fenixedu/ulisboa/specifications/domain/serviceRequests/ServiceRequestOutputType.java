@@ -6,7 +6,6 @@ import java.util.stream.Stream;
 import org.fenixedu.bennu.core.domain.Bennu;
 import org.fenixedu.bennu.core.i18n.BundleUtil;
 import org.fenixedu.commons.i18n.LocalizedString;
-import org.fenixedu.qubdocs.FenixEduDocumentGenerator;
 import org.fenixedu.ulisboa.specifications.domain.exceptions.ULisboaSpecificationsDomainException;
 import org.fenixedu.ulisboa.specifications.util.ULisboaConstants;
 
@@ -88,18 +87,18 @@ public class ServiceRequestOutputType extends ServiceRequestOutputType_Base {
 
     @Atomic
     public static void initOutputTypes() {
-        if (readByCode(FenixEduDocumentGenerator.PDF) == null) {
-            create(FenixEduDocumentGenerator.PDF,
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, FenixEduDocumentGenerator.PDF), "pdf");
-        }
-        if (readByCode(FenixEduDocumentGenerator.ODT) == null) {
-            create(FenixEduDocumentGenerator.ODT,
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, FenixEduDocumentGenerator.ODT), "odt");
-        }
-        if (readByCode(FenixEduDocumentGenerator.DOCX) == null) {
-            create(FenixEduDocumentGenerator.DOCX,
-                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, FenixEduDocumentGenerator.DOCX), "docx");
-        }
+//        if (readByCode(FenixEduDocumentGenerator.PDF) == null) {
+//            create(FenixEduDocumentGenerator.PDF,
+//                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, FenixEduDocumentGenerator.PDF), "pdf");
+//        }
+//        if (readByCode(FenixEduDocumentGenerator.ODT) == null) {
+//            create(FenixEduDocumentGenerator.ODT,
+//                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, FenixEduDocumentGenerator.ODT), "odt");
+//        }
+//        if (readByCode(FenixEduDocumentGenerator.DOCX) == null) {
+//            create(FenixEduDocumentGenerator.DOCX,
+//                    BundleUtil.getLocalizedString(ULisboaConstants.BUNDLE, FenixEduDocumentGenerator.DOCX), "docx");
+//        }
     }
 
 }

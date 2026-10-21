@@ -27,7 +27,7 @@ public class AutomaticRequestProcessor extends AutomaticRequestProcessor_Base {
             request.addPrintVariables();
             request.transitToProcessState();
             if (request.isToPrint()) {
-                request.generateDocument();
+//                request.generateDocument();
             }
             request.transitToConcludedState();
             request.transitToDeliverState();

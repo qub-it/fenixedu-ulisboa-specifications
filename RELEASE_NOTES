@@ -1,3 +1,5 @@
+- Refactor: Remove deprecated fenixedu-qubdocs-reports dependency [#qubIT-Fenix-1596]
+
 11.0.2 (21-10-2026)
 - Bug fix: Correcting dependencies [#qubIT-Omnis-10960]
 
