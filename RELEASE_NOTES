@@ -1,3 +1,5 @@
+- Refactor: Replace Enrolment deprecated methods references [#qubIT-Fenix-9581]
+
 11.1.0 (26-10-2026)
 11.0.3 (21-10-2026)
 - Refactor: Remove deprecated fenixedu-qubdocs-reports dependency [#qubIT-Fenix-1596]

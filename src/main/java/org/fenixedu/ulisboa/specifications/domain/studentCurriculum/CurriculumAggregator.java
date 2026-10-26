@@ -390,7 +390,7 @@ public class CurriculumAggregator extends CurriculumAggregator_Base {
                 result.setExecutionPeriod(semesterImprovement);
 
                 // attends are necessary to be candidate for mark sheet
-                if (enrolment.getAttendsFor(semesterImprovement) == null) {
+                if (enrolment.findAttends(semesterImprovement).isEmpty()) {
                     final ExecutionCourse execution = EnrolmentServices.getExecutionCourseUnique(enrolment, semesterImprovement);
 
                     if (execution != null) {
