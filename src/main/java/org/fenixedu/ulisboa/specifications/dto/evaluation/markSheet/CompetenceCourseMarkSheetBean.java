@@ -153,7 +153,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public Set<EvaluationSeason> getEvaluationSeasonsToReport() {
-        return getEvaluationSeason() == null ? EvaluationSeasonServices.findByActive(true).collect(Collectors.toSet()) : Sets
+        return getEvaluationSeason() == null ? EvaluationSeason.findByActive(true).collect(Collectors.toSet()) : Sets
                 .newHashSet(getEvaluationSeason());
     }
 
@@ -657,7 +657,7 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
         updateCourseEvaluationDataSource();
 
-        setEvaluationSeasonDataSource(EvaluationSeasonServices.findByActive(true).collect(Collectors.toSet()));
+        setEvaluationSeasonDataSource(EvaluationSeason.findByActive(true).collect(Collectors.toSet()));
 
         updateCertifierDataSource();
 
