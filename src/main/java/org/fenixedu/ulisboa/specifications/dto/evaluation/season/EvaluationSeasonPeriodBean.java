@@ -245,7 +245,7 @@ public class EvaluationSeasonPeriodBean implements IBean {
                 .collect(Collectors.<TupleDataSourceBean> toList()));
 
         // seasons
-        setSeasonDataSource(EvaluationSeasonServices.findByActive(true).sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR)
+        setSeasonDataSource(EvaluationSeason.findByActive(true).sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR)
                 .map(l -> new TupleDataSourceBean(((EvaluationSeason) l).getExternalId(),
                         EvaluationSeasonServices.getDescriptionI18N((EvaluationSeason) l).getContent()))
                 .collect(Collectors.<TupleDataSourceBean> toList()));
