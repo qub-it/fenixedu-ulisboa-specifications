@@ -143,10 +143,10 @@ public class CompetenceCourseMarkSheetBean implements IBean {
     }
 
     public void setEvaluationSeasonDataSource(final Set<EvaluationSeason> value) {
-        this.evaluationSeasonDataSource = value.stream().sorted(EvaluationSeasonServices.SEASON_ORDER_COMPARATOR).map(x -> {
+        this.evaluationSeasonDataSource = value.stream().sorted(EvaluationSeason.SEASON_ORDER_COMPARATOR).map(x -> {
             TupleDataSourceBean tuple = new TupleDataSourceBean();
             tuple.setId(x.getExternalId());
-            tuple.setText(EvaluationSeasonServices.getDescriptionI18N(x).getContent());
+            tuple.setText(x.getDescriptionI18N().getContent());
             return tuple;
         }).collect(Collectors.toList());
     }
@@ -179,11 +179,10 @@ public class CompetenceCourseMarkSheetBean implements IBean {
 
     public List<String> getReportsSummary(final List<? extends AbstractSeasonReport> input) {
 
-        return input.stream()
-                .sorted((x, y) -> EvaluationSeasonServices.SEASON_ORDER_COMPARATOR.compare(x.getSeason(), y.getSeason()))
+        return input.stream().sorted((x, y) -> EvaluationSeason.SEASON_ORDER_COMPARATOR.compare(x.getSeason(), y.getSeason()))
                 .map(report -> {
 
-                    return "<strong>" + EvaluationSeasonServices.getDescriptionI18N(report.getSeason()).getContent()
+                    return "<strong>" + report.getSeason().getDescriptionI18N().getContent()
                             + "</strong>: " + Joiner.on("; ").join(
 
                                     reportLabelFor("totalStudents", String.valueOf(report.getTotalStudents())),
